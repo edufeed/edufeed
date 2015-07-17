@@ -1,0 +1,19 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="keyboard-button">
+  <style>
+    :host {
+      display: inline-block;
+      border: 1px solid black;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
+  <template>
+    <div on-mousedown="handleClick" id="keytext"></div>
+    <audio id="keysynth"></audio>
+  </template>
+
+  <script src="keyboard-button.js"></script>
+  
+</dom-module>

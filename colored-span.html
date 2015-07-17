@@ -1,0 +1,14 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="colored-letter.html">
+
+<dom-module id="colored-span">
+  <style>
+    :host {
+      display: inline-block;
+    }
+  </style>
+  <template>
+    <template is="dom-repeat" items="{{wordToArray(word)}}"><colored-letter style="font-size: 48px" id="{{indexToId(index)}}" highlighted="{{isHighlighted(index)}}" letter="{{item}}"></colored-letter></template>
+  </template>
+  <script src="colored-span.js"></script>  
+</dom-module>

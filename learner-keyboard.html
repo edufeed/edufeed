@@ -1,0 +1,33 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="keyboard-button.html">
+
+<dom-module id="learner-keyboard">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <template is="dom-repeat" items="{{keylines}}">
+      <template is="dom-repeat" items="{{item}}"><keyboard-button
+          keytext="{{getKeyText(item)}}"
+          color="{{getKeyColor(item)}}"
+          sound="{{getKeySound(item)}}"
+          width="{{getKeyWidth(item)}}"
+          height="{{getKeyHeight(item)}}"
+          marginleft="{{getKeyMarginLeft(item)}}"
+          marginright="{{getKeyMarginRight(item)}}"
+          margintop="{{getKeyMarginTop(item)}}"
+          ishidden="{{isKeyHidden(item)}}"
+          isspecial="{{isKeySpecial(item)}}"
+          id="{{getKeyId(item)}}"
+        ></keyboard-button></template>
+      <br>
+    </template>
+    <!--<template is="dom-repeat" items="{{computeKeysArray(keys)}}">
+      <keyboard-button keytext="{{item}}" ishidden="{{isKeyHidden(item)}}" id="{{getKeyId(item)}}"></keyboard-button>
+    </template>
+    -->
+  </template>
+  <script src="learner-keyboard.js"></script>  
+</dom-module>

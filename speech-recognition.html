@@ -1,0 +1,16 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="speech-recognition">
+  <style>
+    :host {
+      display: block;
+    }
+    img {
+      cursor: pointer;
+    }
+  </style>
+  <template>
+    <img id="speechicon" src="speech-recognition.webp" on-click="buttonClicked" width="{{width}}" height="{{height}}"></img>
+  </template>
+  <script src="speech-recognition.js"></script>  
+</dom-module>

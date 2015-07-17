@@ -1,0 +1,16 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="keyboard-button.html">
+
+<dom-module id="latin-keyboard">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <template is="dom-repeat" items="{{computeKeysArray(keys)}}">
+      <keyboard-button keytext="{{item}}" ishidden="{{isKeyHidden(item)}}" id="{{getKeyId(item)}}"></keyboard-button>
+    </template>
+  </template>
+  <script src="latin-keyboard.js"></script>  
+</dom-module>

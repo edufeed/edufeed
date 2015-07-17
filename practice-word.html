@@ -1,0 +1,19 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="learner-keyboard.html">
+<link rel="import" href="bing-image.html">
+<link rel="import" href="colored-span.html">
+
+<dom-module id="practice-word">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+  <bing-image style="cursor: pointer" query="{{word}}" width="200" height="200" on-click="playword"></bing-image>
+  <div style="margin-bottom: 20px"><span class="glyphicon glyphicon-volume-up" style="font-size: 60px; margin-left: 5px; margin-right: 20px; cursor: pointer" on-click="playword"></span><!--<span id="topword" style="font-size: 48px" on-click="playword">{{word}}</span>--><colored-span style="cursor: pointer" id="wordspan" on-click="playword" word="{{word}}"></colored-span>
+  <div style="margin-left: 85px; font-size: 48px; height: 60px" id="inputarea">{{word}}</div></div>
+    <learner-keyboard on-key-typed="keyTyped" id="keyboard" hidebackspace="true"></learner-keyboard>
+  </template>
+  <script src="practice-word.js"></script>  
+</dom-module>

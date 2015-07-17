@@ -1,0 +1,21 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bing-image.html">
+
+<dom-module id="word-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+    }
+    .shadowtext {
+      text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
+      /*-webkit-font-smoothing: antialiased;*/
+    }
+  </style>
+  <template>
+  <div style="width: 200px; height: 200px; position: relative">
+  <bing-image style="cursor: pointer" query="{{word}}" width="200" height="200" on-click="playword"></bing-image>
+  <div style="text-align: center; font-size: 48px; width: 200px; color: white; position: absolute; bottom: 0px"><span class="shadowtext">{{word}}</span></div>
+  </div>
+  </template>
+  <script src="word-thumbnail.js"></script>  
+</dom-module>

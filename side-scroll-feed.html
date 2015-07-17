@@ -1,0 +1,29 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="learner-keyboard.html">
+<link rel="import" href="bing-image.html">
+<link rel="import" href="colored-span.html">
+<link rel="import" href="practice-word.html">
+<link rel="import" href="word-thumbnail.html">
+
+<dom-module id="side-scroll-feed">
+  <style>
+    :host {
+      display: block;
+    }
+    #exitbutton {
+      font-size: 128px;
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      color: red;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+  <template>
+  <div id="thumbnails"></div>
+  <div id="focusitem"></div>
+  <div id="exitbutton" on-click="closeTask" class="glyphicon glyphicon-remove-sign"></div>
+  </template>
+  <script src="side-scroll-feed.js"></script>  
+</dom-module>

@@ -1,0 +1,55 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bing-image.html">
+<link rel="import" href="bower_components/voice-elements/dist/voice-player.html">
+
+<dom-module id="search-result-item">
+  <style>
+    :host {
+      display: block;
+    }
+    #outerouterdiv {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid black;
+      border-radius: 10px;
+    }
+    #outerdiv {
+      height: 50px;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    #querytext {
+      font-size: 32px;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+    #queryimg {
+      vertical-align: middle;
+      display: inline-block;
+      margin-right: 20px;
+      cursor: pointer;
+    }
+    #exampletext {
+      cursor: pointer;
+    }
+    button {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      vertical-align: middle;
+      display: inline-block;
+    }
+  </style>
+  <template>
+    <div id="outerouterdiv">
+      <div id="queryimg"><bing-image on-click="sayWord" width="50" height="50" query="{{query}}"></bing-image></div>
+      <span on-click="sayWord" id="querytext">{{query}}</span>
+      <span on-click="sayWord" id="exampletext"><!--Some example text illustrating the usage of this word will go here--></span>
+      <button on-click="openLesson" class="btn btn-large btn-primary"><span id="clickme" class="glyphicon glyphicon-ok"> Learn</span></button>
+      <voice-player accent="en-US" text="{{query}}"></voice-player>
+    </div>
+  </template>
+  <script src="search-result-item.js"></script>  
+</dom-module>
