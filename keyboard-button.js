@@ -59,6 +59,11 @@
         type: String,
         value: 'white',
         observer: 'colorChanged'
+      },
+      opacity: {
+        type: Number,
+        value: 1.0,
+        observer: 'opacityChanged'
       }
     },
     isspecialChanged: function(){
@@ -83,6 +88,9 @@
     },
     colorChanged: function(){
       return this.style.backgroundColor = this.color;
+    },
+    opacityChanged: function(){
+      return this.style.opacity = this.opacity;
     },
     marginLeftChanged: function(){
       return this.style.marginLeft = Math.round(25 * this.keyscale * this.marginleft) + 'px';

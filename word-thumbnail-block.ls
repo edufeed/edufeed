@@ -1,5 +1,5 @@
 Polymer {
-  is: 'word-thumbnail'
+  is: 'word-thumbnail-block'
   properties: {
     word: {
       type: String
@@ -7,12 +7,12 @@ Polymer {
     }
     width: {
       type: Number
-      value: 400
+      value: 350
       observer: 'widthChanged'
     }
     height: {
       type: Number
-      value: 200
+      value: 350
     }
   }
   widthChanged: ->

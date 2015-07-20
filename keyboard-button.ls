@@ -58,6 +58,11 @@ Polymer {
       value: 'white'
       observer: 'colorChanged'
     }
+    opacity: {
+      type: Number
+      value: 1.0
+      observer: 'opacityChanged'
+    }
   }
   #ready: ->
   #  if this.ishidden
@@ -79,6 +84,8 @@ Polymer {
     this.$$('#keytext').innerHTML = this.keytext
   colorChanged: ->
     this.style.backgroundColor = this.color
+  opacityChanged: ->
+    this.style.opacity = this.opacity
   marginLeftChanged: ->
     this.style.marginLeft = Math.round(25*this.keyscale*this.marginleft) + 'px'
   marginRightChanged: ->

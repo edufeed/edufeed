@@ -70,26 +70,19 @@
       if (letter !== next_letter) {
         this.incorrect += 1;
         play_wrong_sound();
-        if (this.incorrect >= 3) {
-          if (this.difficulty > 0) {
-            this.difficulty = this.difficulty - 1;
-          }
-          this.partialword = '';
-        } else {
-          newkeys = (function(){
-            var i$, ref$, len$, results$ = [];
-            for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
-              x = ref$[i$];
-              if (x !== letter) {
-                results$.push(x);
-              }
+        newkeys = (function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
+            x = ref$[i$];
+            if (x !== letter) {
+              results$.push(x);
             }
-            return results$;
-          }()).join('');
-          console.log('new keys shown are:');
-          console.log(newkeys);
-          keyboard.shownkeys = newkeys;
-        }
+          }
+          return results$;
+        }()).join('');
+        console.log('new keys shown are:');
+        console.log(newkeys);
+        keyboard.highlightkey = next_letter;
       }
       if (letter === next_letter) {
         if (this.partialword + letter === this.word) {
@@ -123,6 +116,7 @@
         console.log(this.partialword.length);
         this.$$('#wordspan').highlightidx = this.partialword.length;
       }
+      keyboard.highlightkey = '';
       if (this.difficulty === 0) {
         keyboard.shownkeys = next_letter;
       }

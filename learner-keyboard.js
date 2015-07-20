@@ -80,6 +80,11 @@
         type: String,
         value: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join(''),
         observer: 'hiddenKeysChanged'
+      },
+      highlightkey: {
+        type: String,
+        value: '',
+        observer: 'highlightkeyChanged'
       }
     },
     keyTyped: function(evt, key){
@@ -103,54 +108,10 @@
       return '';
     },
     getKeyColor: function(key){
-      var cvowel, csemivowel, cnasal, cstop, cstop_voiced, cfricative, cfricative_voiced, keysound;
-      cvowel = 'yellow';
-      csemivowel = '#FFA500';
-      cnasal = '#FF5533';
-      cstop = '#77AAFF';
-      cstop_voiced = '#5577FF';
-      cfricative = '#AAFFAA';
-      cfricative_voiced = '#00FF00';
-      cstop_voiced = cstop;
-      cfricative_voiced = cfricative;
+      var keysound;
       keysound = key.sound;
       key = this.getKeyText(key);
-      if (key === 'c' || key === 'g') {
-        return '#00FFFF';
-      }
-      if (keysound === 'g_hard') {
-        return cstop_voiced;
-      }
-      if (keysound === 'c_hard') {
-        return cstop;
-      }
-      if (keysound === 'c_soft') {
-        return cfricative;
-      }
-      if (keysound === 'g_soft') {
-        return cfricative_voiced;
-      }
-      if ('yw'.indexOf(key) !== -1) {
-        return csemivowel;
-      }
-      if ('aeoiuyw'.indexOf(key) !== -1) {
-        return cvowel;
-      }
-      if ('mnlr'.indexOf(key) !== -1) {
-        return cnasal;
-      }
-      if ('bdg'.indexOf(key) !== -1) {
-        return cstop_voiced;
-      }
-      if ('bpdtgkqxc'.indexOf(key) !== -1) {
-        return cstop;
-      }
-      if ('vzjg'.indexOf(key) !== -1) {
-        return cfricative_voiced;
-      }
-      if ('fvszcjhg'.indexOf(key) !== -1) {
-        return cfricative;
-      }
+      return getKeyColor(key, keysound);
     },
     getKeySound: function(key){
       if (key.sound != null) {
@@ -204,6 +165,24 @@
       for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {
         x = ref$[i$];
         results$.push(x.ishidden = this.isKeyHidden(x.keytext));
+      }
+      return results$;
+    },
+    getKeyOpacity: function(key){
+      key = this.getKeyText(key);
+      if (this.highlightkey == null || this.highlightkey.length === 0) {
+        return 1.0;
+      }
+      if (this.highlightkey === key) {
+        return 1.0;
+      }
+      return 0.2;
+    },
+    highlightkeyChanged: function(newvalue, oldvalue){
+      var i$, ref$, len$, x, results$ = [];
+      for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        results$.push(x.opacity = this.getKeyOpacity(x.keytext));
       }
       return results$;
     },

@@ -56,15 +56,11 @@ Polymer {
       #keyboard.shownkeys = next_letter
       this.incorrect += 1
       play_wrong_sound()
-      if this.incorrect >= 3
-        if this.difficulty > 0
-          this.difficulty = this.difficulty - 1
-        this.partialword = ''
-      else
-        newkeys = [x for x in keyboard.shownkeys.split('') when x != letter].join('')
-        console.log 'new keys shown are:'
-        console.log newkeys
-        keyboard.shownkeys = newkeys
+      newkeys = [x for x in keyboard.shownkeys.split('') when x != letter].join('')
+      console.log 'new keys shown are:'
+      console.log newkeys
+      keyboard.highlightkey = next_letter
+      #keyboard.shownkeys = newkeys
     if letter == next_letter # typed correctly
       if this.partialword + letter == this.word # is last letter in word
         if this.difficulty < 3
@@ -90,6 +86,7 @@ Polymer {
     if this.partialword?
       console.log this.partialword.length
       this.$$('#wordspan').highlightidx = this.partialword.length
+    keyboard.highlightkey = ''
     if this.difficulty == 0
       keyboard.shownkeys = next_letter
     if this.difficulty == 1

@@ -13,7 +13,7 @@
     addThumbnail: function(word){
       var self, new_item;
       self = this;
-      new_item = $("<word-thumbnail word='" + word + "'>");
+      new_item = $("<word-thumbnail-block word='" + word + "' status='done'>");
       new_item.click(function(){
         var focus_item;
         self.S('#thumbnails').hide();
@@ -29,7 +29,7 @@
     },
     ready: function(){
       var i$, ref$, len$, word, results$ = [];
-      for (i$ = 0, len$ = (ref$ = ['cat', 'dog', 'white', 'black', 'bee']).length; i$ < len$; ++i$) {
+      for (i$ = 0, len$ = (ref$ = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']).length; i$ < len$; ++i$) {
         word = ref$[i$];
         results$.push(this.addThumbnail(word));
       }

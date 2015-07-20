@@ -12,6 +12,7 @@
       <template is="dom-repeat" items="{{item}}"><keyboard-button
           keytext="{{getKeyText(item)}}"
           color="{{getKeyColor(item)}}"
+          opacity="{{getKeyOpacity(item)}}"
           sound="{{getKeySound(item)}}"
           width="{{getKeyWidth(item)}}"
           height="{{getKeyHeight(item)}}"
@@ -29,5 +30,6 @@
     </template>
     -->
   </template>
+  <script src="key_color.js"></script>
   <script src="learner-keyboard.js"></script>  
 </dom-module>
