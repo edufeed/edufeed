@@ -41,7 +41,8 @@ app.get '/image', (req, res) ->
 # feed items
 
 app.get '/getfeeditems', (req, res) ->
-  res.json ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
+  data = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
+  res.json [{itemtype: 'typeword', word: word} for word in data]
 
 
 

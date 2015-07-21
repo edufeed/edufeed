@@ -37,6 +37,18 @@
     });
   });
   app.get('/getfeeditems', function(req, res){
-    return res.json(['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']);
+    var data, word;
+    data = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
+    return res.json((function(){
+      var i$, ref$, len$, results$ = [];
+      for (i$ = 0, len$ = (ref$ = data).length; i$ < len$; ++i$) {
+        word = ref$[i$];
+        results$.push({
+          itemtype: 'typeword',
+          word: word
+        });
+      }
+      return results$;
+    }()));
   });
 }).call(this);

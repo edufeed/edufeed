@@ -62,18 +62,7 @@
       var self;
       self = this;
       return $.getJSON('/getfeeditems', function(data){
-        var word;
-        return self.items = (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = data).length; i$ < len$; ++i$) {
-            word = ref$[i$];
-            results$.push({
-              itemtype: 'typeword',
-              word: word
-            });
-          }
-          return results$;
-        }());
+        return self.items = data;
       });
     }
   });

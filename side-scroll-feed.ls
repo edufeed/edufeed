@@ -42,5 +42,5 @@ Polymer {
   ready: ->
     self = this
     $.getJSON '/getfeeditems', (data) ->
-      self.items = [{itemtype: 'typeword', word: word} for word in data]
+      self.items = data
 }
