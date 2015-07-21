@@ -33,9 +33,9 @@ Each activity is associated with a thumbnail. The thumbnail is a square that is 
 
 A list of activities and thumbnails can be found in [feed-items.html](https://github.com/edufeed/edufeed/blob/master/feed-items.html).
 
-[An example activity](https://github.com/edufeed/edufeed/blob/master/example-activity.ls)
+An example activity: [example-activity.html](https://github.com/edufeed/edufeed/blob/master/example-activity.html) and [example-activity.ls](https://github.com/edufeed/edufeed/blob/master/example-activity.ls)
 
-[An example thumbnail](https://github.com/edufeed/edufeed/blob/master/example-thumbnail.ls)
+An example thumbnail: [example-thumbnail.html](https://github.com/edufeed/edufeed/blob/master/example-thumbnail.html) and [example-thumbnail.ls](https://github.com/edufeed/edufeed/blob/master/example-thumbnail.ls)
 
 To add a new activity, create the activity and thumbnail html file, and add it to [feed-items.html](https://github.com/edufeed/edufeed/blob/master/feed-items.html). If you are not following the `itemname-thumbnail` `itemname-activity` naming convention, you will also need to add it to the itemtypes dictionary in [https://github.com/edufeed/edufeed/blob/master/feed-items.ls](https://github.com/edufeed/edufeed/blob/master/feed-items.ls). [This commit](https://github.com/edufeed/edufeed/commit/5971a4013471af77cea8df6a26169e8ef9c61a48) has a complete example.
 
