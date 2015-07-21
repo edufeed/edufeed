@@ -12,7 +12,8 @@ First install [node.js](https://nodejs.org/). Then:
 git clone https://github.com/edufeed/edufeed
 cd edufeed
 npm install
-npm install -g node-dev
+npm install -g node-dev mongosrv
+mongosrv & # run mongo in the background
 node-dev app.ls
 ```
 
