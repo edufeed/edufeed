@@ -41,9 +41,6 @@ app.get '/image', (req, res) ->
 # feed items
 
 app.get '/getfeeditems', (req, res) ->
-  data = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-  res.json([{itemtype: 'example', foo: 'somefooval', bar: 'somebarval'}] ++ [{itemtype: 'typeword', word: word} for word in data])
-
-
-
+  wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
+  res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 

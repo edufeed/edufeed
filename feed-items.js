@@ -2,30 +2,34 @@
 (function(){
   var makeActivity, makeThumbnail, itemtypes, out$ = typeof exports != 'undefined' && exports || this;
   out$.makeActivity = makeActivity = function(item){
-    var itemtype, activity, output, k, v;
+    var itemtype, activity, output, k, ref$, v;
     itemtype = item.itemtype;
     activity = itemtypes[itemtype].activity;
     if (activity == null) {
       activity = itemtype + '-activity';
     }
     output = $("<" + activity + ">");
-    for (k in item) {
-      v = item[k];
-      output.prop(k, v);
+    if (item.data != null) {
+      for (k in ref$ = item.data) {
+        v = ref$[k];
+        output.prop(k, v);
+      }
     }
     return output;
   };
   out$.makeThumbnail = makeThumbnail = function(item){
-    var itemtype, thumbnail, output, k, v;
+    var itemtype, thumbnail, output, k, ref$, v;
     itemtype = item.itemtype;
     thumbnail = itemtypes[itemtype].thumbnail;
     if (thumbnail == null) {
       thumbnail = itemtype + '-thumbnail';
     }
     output = $("<" + thumbnail + ">");
-    for (k in item) {
-      v = item[k];
-      output.prop(k, v);
+    if (item.data != null) {
+      for (k in ref$ = item.data) {
+        v = ref$[k];
+        output.prop(k, v);
+      }
     }
     return output;
   };

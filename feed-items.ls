@@ -4,8 +4,9 @@ export makeActivity = (item) ->
   if not activity?
     activity = itemtype + '-activity'
   output = $("<#{activity}>")
-  for k,v of item
-    output.prop k, v
+  if item.data?
+    for k,v of item.data
+      output.prop k, v
   return output
 
 export makeThumbnail = (item) ->
@@ -14,8 +15,9 @@ export makeThumbnail = (item) ->
   if not thumbnail?
     thumbnail = itemtype + '-thumbnail'
   output = $("<#{thumbnail}>")
-  for k,v of item
-    output.prop k, v
+  if item.data?
+    for k,v of item.data
+      output.prop k, v
   return output
 
 export itemtypes = {

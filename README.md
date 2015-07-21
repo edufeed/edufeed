@@ -56,18 +56,18 @@ To add a new activity, create the activity and thumbnail html file, and add it t
 
 The feed is located in [side-scroll-feed.html](https://github.com/edufeed/edufeed/blob/master/side-scroll-feed.html). The logic that inserts items into the feed is in [feed-items.ls](https://github.com/edufeed/edufeed/blob/master/feed-items.ls).
 
-To insert items into the feed, use the addItemToFeed method, passing in a dictionary where `itemtype` is the unprefixed form of the activity/thumbnail (ie, `example`, `typeword`), and the rest of the keys are the data that should be set as properties on the activity and thumbnail.
+To insert items into the feed, use the addItemToFeed method, passing in a dictionary where `itemtype` is the unprefixed form of the activity/thumbnail (ie, `example`, `typeword`), and `keys` is a dictionary with the properties that should be set on the activity and thumbnail.
 
 Here is an example for the `typeword` activity:
 
 ```
-{itemtype: 'typeword', word: 'dog'}
+{itemtype: 'typeword', data: {word: 'dog'}}
 ```
 
 Here is an example for the `example` activity:
 
 ```
-{itemtype: 'example', foo: 'somefooval', bar: 'somebarval'}
+{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}}
 ```
 
 ## Backend Architecture

@@ -37,19 +37,29 @@
     });
   });
   app.get('/getfeeditems', function(req, res){
-    var data, word;
-    data = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
+    var wordlist, word;
+    wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
     return res.json([{
       itemtype: 'example',
-      foo: 'somefooval',
-      bar: 'somebarval'
+      data: {
+        foo: 'somefooval',
+        bar: 'somebarval'
+      },
+      social: {
+        poster: 'geza'
+      }
     }].concat((function(){
       var i$, ref$, len$, results$ = [];
-      for (i$ = 0, len$ = (ref$ = data).length; i$ < len$; ++i$) {
+      for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
         word = ref$[i$];
         results$.push({
           itemtype: 'typeword',
-          word: word
+          data: {
+            word: word
+          },
+          social: {
+            poster: 'someuser'
+          }
         });
       }
       return results$;
