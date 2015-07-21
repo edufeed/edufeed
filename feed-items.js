@@ -3,8 +3,8 @@
   var itemtypes, out$ = typeof exports != 'undefined' && exports || this;
   out$.itemtypes = itemtypes = {
     typeword: {
-      thumbnail: 'word-thumbnail-block',
-      activity: 'practice-word'
+      thumbnail: 'typeword-thumbnail',
+      activity: 'typeword-activity'
     }
   };
 }).call(this);

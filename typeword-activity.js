@@ -33,7 +33,7 @@
     return video_tag[0].play();
   };
   Polymer({
-    is: 'practice-word',
+    is: 'typeword-activity',
     properties: {
       word: {
         type: String,

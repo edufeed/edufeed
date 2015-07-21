@@ -1,5 +1,5 @@
 Polymer {
-  is: 'word-thumbnail-block'
+  is: 'typeword-thumbnail'
   properties: {
     word: {
       type: String

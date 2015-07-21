@@ -1,6 +1,6 @@
 export itemtypes = {
   typeword: {
-    thumbnail: 'word-thumbnail-block'
-    activity: 'practice-word'
+    thumbnail: 'typeword-thumbnail'
+    activity: 'typeword-activity'
   }
 }
