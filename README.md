@@ -30,7 +30,7 @@ mongosrv &
 node-dev app.ls
 ```
 
-You will now be able to access the site by visiting http://localhost:8080
+You will now be able to access the site by visiting [http://localhost:8080](http://localhost:8080)
 
 ## Architecture Overview
 
