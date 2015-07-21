@@ -1,0 +1,16 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="example-activity">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div>This is an example activity.<br>foo: <span>{{foo}}</span><br>bar: <span>{{bar}}</span></div>
+    <div id="hoverspan">Try hovering over me</div>
+    <button class="btn btn-lg btn-primary" on-click="showAlert">Click me to show alert</button><br>
+    <button class="btn btn-lg btn-primary" on-click="finishTask">Click me to finish task and return to the feed</button>
+  </template>
+  <script src="example-activity.js"></script>  
+</dom-module>

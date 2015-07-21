@@ -39,7 +39,11 @@
   app.get('/getfeeditems', function(req, res){
     var data, word;
     data = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
-    return res.json((function(){
+    return res.json([{
+      itemtype: 'example',
+      foo: 'somefooval',
+      bar: 'somebarval'
+    }].concat((function(){
       var i$, ref$, len$, results$ = [];
       for (i$ = 0, len$ = (ref$ = data).length; i$ < len$; ++i$) {
         word = ref$[i$];
@@ -49,6 +53,6 @@
         });
       }
       return results$;
-    }()));
+    }())));
   });
 }).call(this);
