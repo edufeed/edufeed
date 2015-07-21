@@ -2,7 +2,7 @@
 
 ## Demo
 
-See [http://edfeed.herokuapp.com/](http://edfeed.herokuapp.com/) for a demo.
+See [http://edfeed.herokuapp.com/](http://edfeed.herokuapp.com/) for a demo (chrome only - other browsers don't yet support the Web Components standard).
 
 ## Installing and Running
 
