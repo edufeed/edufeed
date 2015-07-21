@@ -30,6 +30,8 @@ mongosrv &
 node-dev app.ls
 ```
 
+You will now be able to access the site by visiting http://localhost:8080
+
 ## Architecture Overview
 
 The frontend is built using [HTML5 Web Components](http://webcomponents.org/) and [Polymer](https://www.polymer-project.org/).
