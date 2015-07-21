@@ -6,21 +6,28 @@ See [http://edfeed.herokuapp.com/](http://edfeed.herokuapp.com/) for a demo (chr
 
 ## Installing and Running
 
-First install [node.js](https://nodejs.org/) and [mongoDB](https://www.mongodb.org/). Then:
+First install [node.js](https://nodejs.org/) and [mongoDB](https://www.mongodb.org/)
+
+Then clone the repository and install prerequisites:
 
 ```
 git clone https://github.com/edufeed/edufeed
 cd edufeed
 npm install
 npm install -g node-dev mongosrv
-mongosrv & # run mongo in the background
-node-dev app.ls
 ```
 
 Now register for the [Bing Search API](https://datamarket.azure.com/dataset/bing/search), go to [Account Information](https://datamarket.azure.com/account), see your Primary Account Key on that page, and paste it into a file `.getsecret.yaml` inside the `edufeed` directory:
 
 ```
 bing_api_key: your_primary_account_key_goes_here
+```
+
+Now you can start up mongo and run the app:
+
+```
+mongosrv &
+node-dev app.ls
 ```
 
 ## Architecture Overview
