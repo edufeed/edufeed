@@ -12,43 +12,29 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
-    closeFocusedItem: function(){
-      this.S('#focusitem').html('');
+    closeActivity: function(){
+      this.S('#activity').html('');
       this.S('#thumbnails').show();
       return this.S('#exitbutton').hide();
     },
     openItem: function(item){
-      var self, itemtype, activity, focus_item, k, v;
-      self = this;
+      var activity, this$ = this;
       this.S('#thumbnails').hide();
       this.S('#exitbutton').show();
-      this.S('#focusitem').html('');
-      itemtype = item.itemtype;
-      activity = itemtypes[itemtype].activity;
-      focus_item = $("<" + activity + ">");
-      for (k in item) {
-        v = item[k];
-        focus_item.prop(k, v);
-      }
-      $(focus_item).on('task-finished', function(){
-        return self.closeFocusedItem();
+      this.S('#activity').html('');
+      activity = makeActivity(item);
+      activity.on('task-finished', function(){
+        return this$.closeActivity();
       });
-      return focus_item.appendTo(this.S('#focusitem'));
+      return activity.appendTo(this.S('#activity'));
     },
     addItemToFeed: function(item){
-      var self, itemtype, thumbnail, new_item, k, v;
-      self = this;
-      itemtype = item.itemtype;
-      thumbnail = itemtypes[itemtype].thumbnail;
-      new_item = $("<" + thumbnail + ">");
-      for (k in item) {
-        v = item[k];
-        new_item.prop(k, v);
-      }
-      new_item.click(function(){
-        return self.openItem(item);
+      var thumbnail, this$ = this;
+      thumbnail = makeThumbnail(item);
+      thumbnail.click(function(){
+        return this$.openItem(item);
       });
-      return new_item.appendTo(self.S('#thumbnails'));
+      return thumbnail.appendTo(this.S('#thumbnails'));
     },
     itemsChanged: function(){
       var i$, ref$, len$, item, results$ = [];
