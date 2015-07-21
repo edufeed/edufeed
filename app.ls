@@ -18,6 +18,8 @@ app.set 'port', (process.env.PORT || 8080)
 
 app.use express.static(path.join(__dirname, ''))
 
+app.listen app.get('port'), '0.0.0.0'
+
 # images
 
 get_image_url = (query, callback) ->
@@ -36,6 +38,11 @@ app.get '/image', (req, res) ->
   get_image_url_cached_throttled req.query.name, (imgurl) ->
     res.send imgurl
 
-# example sentences
+# feed items
 
-app.listen app.get('port'), '0.0.0.0'
+app.get '/getfeeditems', (req, res) ->
+  res.json ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
+
+
+
+

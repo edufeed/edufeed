@@ -43,7 +43,6 @@ Polymer {
       return cfricative
   letterChanged: ->
     highlight_color = this.getHighlightColor()
-    console.log 'highlight color is ' + highlight_color
     if not this.highlighted
       highlight_color = 'white'
     this.style.backgroundColor = highlight_color

@@ -57,7 +57,6 @@
     letterChanged: function(){
       var highlight_color;
       highlight_color = this.getHighlightColor();
-      console.log('highlight color is ' + highlight_color);
       if (!this.highlighted) {
         highlight_color = 'white';
       }

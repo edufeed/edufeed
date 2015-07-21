@@ -1,24 +1,46 @@
 Polymer {
   is: 'side-scroll-feed'
+  properties: {
+    items: {
+      type: Array
+      value: []
+      observer: 'itemsChanged'
+    }
+  }
   S: (pattern) ->
     $(this.$$(pattern))
-  closeTask: ->
+  closeFocusedItem: ->
     this.S('#focusitem').html('')
     this.S('#thumbnails').show()
     this.S('#exitbutton').hide()
-  addThumbnail: (word) ->
+  openItem: (item) ->
     self = this
-    new_item = $("<word-thumbnail-block word='#{word}' status='done'>")
+    this.S('#thumbnails').hide()
+    this.S('#exitbutton').show()
+    this.S('#focusitem').html('')
+    {itemtype} = item
+    {activity} = itemtypes[itemtype]
+    focus_item = $("<#{activity}>")
+    for k,v of item
+      focus_item.prop k, v
+    $(focus_item).on 'task-finished', ->
+      self.closeFocusedItem()
+    focus_item.appendTo this.S('#focusitem')
+  addItemToFeed: (item) ->
+    self = this
+    {itemtype} = item
+    {thumbnail} = itemtypes[itemtype]
+    new_item = $("<#{thumbnail}>")
+    for k,v of item
+      new_item.prop k, v
     new_item.click ->
-      self.S('#thumbnails').hide()
-      self.S('#exitbutton').show()
-      self.S('#focusitem').html('')
-      focus_item = $("<practice-word word='#{word}'>")
-      $(focus_item).on 'task-finished', ->
-        self.closeTask()
-      focus_item.appendTo self.S('#focusitem')
+      self.openItem item
     new_item.appendTo self.S('#thumbnails')
+  itemsChanged: ->
+    for item in this.items
+      this.addItemToFeed item
   ready: ->
-    for word in ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-      this.addThumbnail word
+    self = this
+    $.getJSON '/getfeeditems', (data) ->
+      self.items = [{itemtype: 'typeword', word: word} for word in data]
 }

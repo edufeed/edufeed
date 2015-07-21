@@ -2,38 +2,79 @@
 (function(){
   Polymer({
     is: 'side-scroll-feed',
+    properties: {
+      items: {
+        type: Array,
+        value: [],
+        observer: 'itemsChanged'
+      }
+    },
     S: function(pattern){
       return $(this.$$(pattern));
     },
-    closeTask: function(){
+    closeFocusedItem: function(){
       this.S('#focusitem').html('');
       this.S('#thumbnails').show();
       return this.S('#exitbutton').hide();
     },
-    addThumbnail: function(word){
-      var self, new_item;
+    openItem: function(item){
+      var self, itemtype, activity, focus_item, k, v;
       self = this;
-      new_item = $("<word-thumbnail-block word='" + word + "' status='done'>");
+      this.S('#thumbnails').hide();
+      this.S('#exitbutton').show();
+      this.S('#focusitem').html('');
+      itemtype = item.itemtype;
+      activity = itemtypes[itemtype].activity;
+      focus_item = $("<" + activity + ">");
+      for (k in item) {
+        v = item[k];
+        focus_item.prop(k, v);
+      }
+      $(focus_item).on('task-finished', function(){
+        return self.closeFocusedItem();
+      });
+      return focus_item.appendTo(this.S('#focusitem'));
+    },
+    addItemToFeed: function(item){
+      var self, itemtype, thumbnail, new_item, k, v;
+      self = this;
+      itemtype = item.itemtype;
+      thumbnail = itemtypes[itemtype].thumbnail;
+      new_item = $("<" + thumbnail + ">");
+      for (k in item) {
+        v = item[k];
+        new_item.prop(k, v);
+      }
       new_item.click(function(){
-        var focus_item;
-        self.S('#thumbnails').hide();
-        self.S('#exitbutton').show();
-        self.S('#focusitem').html('');
-        focus_item = $("<practice-word word='" + word + "'>");
-        $(focus_item).on('task-finished', function(){
-          return self.closeTask();
-        });
-        return focus_item.appendTo(self.S('#focusitem'));
+        return self.openItem(item);
       });
       return new_item.appendTo(self.S('#thumbnails'));
     },
-    ready: function(){
-      var i$, ref$, len$, word, results$ = [];
-      for (i$ = 0, len$ = (ref$ = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']).length; i$ < len$; ++i$) {
-        word = ref$[i$];
-        results$.push(this.addThumbnail(word));
+    itemsChanged: function(){
+      var i$, ref$, len$, item, results$ = [];
+      for (i$ = 0, len$ = (ref$ = this.items).length; i$ < len$; ++i$) {
+        item = ref$[i$];
+        results$.push(this.addItemToFeed(item));
       }
       return results$;
+    },
+    ready: function(){
+      var self;
+      self = this;
+      return $.getJSON('/getfeeditems', function(data){
+        var word;
+        return self.items = (function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = data).length; i$ < len$; ++i$) {
+            word = ref$[i$];
+            results$.push({
+              itemtype: 'typeword',
+              word: word
+            });
+          }
+          return results$;
+        }());
+      });
     }
   });
 }).call(this);
