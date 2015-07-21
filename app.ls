@@ -5,6 +5,7 @@ require! {
   path
   getsecret
   throttle_call
+  deployd
 }
 
 func_cache = require('func_cache_mongo')()
@@ -14,11 +15,20 @@ Bing = require('node-bing-api')({accKey: bing_api_key})
 
 app = express()
 
+server = require('http').createServer(app)
+io = require('socket.io').listen server, {'log level': 0}
+
+deployd.attach server, {
+  socketIo: io
+  env: process.env.NODE_ENV ? 'development'
+  db: {host: 'localhost', port: 27017, name: 'edufeed'}
+}
+
 app.set 'port', (process.env.PORT || 8080)
 
-app.use express.static(path.join(__dirname, ''))
+app.use express.static(path.join(__dirname, 'static'))
 
-app.listen app.get('port'), '0.0.0.0'
+server.listen app.get('port'), '0.0.0.0'
 
 # images
 
@@ -35,6 +45,9 @@ get_image_url_cached = func_cache get_image_url
 get_image_url_cached_throttled = throttle_call get_image_url_cached
 
 app.get '/image', (req, res) ->
+  if not req.query.name?
+    res.send 'mising name parameter'
+    return
   get_image_url_cached_throttled req.query.name, (imgurl) ->
     res.send imgurl
 
@@ -44,3 +57,5 @@ app.get '/getfeeditems', (req, res) ->
   wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 
+
+app.use server.handleRequest
