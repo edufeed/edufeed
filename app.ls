@@ -5,7 +5,6 @@ require! {
   path
   getsecret
   throttle_call
-  deployd
 }
 
 func_cache = require('func_cache_mongo')()
@@ -17,12 +16,6 @@ app = express()
 
 server = require('http').createServer(app)
 io = require('socket.io').listen server, {'log level': 0}
-
-deployd.attach server, {
-  socketIo: io
-  env: process.env.NODE_ENV ? 'development'
-  db: {host: 'localhost', port: 27017, name: 'edufeed'}
-}
 
 app.set 'port', (process.env.PORT || 8080)
 
@@ -57,5 +50,3 @@ app.get '/getfeeditems', (req, res) ->
   wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 
-
-app.use server.handleRequest
