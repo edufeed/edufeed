@@ -47,7 +47,7 @@
     ready: function(){
       var self;
       self = this;
-      return $.getJSON('/getfeeditems', function(data){
+      return dpd.taskitems.get(function(data){
         return self.items = data;
       });
     }

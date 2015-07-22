@@ -31,6 +31,7 @@ Polymer {
       this.addItemToFeed item
   ready: ->
     self = this
-    $.getJSON '/getfeeditems', (data) ->
+    #$.getJSON '/getfeeditems', (data) ->
+    dpd.taskitems.get (data) ->
       self.items = data
 }
