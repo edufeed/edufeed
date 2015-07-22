@@ -1,25 +1,12 @@
 root = exports ? this
 
 require! {
-  express
-  path
-  getsecret
-  throttle_call
   deployd
 }
 
-func_cache = require('func_cache_mongo')()
-
-bing_api_key = getsecret 'bing_api_key'
-Bing = require('node-bing-api')({accKey: bing_api_key})
-
-app = express()
-
-server = require('http').createServer(app)
-io = require('socket.io').listen server, {'log level': 0}
-
-deployd.attach server, {
-  socketIo: io
+server = deployd {
+  port: (process.env.PORT || 8080)
+  #socketIo: io
   env: 'development' #process.env.NODE_ENV ? 'development'
   db: {
     connectionString: (
@@ -31,22 +18,22 @@ deployd.attach server, {
   }
 }
 
-app.set 'port', (process.env.PORT || 8080)
-
-app.use express.static(path.join(__dirname, 'static'))
+server.listen()
 
 #server.sockets.manager.settings.transports = ["xhr-polling"] # apparently required for heroku
 
-server.listen app.get('port'), '0.0.0.0'
-
+#console.log server.resources
 #server.resources = ['taskitems']
-dpd = require('deployd/lib/internal-client').build server
+#dpd = require('deployd/lib/internal-client').build server
+#dpd.taskitems = dpd('taskitems')
+# {loadConfig} = require 'deployd/lib/config-loader'
+# [err9,res9] <- loadConfig __dirname, server
 
 #dpd = require('dpd-js-sdk')('http://localhost:8080', '')
 #dpd.taskitems = dpd('taskitems')
 
 # images
-
+/*
 get_image_url = (query, callback) ->
   Bing.images query, {}, (error, res2, body) ->
     #callback body.d.results[0].MediaUrl
@@ -77,3 +64,6 @@ app.get '/getfeeditems', (req, res) ->
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 
 app.use server.handleRequest
+
+server.listen app.get('port'), '0.0.0.0'
+*/
