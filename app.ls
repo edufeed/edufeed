@@ -5,6 +5,7 @@ require! {
   path
   getsecret
   throttle_call
+  deployd
 }
 
 func_cache = require('func_cache_mongo')()
@@ -14,11 +15,35 @@ Bing = require('node-bing-api')({accKey: bing_api_key})
 
 app = express()
 
+server = require('http').createServer(app)
+io = require('socket.io').listen server, {'log level': 0}
+
+deployd.attach server, {
+  socketIo: io
+  env: 'development' #process.env.NODE_ENV ? 'development'
+  db: {
+    connectionString: (
+      process.env.MONGOHQ_URL ?
+      process.env.MONGOLAB_URI ?
+      process.env.MONGOSOUP_URL ?
+      'mongodb://localhost:27017/default'
+    )
+  }
+}
+
 app.set 'port', (process.env.PORT || 8080)
 
 app.use express.static(path.join(__dirname, 'static'))
 
-app.listen app.get('port'), '0.0.0.0'
+#server.sockets.manager.settings.transports = ["xhr-polling"] # apparently required for heroku
+
+server.listen app.get('port'), '0.0.0.0'
+
+#server.resources = ['taskitems']
+dpd = require('deployd/lib/internal-client').build server
+
+#dpd = require('dpd-js-sdk')('http://localhost:8080', '')
+#dpd.taskitems = dpd('taskitems')
 
 # images
 
@@ -43,7 +68,12 @@ app.get '/image', (req, res) ->
 
 # feed items
 
+app.get '/gettaskitems', (req, res) ->
+  dpd.taskitems.get (taskitems) ->
+    res.send taskitems
+
 app.get '/getfeeditems', (req, res) ->
   wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 
+app.use server.handleRequest
