@@ -46,17 +46,17 @@ Code is written in [LiveScript](http://livescript.net/).
 
 Each activity is associated with a thumbnail. The thumbnail is a square that is inserted into the feed, while the activity is the full-screen interactive educational task.
 
-A list of activities and thumbnails can be found in [feed-items.html](https://github.com/edufeed/edufeed/blob/master/feed-items.html).
+A list of activities and thumbnails can be found in [feed-items.html](https://github.com/edufeed/edufeed/blob/master/static/feed-items.html).
 
-An example activity: [example-activity.html](https://github.com/edufeed/edufeed/blob/master/example-activity.html) and [example-activity.ls](https://github.com/edufeed/edufeed/blob/master/example-activity.ls)
+An example activity: [example-activity.html](https://github.com/edufeed/edufeed/blob/master/static/example-activity.html) and [example-activity.ls](https://github.com/edufeed/edufeed/blob/master/static/example-activity.ls)
 
-An example thumbnail: [example-thumbnail.html](https://github.com/edufeed/edufeed/blob/master/example-thumbnail.html) and [example-thumbnail.ls](https://github.com/edufeed/edufeed/blob/master/example-thumbnail.ls)
+An example thumbnail: [example-thumbnail.html](https://github.com/edufeed/edufeed/blob/master/static/example-thumbnail.html) and [example-thumbnail.ls](https://github.com/edufeed/edufeed/blob/master/static/example-thumbnail.ls)
 
-To add a new activity, create the activity and thumbnail html file, and add it to [feed-items.html](https://github.com/edufeed/edufeed/blob/master/feed-items.html). If you are not following the `itemname-thumbnail` `itemname-activity` naming convention, you will also need to add it to the itemtypes dictionary in [https://github.com/edufeed/edufeed/blob/master/feed-items.ls](https://github.com/edufeed/edufeed/blob/master/feed-items.ls). [This commit](https://github.com/edufeed/edufeed/commit/5971a4013471af77cea8df6a26169e8ef9c61a48) has a complete example.
+To add a new activity, create the activity and thumbnail html file, and add it to [feed-items.html](https://github.com/edufeed/edufeed/blob/master/static/feed-items.html). If you are not following the `itemname-thumbnail` `itemname-activity` naming convention, you will also need to add it to the itemtypes dictionary in [https://github.com/edufeed/edufeed/blob/master/feed-items.ls](https://github.com/edufeed/edufeed/blob/master/static/feed-items.ls). [This commit](https://github.com/edufeed/edufeed/commit/5971a4013471af77cea8df6a26169e8ef9c61a48) has a complete example.
 
 ### Side-Scrolling Feed
 
-The feed is located in [side-scroll-feed.html](https://github.com/edufeed/edufeed/blob/master/side-scroll-feed.html). The logic that inserts items into the feed is in [feed-items.ls](https://github.com/edufeed/edufeed/blob/master/feed-items.ls).
+The feed is located in [side-scroll-feed.html](https://github.com/edufeed/edufeed/blob/master/static/side-scroll-feed.html). The logic that inserts items into the feed is in [feed-items.ls](https://github.com/edufeed/edufeed/blob/master/feed-items.ls).
 
 To insert items into the feed, use the addItemToFeed method, passing in a dictionary where `itemtype` is the unprefixed form of the activity/thumbnail (ie, `example`, `typeword`), and `keys` is a dictionary with the properties that should be set on the activity and thumbnail.
 

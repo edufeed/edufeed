@@ -14,14 +14,11 @@ Bing = require('node-bing-api')({accKey: bing_api_key})
 
 app = express()
 
-server = require('http').createServer(app)
-io = require('socket.io').listen server, {'log level': 0}
-
 app.set 'port', (process.env.PORT || 8080)
 
 app.use express.static(path.join(__dirname, 'static'))
 
-server.listen app.get('port'), '0.0.0.0'
+app.listen app.get('port'), '0.0.0.0'
 
 # images
 
