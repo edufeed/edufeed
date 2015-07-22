@@ -30,7 +30,6 @@
   });
   app.set('port', process.env.PORT || 8080);
   app.use(express['static'](path.join(__dirname, 'static')));
-  server.sockets.manager.settings.transports = ["xhr-polling"];
   server.listen(app.get('port'), '0.0.0.0');
   dpd = require('deployd/lib/internal-client').build(server);
   get_image_url = function(query, callback){
