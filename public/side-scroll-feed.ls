@@ -26,7 +26,9 @@ Polymer {
     thumbnail.click ~>
       this.openItem item
     thumbnail.appendTo this.S('#thumbnails')
-  itemsChanged: ->
+  itemsChanged: (newitems, olditems) ->
+    if newitems === olditems
+      return
     $(this.S('#thumbnails')).html('')
     for item in this.items
       this.addItemToFeed item
@@ -35,6 +37,9 @@ Polymer {
     #$.getJSON '/getfeeditems', (data) ->
     update_items = ->
       getItems 'feeditems', (docs) ->
+        admin = getBoolParam('admin')
+        if admin or docs.length == 0
+          docs = [{itemtype: 'admin'}] ++ docs
         self.items = docs
     update_items()
     setSyncHandler 'feeditems', (change) ->

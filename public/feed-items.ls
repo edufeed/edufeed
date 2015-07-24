@@ -1,6 +1,8 @@
 export makeActivity = (item) ->
   {itemtype} = item
-  {activity} = itemtypes[itemtype]
+  activity = null
+  if itemtypes[itemtype]?
+    {activity} = itemtypes[itemtype]
   if not activity?
     activity = itemtype + '-activity'
   output = $("<#{activity}>")
@@ -11,7 +13,9 @@ export makeActivity = (item) ->
 
 export makeThumbnail = (item) ->
   {itemtype} = item
-  {thumbnail} = itemtypes[itemtype]
+  thumbnail = null
+  if itemtypes[itemtype]?
+    {thumbnail} = itemtypes[itemtype]
   if not thumbnail?
     thumbnail = itemtype + '-thumbnail'
   output = $("<#{thumbnail}>")

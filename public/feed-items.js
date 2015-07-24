@@ -4,7 +4,10 @@
   out$.makeActivity = makeActivity = function(item){
     var itemtype, activity, output, k, ref$, v;
     itemtype = item.itemtype;
-    activity = itemtypes[itemtype].activity;
+    activity = null;
+    if (itemtypes[itemtype] != null) {
+      activity = itemtypes[itemtype].activity;
+    }
     if (activity == null) {
       activity = itemtype + '-activity';
     }
@@ -20,7 +23,10 @@
   out$.makeThumbnail = makeThumbnail = function(item){
     var itemtype, thumbnail, output, k, ref$, v;
     itemtype = item.itemtype;
-    thumbnail = itemtypes[itemtype].thumbnail;
+    thumbnail = null;
+    if (itemtypes[itemtype] != null) {
+      thumbnail = itemtypes[itemtype].thumbnail;
+    }
     if (thumbnail == null) {
       thumbnail = itemtype + '-thumbnail';
     }
