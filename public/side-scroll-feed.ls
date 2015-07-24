@@ -27,11 +27,16 @@ Polymer {
       this.openItem item
     thumbnail.appendTo this.S('#thumbnails')
   itemsChanged: ->
+    $(this.S('#thumbnails')).html('')
     for item in this.items
       this.addItemToFeed item
   ready: ->
     self = this
     #$.getJSON '/getfeeditems', (data) ->
-    dpd.taskitems.get (data) ->
-      self.items = data
+    update_items = ->
+      getItems 'feeditems', (docs) ->
+        self.items = docs
+    update_items()
+    setSyncHandler 'feeditems', (change) ->
+      update_items()
 }

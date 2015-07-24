@@ -38,6 +38,7 @@
     },
     itemsChanged: function(){
       var i$, ref$, len$, item, results$ = [];
+      $(this.S('#thumbnails')).html('');
       for (i$ = 0, len$ = (ref$ = this.items).length; i$ < len$; ++i$) {
         item = ref$[i$];
         results$.push(this.addItemToFeed(item));
@@ -45,10 +46,16 @@
       return results$;
     },
     ready: function(){
-      var self;
+      var self, update_items;
       self = this;
-      return dpd.taskitems.get(function(data){
-        return self.items = data;
+      update_items = function(){
+        return getItems('feeditems', function(docs){
+          return self.items = docs;
+        });
+      };
+      update_items();
+      return setSyncHandler('feeditems', function(change){
+        return update_items();
       });
     }
   });
