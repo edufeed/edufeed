@@ -1,0 +1,25 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="admin-activity">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <div>This is the admin console. Use setParam("admin", true) to ensure it will always be visible.</div>
+    <button class="btn btn-lg btn-primary" on-click="clearItems">Clear all feed items</button><br>
+    <button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>
+    <br><br>
+    <div>Add custom item:</div>
+    <div>itemtype:</div>
+    <input id="itemtypeinput"></input>
+    <div>data:</div>
+    <textarea id="datainput"></textarea>
+    <div>meta:</div>
+    <textarea id="metainput"></textarea>
+    <br>
+    <button class="btn btn-lg btn-primary" on-click="addCustomItem">Add custom feed item</button>
+  </template>
+  <script src="admin-activity.js"></script>  
+</dom-module>

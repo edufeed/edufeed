@@ -32,9 +32,36 @@ export getItems = (dbname, callback) ->
     #callback [x.doc for x in data.rows when not x.doc._deleted]
     callback [x.doc for x in data.rows]
 
-export clearDb = (dbname) ->
+export clearDb = (dbname, callback) ->
   db = getDb(dbname)
   db.allDocs({include_docs: true}).then (data) ->
-    for x in data.rows
+    async.each data.rows, (x, callback) ->
       x.doc._deleted = true
-      db.put(x.doc)
+      db.put x.doc, callback
+    , (results) ->
+      if callback?
+        callback(null, results)
+
+padWithZeros = (num, target_length) ->
+  current = num.toString()
+  zeros_to_add = target_length - current.length
+  return ('0' * zeros_to_add) + current
+
+prevUUID = {time: 0, idx: 0}
+export makeUUID = ->
+  curtime = Date.now()
+  if curtime == prevUUID.time
+    prevUUID.idx += 1
+  else
+    prevUUID.time = curtime
+    prevUUID.idx = 0
+  return padWithZeros(prevUUID.time, 13) ++ padWithZeros(prevUUID.idx, 7)
+
+export postItem = (dbname, item, callback) ->
+  db = getDb(dbname)
+  new_item = {} <<< item
+  if not new_item._id?
+    new_item._id = makeUUID()
+  db.put new_item, (err, res) ->
+    if callback?
+      callback(err, res)
