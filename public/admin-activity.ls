@@ -9,7 +9,7 @@ Polymer {
   addSampleItems: ->
     self = this
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-    items = [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, meta: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, meta: {poster: 'someuser'}} for word in wordlist]
+    items = [{itemtype: 'admin'}, {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, meta: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, meta: {poster: 'someuser'}} for word in wordlist]
     async.each items, (item, callback) ->
       postItem 'feeditems', item, callback
     , (results) ->

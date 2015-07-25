@@ -16,16 +16,20 @@
       var self, wordlist, items, word;
       self = this;
       wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
-      items = [{
-        itemtype: 'example',
-        data: {
-          foo: 'somefooval',
-          bar: 'somebarval'
-        },
-        meta: {
-          poster: 'geza'
+      items = [
+        {
+          itemtype: 'admin'
+        }, {
+          itemtype: 'example',
+          data: {
+            foo: 'somefooval',
+            bar: 'somebarval'
+          },
+          meta: {
+            poster: 'geza'
+          }
         }
-      }].concat((function(){
+      ].concat((function(){
         var i$, ref$, len$, results$ = [];
         for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
           word = ref$[i$];
