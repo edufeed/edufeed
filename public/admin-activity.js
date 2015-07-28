@@ -5,6 +5,14 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
+    ready: function(){
+      var username, ref$;
+      username = (ref$ = localStorage.getItem('username')) != null ? ref$ : 'cat';
+      return this.S('#usernameinput').val(username);
+    },
+    setUsername: function(){
+      return localStorage.setItem('username', this.S('#usernameinput').val().trim());
+    },
     makeFullScreen: function(){
       var ssfeed, rfs;
       ssfeed = $('side-scroll-feed')[0];

@@ -2,6 +2,11 @@ Polymer {
   is: 'admin-activity'
   S: (pattern) ->
     return $(this.$$(pattern))
+  ready: ->
+    username = localStorage.getItem('username') ? 'cat'
+    this.S('#usernameinput').val(username)
+  setUsername: ->
+    localStorage.setItem 'username', this.S('#usernameinput').val().trim()
   makeFullScreen: ->
     ssfeed = $('side-scroll-feed')[0]
     rfs = document.body.mozRequestFullScreen || document.body.webkitRequestFullScreen || document.body.requestFullScreen
