@@ -26,4 +26,4 @@ for filename in filelist
     log filename
 log ''
 log 'NETWORK:'
-log '*'
+log '/image'

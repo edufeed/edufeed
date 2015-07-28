@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# random value: 0.8179752372670919
+# random value: 0.7114524634089321
 
 CACHE:
 /admin-activity.html
@@ -439,4 +439,4 @@ CACHE:
 /lettersound/zh.mp3
 
 NETWORK:
-*
+/image
