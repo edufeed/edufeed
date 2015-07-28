@@ -16,9 +16,9 @@ file.walkSync pubdir, (dirpath, dirs, files) ->
   for filename in files
     filelist.push('/' + file.path.relativePath(pubdir, path.join(dirpath, filename)).split('\\').join('/'))
 log 'CACHE MANIFEST'
-log '# rev 2015-06-01 16:48:11 +0000'
+#log '# rev 2015-06-01 16:48:11 +0000'
+log '# random value: ' + Math.random()
 log ''
-#console.log '# random value: ' + Math.random() + '\r'
 log 'CACHE:'
 patterns = ['\.html$', '\.js$', '\.css$', '\.png$', '\.svg$', '\.mp3$', '\.woff2$', '\.woff$', '\.ttf$'].map((x) -> new RegExp(x))
 for filename in filelist
