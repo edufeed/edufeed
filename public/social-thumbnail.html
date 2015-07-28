@@ -1,0 +1,35 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="user-avatar.html">
+
+<dom-module id="social-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+      vertical-align: top;
+      width: 370px;
+      height: 400px;
+    }
+    #thumbnailwrapper {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 350px;
+      height: 350px;
+    }
+  </style>
+  <template>
+    <div style="position: relative">
+      <div id="thumbnailwrapper">
+        <div style="width: 100%; height: 100%; background-color: white"></div>
+      </div>
+    </div>
+    <img width="370px" height="400px" src="callout-bubble.svg"></img>
+    <div>
+      <user-avatar username="{{poster}}"></user-avatar>
+      <template is="dom-repeat" items="{{finishedby}}" as="user">
+        <user-avatar username="{{user}}" checked="true"></user-avatar>
+      </template>
+    </div>
+  </template>
+  <script src="social-thumbnail.js"></script>
+</dom-module>

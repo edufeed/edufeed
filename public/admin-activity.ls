@@ -9,7 +9,7 @@ Polymer {
   addSampleItems: ->
     self = this
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-    items = [{itemtype: 'admin'}, {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, meta: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, meta: {poster: 'someuser'}} for word in wordlist]
+    items = [{itemtype: 'admin', social: {poster: 'horse'}}, {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
     async.each items, (item, callback) ->
       postItem 'feeditems', item, callback
     , (results) ->
@@ -22,8 +22,8 @@ Polymer {
       return
     data_text = this.S('#datainput').val()
     data = jsyaml.safeLoad data_text
-    meta_text = this.S('#metainput').val()
-    meta = jsyaml.safeLoad meta_text
-    postItem 'feeditems', {itemtype, data, meta}, ->
+    social_text = this.S('#socialinput').val()
+    social = jsyaml.safeLoad social_text
+    postItem 'feeditems', {itemtype, data, social}, ->
       self.fire 'task-finished', self
 }

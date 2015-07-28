@@ -17,6 +17,28 @@
       this.S('#thumbnails').show();
       return this.S('#exitbutton').hide();
     },
+    itemFinished: function(item){
+      var i$, ref$, len$, x, tag;
+      for (i$ = 0, len$ = (ref$ = $('social-thumbnail')).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        tag = $(x).find('#thumbnail');
+        if (tag == null) {
+          return;
+        }
+        tag = tag[0];
+        if (tag == null) {
+          return;
+        }
+        if (tagMatchesItem(tag, item)) {
+          console.log('tagMatchesItem');
+          console.log(tag);
+          console.log(item);
+          if (x.finishedby.indexOf('cat') === -1) {
+            x.finishedby = x.finishedby.concat(['cat']);
+          }
+        }
+      }
+    },
     openItem: function(item){
       var activity, this$ = this;
       this.S('#thumbnails').hide();
@@ -24,24 +46,25 @@
       this.S('#activity').html('');
       activity = makeActivity(item);
       activity.on('task-finished', function(){
+        this$.itemFinished(item);
         return this$.closeActivity();
       });
       return activity.appendTo(this.S('#activity'));
     },
     addItemToFeed: function(item){
       var thumbnail, this$ = this;
-      thumbnail = makeThumbnail(item);
-      thumbnail.click(function(){
+      thumbnail = makeSocialThumbnail(item);
+      thumbnail.find('#thumbnail').click(function(){
         return this$.openItem(item);
       });
-      return thumbnail.appendTo(this.S('#thumbnails'));
+      return this.S('#thumbnails').append(thumbnail);
     },
     itemsChanged: function(newitems, olditems){
       var i$, ref$, len$, item, results$ = [];
       if (deepEq$(newitems, olditems, '===')) {
         return;
       }
-      $(this.S('#thumbnails')).html('');
+      this.S('#thumbnails').html('');
       for (i$ = 0, len$ = (ref$ = this.items).length; i$ < len$; ++i$) {
         item = ref$[i$];
         results$.push(this.addItemToFeed(item));
@@ -55,9 +78,14 @@
         return getItems('feeditems', function(docs){
           var admin;
           admin = getBoolParam('admin');
-          if (admin || docs.length === 0) {
+          if (docs.length === 0 || (admin && docs.map(function(it){
+            return it.itemtype;
+          }).indexOf('admin') === -1)) {
             docs = [{
-              itemtype: 'admin'
+              itemtype: 'admin',
+              social: {
+                poster: 'horse'
+              }
             }].concat(docs);
           }
           return self.items = docs;

@@ -1,36 +1,23 @@
 export makeActivity = (item) ->
-  {itemtype} = item
-  activity = null
-  if itemtypes[itemtype]?
-    {activity} = itemtypes[itemtype]
-  if not activity?
-    activity = itemtype + '-activity'
+  {itemtype, data} = item
+  activity = itemtype + '-activity'
   output = $("<#{activity}>")
-  if item.data?
-    for k,v of item.data
-      output.prop k, v
+  setPropDict output, data
   return output
 
 export makeThumbnail = (item) ->
-  {itemtype} = item
-  thumbnail = null
-  if itemtypes[itemtype]?
-    {thumbnail} = itemtypes[itemtype]
-  if not thumbnail?
-    thumbnail = itemtype + '-thumbnail'
-  output = $("<#{thumbnail}>")
-  if item.data?
-    for k,v of item.data
-      output.prop k, v
+  {itemtype, data} = item
+  thumbnail = itemtype + '-thumbnail'
+  output = $("<#{thumbnail} id='thumbnail'>")
+  setPropDict output, data
   return output
 
-export itemtypes = {
-  typeword: {
-    thumbnail: 'typeword-thumbnail'
-    activity: 'typeword-activity'
-  }
-  example: {
-    thumbnail: 'example-thumbnail'
-    activity: 'example-activity'
-  }
-}
+export makeSocialThumbnail = (item) ->
+  {itemtype, data, social} = item
+  thumbnail = makeThumbnail item
+  output = $('<social-thumbnail>').css({'margin-left': '5px', 'margin-right': '5px'})
+  wrapper = output.find('#thumbnailwrapper')
+  wrapper.html('')
+  thumbnail.appendTo wrapper
+  setPropDict output, social
+  return output

@@ -18,15 +18,19 @@
       wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
       items = [
         {
-          itemtype: 'admin'
+          itemtype: 'admin',
+          social: {
+            poster: 'horse'
+          }
         }, {
           itemtype: 'example',
           data: {
             foo: 'somefooval',
             bar: 'somebarval'
           },
-          meta: {
-            poster: 'geza'
+          social: {
+            poster: 'mouse',
+            finishedby: ['elephant']
           }
         }
       ].concat((function(){
@@ -38,8 +42,9 @@
             data: {
               word: word
             },
-            meta: {
-              poster: 'someuser'
+            social: {
+              poster: 'dog',
+              finishedby: ['zebra']
             }
           });
         }
@@ -52,7 +57,7 @@
       });
     },
     addCustomItem: function(){
-      var self, itemtype, data_text, data, meta_text, meta;
+      var self, itemtype, data_text, data, social_text, social;
       self = this;
       itemtype = this.S('#itemtypeinput').val();
       if (itemtype == null || itemtype.length === 0) {
@@ -61,12 +66,12 @@
       }
       data_text = this.S('#datainput').val();
       data = jsyaml.safeLoad(data_text);
-      meta_text = this.S('#metainput').val();
-      meta = jsyaml.safeLoad(meta_text);
+      social_text = this.S('#socialinput').val();
+      social = jsyaml.safeLoad(social_text);
       return postItem('feeditems', {
         itemtype: itemtype,
         data: data,
-        meta: meta
+        social: social
       }, function(){
         return self.fire('task-finished', self);
       });

@@ -22,6 +22,11 @@
         type: String,
         value: 100,
         notify: true
+      },
+      imgstyle: {
+        type: String,
+        value: '',
+        observer: 'imgstyleChanged'
       }
     },
     queryChanged: function(newvalue, oldvalue){
@@ -30,21 +35,28 @@
         return;
       }
       if (newvalue == null || newvalue === '') {
+        this.$$('#imgtag').src = '/transparent.png';
         return;
       }
       self = this;
       return $.getJSON('/image?' + $.param({
         name: newvalue
       }), function(data){
+        if (self.query !== newvalue) {
+          return;
+        }
         self.data = data;
-        return self.$$('img').src = self.data[self.resultnum];
+        return self.$$('#imgtag').src = self.data[self.resultnum];
       });
     },
     resultnumChanged: function(newvalue, oldvalue){
       if (newvalue === oldvalue || this.data == null) {
         return;
       }
-      return this.$$('img').src = this.data[newvalue];
+      return this.$$('#imgtag').src = this.data[newvalue];
+    },
+    imgstyleChanged: function(){
+      return applyStyleTo(this.$$('#imgtag'), this.imgstyle);
     }
   });
 }).call(this);

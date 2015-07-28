@@ -1,0 +1,17 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bing-image.html">
+
+<dom-module id="user-avatar">
+  <style>
+    :host {
+      display: inline-block;
+    }
+  </style>
+  <template>
+    <div style="position: relative">
+      <bing-image style="position: relative" id="profilepic" imgstyle="border-radius: 100%; border: solid 3px black"></bing-image>
+      <div id="checkmark" style="display: none; position: absolute; top: 15px; left: 15px"><span style="font-size: 64px; color: white" class="glyphicon glyphicon-ok"></span></div>
+    </div>
+  </template>
+  <script src="user-avatar.js"></script>
+</dom-module>
