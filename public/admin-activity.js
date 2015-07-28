@@ -10,6 +10,9 @@
       username = (ref$ = localStorage.getItem('username')) != null ? ref$ : 'cat';
       return this.S('#usernameinput').val(username);
     },
+    appcacheStatus: function(){
+      return ['uncached', 'idle', 'checking', 'downloading', 'updateready'][window.applicationCache.status];
+    },
     setUsername: function(){
       return localStorage.setItem('username', this.S('#usernameinput').val().trim());
     },

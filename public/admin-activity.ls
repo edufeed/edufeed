@@ -5,6 +5,8 @@ Polymer {
   ready: ->
     username = localStorage.getItem('username') ? 'cat'
     this.S('#usernameinput').val(username)
+  appcacheStatus: ->
+    return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
   setUsername: ->
     localStorage.setItem 'username', this.S('#usernameinput').val().trim()
   makeFullScreen: ->
