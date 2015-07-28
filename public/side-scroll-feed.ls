@@ -25,8 +25,9 @@ Polymer {
         console.log 'tagMatchesItem'
         console.log tag
         console.log item
-        if x.finishedby.indexOf('cat') == -1
-          x.finishedby = x.finishedby ++ ['cat']
+        username = localStorage.getItem('username') ? 'cat'
+        if x.finishedby.indexOf(username) == -1
+          x.finishedby = x.finishedby ++ [username]
           #x.finishedby.push 'cat'
   openItem: (item) ->
     this.S('#thumbnails').hide()

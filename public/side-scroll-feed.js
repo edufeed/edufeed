@@ -18,7 +18,7 @@
       return this.S('#exitbutton').hide();
     },
     itemFinished: function(item){
-      var i$, ref$, len$, x, tag;
+      var i$, ref$, len$, x, tag, username, ref1$;
       for (i$ = 0, len$ = (ref$ = $('social-thumbnail')).length; i$ < len$; ++i$) {
         x = ref$[i$];
         tag = $(x).find('#thumbnail');
@@ -33,8 +33,9 @@
           console.log('tagMatchesItem');
           console.log(tag);
           console.log(item);
-          if (x.finishedby.indexOf('cat') === -1) {
-            x.finishedby = x.finishedby.concat(['cat']);
+          username = (ref1$ = localStorage.getItem('username')) != null ? ref1$ : 'cat';
+          if (x.finishedby.indexOf(username) === -1) {
+            x.finishedby = x.finishedby.concat([username]);
           }
         }
       }
