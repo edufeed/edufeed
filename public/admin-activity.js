@@ -5,6 +5,14 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
+    makeFullScreen: function(){
+      var ssfeed, rfs;
+      ssfeed = $('side-scroll-feed')[0];
+      rfs = document.body.mozRequestFullScreen || document.body.webkitRequestFullScreen || document.body.requestFullScreen;
+      if (rfs) {
+        return rfs.call(ssfeed);
+      }
+    },
     clearItems: function(){
       var self;
       self = this;

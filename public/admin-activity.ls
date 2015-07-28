@@ -2,6 +2,11 @@ Polymer {
   is: 'admin-activity'
   S: (pattern) ->
     return $(this.$$(pattern))
+  makeFullScreen: ->
+    ssfeed = $('side-scroll-feed')[0]
+    rfs = document.body.mozRequestFullScreen || document.body.webkitRequestFullScreen || document.body.requestFullScreen
+    if rfs
+      rfs.call(ssfeed)
   clearItems: ->
     self = this
     clearDb 'feeditems', ->
