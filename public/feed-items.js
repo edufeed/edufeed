@@ -23,7 +23,8 @@
     thumbnail = makeThumbnail(item);
     output = $('<social-thumbnail>').css({
       'margin-left': '5px',
-      'margin-right': '5px'
+      'margin-right': '5px',
+      'margin-top': '5px'
     });
     wrapper = output.find('#thumbnailwrapper');
     wrapper.html('');
