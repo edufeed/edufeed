@@ -5,6 +5,7 @@ require! {
   path
   getsecret
   throttle_call
+  request
 }
 
 func_cache = require('func_cache_mongo')()
@@ -19,6 +20,19 @@ app.set 'port', (process.env.PORT || 8080)
 app.use express.static(path.join(__dirname, 'public'))
 
 app.listen app.get('port'), '0.0.0.0'
+
+# proxy
+
+app.get '/proxy', (req, res) ->
+  {url} = req.query
+  if not url?
+    res.send 'need url'
+    return
+  request {url: url, encoding: null}, (err, response, body) ->
+    content_type = response.headers['content-type']
+    res.setHeader 'Content-Type', content_type
+    res.send body
+    return
 
 # images
 

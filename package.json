@@ -9,6 +9,7 @@
     "func_cache_mongo": "^1.0.2",
     "getsecret": "^1.0.1",
     "node-bing-api": "^2.0.0",
+    "request": "^2.60.0",
     "throttle_call": "^1.0.0"
   },
   "devDependencies": {},

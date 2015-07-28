@@ -41,7 +41,7 @@ Polymer {
         return
       self.data = data
       #console.log 'queryChanged:' + 'query=' + self.query + 'newsrc=' + self.data[self.resultnum]
-      self.$$('#imgtag').src = self.data[self.resultnum]
+      self.$$('#imgtag').src = '/proxy?' + $.param({url: self.data[self.resultnum]})
   resultnumChanged: (newvalue, oldvalue) ->
     if newvalue == oldvalue or not this.data?
       return

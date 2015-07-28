@@ -27,3 +27,5 @@ for filename in filelist
 log ''
 log 'NETWORK:'
 log '/image'
+log '/proxy'
+#log '*'

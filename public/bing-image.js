@@ -46,7 +46,9 @@
           return;
         }
         self.data = data;
-        return self.$$('#imgtag').src = self.data[self.resultnum];
+        return self.$$('#imgtag').src = '/proxy?' + $.param({
+          url: self.data[self.resultnum]
+        });
       });
     },
     resultnumChanged: function(newvalue, oldvalue){
