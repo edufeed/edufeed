@@ -39,16 +39,11 @@
         return;
       }
       self = this;
-      return $.getJSON('/image?' + $.param({
-        name: newvalue
-      }), function(data){
+      return get_imagedata_by_name(newvalue, function(imgdata){
         if (self.query !== newvalue) {
           return;
         }
-        self.data = data;
-        return self.$$('#imgtag').src = '/proxy?' + $.param({
-          url: self.data[self.resultnum]
-        });
+        return self.$$('#imgtag').src = imgdata;
       });
     },
     resultnumChanged: function(newvalue, oldvalue){

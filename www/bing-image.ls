@@ -36,12 +36,21 @@ Polymer {
       this.$$('#imgtag').src = '/transparent.png'
       return
     self = this
+    get_imagedata_by_name newvalue, (imgdata) ->
+      if self.query != newvalue # query property has changed!
+        return
+      self.$$('#imgtag').src = imgdata
+    /*
     $.getJSON '/image?' + $.param({name: newvalue}), (data) ->
       if self.query != newvalue # query property has changed!
         return
       self.data = data
       #console.log 'queryChanged:' + 'query=' + self.query + 'newsrc=' + self.data[self.resultnum]
-      self.$$('#imgtag').src = '/proxy?' + $.param({url: self.data[self.resultnum]})
+      $.get '/proxybase64?' + $.param({url: self.data[self.resultnum]}), (imgdata) ->
+        if self.query != newvalue # query property has changed!
+          return
+        self.$$('#imgtag').src = imgdata
+    */
   resultnumChanged: (newvalue, oldvalue) ->
     if newvalue == oldvalue or not this.data?
       return
