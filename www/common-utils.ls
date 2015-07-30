@@ -12,6 +12,18 @@ export getUrlParameters = ->
 
 export getLocalStorage = ->
   if chrome? and chrome.storage? and chrome.storage.local?
+    return {
+      get: (key, callback) ->
+        chrome.storage.local.get key, (dict) ->
+          callback dict[key]
+      set: (key, val, callback) ->
+        dict = {}
+        dict[key] = val
+        if callback?
+          chrome.storage.local.set dict, -> callback(val)
+        else
+          chrome.storage.local.set dict
+    }
     return chrome.storage.local
   if window.localStorage?
     return {
@@ -23,27 +35,26 @@ export getLocalStorage = ->
           callback(val)
     }
 
-/*
-export getParam = (key) ->
-  val = getUrlParameters()[key]
-  if val?
-    return val
-  val = getLocalStorage().getItem(key)
-  if val?
-    return val
+export getParam = (key, callback) ->
+  value = getUrlParameters()[key]
+  if value?
+    callback value
+    return
+  val <- getLocalStorage().get key
+  callback val
 
-export getBoolParam = (key) ->
-  val = getParam(key)
-  if val? and (val == true or (val[0]? and ['t', 'T', 'y', 'Y'].indexOf(val[0]) != -1))
-    return true
-  return false
+export getBoolParam = (key, callback) ->
+  val <- getParam key
+  if val? and (val == true or (val.length? and val[0]? and ['t', 'T', 'y', 'Y'].indexOf(val[0]) != -1))
+    callback true
+    return
+  callback false
 
 export setParam = (key, val) ->
-  getLocalStorage().setItem key, val
+  getLocalStorage().set key, val
   new_params = getUrlParameters()
   new_params[key] = val
   window.history.pushState(null, null, window.location.pathname + '?' + $.param(new_params))
-*/
 
 export parseInlineCSS = (text) ->
   output = {}

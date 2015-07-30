@@ -25,7 +25,8 @@ Polymer {
         console.log 'tagMatchesItem'
         console.log tag
         console.log item
-        username = getLocalStorage().getItem('username') ? 'cat'
+        username <- getLocalStorage().get('username')
+        username = username ? 'cat'
         if x.finishedby.indexOf(username) == -1
           x.finishedby = x.finishedby ++ [username]
           #x.finishedby.push 'cat'
@@ -49,15 +50,25 @@ Polymer {
     this.S('#thumbnails').html('')
     for item in this.items
       this.addItemToFeed item
-  ready: ->
+  updateItems: ->
     self = this
-    update_items = ->
-      getItems 'feeditems', (docs) ->
-        admin = getBoolParam('admin')
-        if docs.length == 0 or (admin and (docs.map (.itemtype)).indexOf('admin') == -1)
-          docs = [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
-        self.items = docs
-    update_items()
-    setSyncHandler 'feeditems', (change) ->
-      update_items()
+    docs <- getItems 'feeditems'
+    if not docs? or not docs.length?
+      docs = []
+    console.log 'docs are:'
+    console.log docs
+    admin <- getBoolParam 'admin'
+    console.log 'admin is:'
+    console.log admin
+    console.log 'docs is:'
+    console.log docs
+    if docs.length == 0 or (admin and (docs.map (.itemtype)).indexOf('admin') == -1)
+      docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
+    self.items = docs
+  ready: ->
+    #console.log 'docs 1 are:'
+    #console.log docs
+    this.updateItems()
+    #setSyncHandler 'feeditems', (change) ->
+    #  update_items()
 }

@@ -5,11 +5,16 @@
     var keyname;
     keyname = 'cache:get_imagedata_by_name|' + escape(name);
     return getLocalStorage().get(keyname, function(cached){
+      var urlbase;
       if (cached != null) {
         callback(cached);
         return;
       }
-      return $.get('/imagedatabyname?' + $.param({
+      urlbase = '/imagedatabyname?';
+      if ((typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null) {
+        urlbase = 'http://edfeed.herokuapp.com/imagedatabyname?';
+      }
+      return $.get(urlbase + $.param({
         name: name
       }), function(imgdata){
         getLocalStorage().set(keyname, imgdata);

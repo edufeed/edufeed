@@ -18,7 +18,7 @@
       return this.S('#exitbutton').hide();
     },
     itemFinished: function(item){
-      var i$, ref$, len$, x, tag, username, ref1$;
+      var i$, ref$, len$, x, tag;
       for (i$ = 0, len$ = (ref$ = $('social-thumbnail')).length; i$ < len$; ++i$) {
         x = ref$[i$];
         tag = $(x).find('#thumbnail');
@@ -33,10 +33,13 @@
           console.log('tagMatchesItem');
           console.log(tag);
           console.log(item);
-          username = (ref1$ = getLocalStorage().getItem('username')) != null ? ref1$ : 'cat';
-          if (x.finishedby.indexOf(username) === -1) {
-            x.finishedby = x.finishedby.concat([username]);
-          }
+          getLocalStorage().get('username', fn$);
+        }
+      }
+      function fn$(username){
+        username = username != null ? username : 'cat';
+        if (x.finishedby.indexOf(username) === -1) {
+          return x.finishedby = x.finishedby.concat([username]);
         }
       }
     },
@@ -72,13 +75,20 @@
       }
       return results$;
     },
-    ready: function(){
-      var self, update_items;
+    updateItems: function(){
+      var self;
       self = this;
-      update_items = function(){
-        return getItems('feeditems', function(docs){
-          var admin;
-          admin = getBoolParam('admin');
+      return getItems('feeditems', function(docs){
+        if (docs == null || docs.length == null) {
+          docs = [];
+        }
+        console.log('docs are:');
+        console.log(docs);
+        return getBoolParam('admin', function(admin){
+          console.log('admin is:');
+          console.log(admin);
+          console.log('docs is:');
+          console.log(docs);
           if (docs.length === 0 || (admin && docs.map(function(it){
             return it.itemtype;
           }).indexOf('admin') === -1)) {
@@ -91,11 +101,10 @@
           }
           return self.items = docs;
         });
-      };
-      update_items();
-      return setSyncHandler('feeditems', function(change){
-        return update_items();
       });
+    },
+    ready: function(){
+      return this.updateItems();
     }
   });
   function deepEq$(x, y, type){
