@@ -6,15 +6,20 @@
       return $(this.$$(pattern));
     },
     ready: function(){
-      var username, ref$;
-      username = (ref$ = localStorage.getItem('username')) != null ? ref$ : 'cat';
-      return this.S('#usernameinput').val(username);
+      var self;
+      self = this;
+      return getLocalStorage().get('username', function(username){
+        if (username == null) {
+          username = 'cat';
+        }
+        return self.S('#usernameinput').val(username);
+      });
     },
     appcacheStatus: function(){
       return ['uncached', 'idle', 'checking', 'downloading', 'updateready'][window.applicationCache.status];
     },
     setUsername: function(){
-      return localStorage.setItem('username', this.S('#usernameinput').val().trim());
+      return getLocalStorage().set('username', this.S('#usernameinput').val().trim());
     },
     makeFullScreen: function(){
       var ssfeed, rfs;

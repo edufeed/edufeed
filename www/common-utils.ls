@@ -10,11 +10,25 @@ export getUrlParameters = ->
   )
   return map
 
+export getLocalStorage = ->
+  if chrome? and chrome.storage? and chrome.storage.local?
+    return chrome.storage.local
+  if window.localStorage?
+    return {
+      get: (key, callback) ->
+        callback window.localStorage.getItem(key)
+      set: (key, val, callback) ->
+        window.localStorage.setItem(key, val)
+        if callback?
+          callback(val)
+    }
+
+/*
 export getParam = (key) ->
   val = getUrlParameters()[key]
   if val?
     return val
-  val = localStorage.getItem(key)
+  val = getLocalStorage().getItem(key)
   if val?
     return val
 
@@ -25,10 +39,11 @@ export getBoolParam = (key) ->
   return false
 
 export setParam = (key, val) ->
-  localStorage.setItem key, val
+  getLocalStorage().setItem key, val
   new_params = getUrlParameters()
   new_params[key] = val
   window.history.pushState(null, null, window.location.pathname + '?' + $.param(new_params))
+*/
 
 export parseInlineCSS = (text) ->
   output = {}

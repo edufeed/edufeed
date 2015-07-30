@@ -14,7 +14,7 @@
   });
   app = express();
   app.set('port', process.env.PORT || 8080);
-  app.use(express['static'](path.join(__dirname, 'public')));
+  app.use(express['static'](path.join(__dirname, 'www')));
   app.listen(app.get('port'), '0.0.0.0');
   get_binary_content = function(url, callback){
     return request({

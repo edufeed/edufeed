@@ -33,7 +33,7 @@
           console.log('tagMatchesItem');
           console.log(tag);
           console.log(item);
-          username = (ref1$ = localStorage.getItem('username')) != null ? ref1$ : 'cat';
+          username = (ref1$ = getLocalStorage().getItem('username')) != null ? ref1$ : 'cat';
           if (x.finishedby.indexOf(username) === -1) {
             x.finishedby = x.finishedby.concat([username]);
           }

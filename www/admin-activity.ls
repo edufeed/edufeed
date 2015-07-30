@@ -3,12 +3,15 @@ Polymer {
   S: (pattern) ->
     return $(this.$$(pattern))
   ready: ->
-    username = localStorage.getItem('username') ? 'cat'
-    this.S('#usernameinput').val(username)
+    self = this
+    getLocalStorage().get 'username', (username) ->
+      if not username?
+        username = 'cat'
+      self.S('#usernameinput').val(username)
   appcacheStatus: ->
     return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
   setUsername: ->
-    localStorage.setItem 'username', this.S('#usernameinput').val().trim()
+    getLocalStorage().set('username', this.S('#usernameinput').val().trim())
   makeFullScreen: ->
     ssfeed = $('side-scroll-feed')[0]
     rfs = document.body.mozRequestFullScreen || document.body.webkitRequestFullScreen || document.body.requestFullScreen

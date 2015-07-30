@@ -25,7 +25,7 @@ Polymer {
         console.log 'tagMatchesItem'
         console.log tag
         console.log item
-        username = localStorage.getItem('username') ? 'cat'
+        username = getLocalStorage().getItem('username') ? 'cat'
         if x.finishedby.indexOf(username) == -1
           x.finishedby = x.finishedby ++ [username]
           #x.finishedby.push 'cat'
