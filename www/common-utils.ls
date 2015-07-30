@@ -1,3 +1,6 @@
+export isChromeApp = ->
+  return chrome? and chrome.app? and chrome.app.runtime?
+
 export getUrlParameters = ->
   url = window.location.href
   hash = url.lastIndexOf('#')

@@ -25,6 +25,8 @@
     },
     "permissions": [
         "<all_urls>",
-        "storage"
+        "storage",
+        "unlimitedStorage",
+        "fullscreen"
     ]
 }

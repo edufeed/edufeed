@@ -1,4 +1,4 @@
-window.addEventListener 'WebComponentsReady', (e) ->
+startPage = ->
   params = getUrlParameters()
   tagname = params.tag
   if params.activity?
@@ -34,3 +34,12 @@ window.addEventListener 'WebComponentsReady', (e) ->
     tag.appendTo $('body')
   , 1000
   */
+
+
+window.addEventListener 'WebComponentsReady', (e) ->
+  navigator.webkitPersistentStorage.requestQuota(
+    1024*1024*100,
+    startPage,
+    (err) -> console.log err
+  )
+  #return
