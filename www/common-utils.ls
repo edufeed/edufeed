@@ -1,18 +1,6 @@
 export isChromeApp = ->
   return chrome? and chrome.app? and chrome.app.runtime?
 
-export getUrlParameters = ->
-  url = window.location.href
-  hash = url.lastIndexOf('#')
-  if hash != -1
-    url = url.slice(0, hash)
-  map = {}
-  parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
-    #map[key] = decodeURI(value).split('+').join(' ').split('%2C').join(',') # for whatever reason this seems necessary?
-    map[key] = decodeURIComponent(value).split('+').join(' ') # for whatever reason this seems necessary?
-  )
-  return map
-
 export getLocalStorage = ->
   if chrome? and chrome.storage? and chrome.storage.local?
     return {
@@ -37,6 +25,88 @@ export getLocalStorage = ->
         if callback?
           callback(val)
     }
+
+# filesystem related
+
+/*
+localinfo = {}
+export setFileSystem = (filesystem, callback) ->
+  localinfo.filesystem = filesystem
+
+export getFileSystem = ->
+  return localinfo.filesystem
+
+export getDir = (dirname, callback) ->
+  filesystem = getFileSystem()
+  filesystem.root.getDirectory(
+    dirname,
+    {create: true},
+    (direntry) ->
+      callback direntry
+    ,
+    (err) ->
+      console.log 'error getting directory ' + dirname
+      console.log err
+  )
+
+export getImageFile = (filename, callback) ->
+  getDir 'images', (imgdir) ->
+    imgdir.getFile(
+      filename,
+      {create: true},
+      (imgfile) ->
+        callback imgfile
+      ,
+      (err) ->
+        console.log 'error getting file ' + filename
+        console.log err
+    )
+
+export writeImageMimetype = (imgname, mimetype, callback) ->
+  getImageFileWriter imgname + '.txt', (filewriter) ->
+    filewriter.onwriteend = (e) ->
+      if callback?
+        callback()
+    filewriter.write new Blob([mimetype], {type: 'text/plain'})
+
+export writeImageData = (imgname, base64data, callback) ->
+  getImageFileWriter imgname + '.jpg', (filewriter) ->
+    filewriter.onwriteend = (e) ->
+      if callback?
+        callback()
+    filewriter.write base64toblob(base64data, {type: ''})
+
+export writeImageToFile = (imgname, base64string, callback) ->
+  mimetype = base64string.slice(base64string.indexOf(':') + 1, base64string.indexOf(';'))
+  base64data = base64string.slice(base64string.indexOf(',') + 1)
+  writeImageMimetype imgname, mimetype, ->
+    writeImageData imgname, base64data, ->
+      if callback?
+        callback()
+
+export getImageFileReader = (filename, callback) ->
+  getImageFile filename, (imgfile) ->
+    callback new FileReader(imgfile.file)
+
+export getImageFileWriter = (filename, callback) ->
+  getImageFile filename, (imgfile) ->
+    imgfile.createWriter (filewriter) ->
+      callback filewriter
+*/
+
+# url parameters related
+
+export getUrlParameters = ->
+  url = window.location.href
+  hash = url.lastIndexOf('#')
+  if hash != -1
+    url = url.slice(0, hash)
+  map = {}
+  parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) ->
+    #map[key] = decodeURI(value).split('+').join(' ').split('%2C').join(',') # for whatever reason this seems necessary?
+    map[key] = decodeURIComponent(value).split('+').join(' ') # for whatever reason this seems necessary?
+  )
+  return map
 
 export getParam = (key, callback) ->
   value = getUrlParameters()[key]

@@ -35,11 +35,27 @@ startPage = ->
   , 1000
   */
 
-
+window.addEventListener 'WebComponentsReady', (e) ->
+  startPage()
+/*
 window.addEventListener 'WebComponentsReady', (e) ->
   navigator.webkitPersistentStorage.requestQuota(
     1024*1024*100,
-    startPage,
-    (err) -> console.log err
+    (grantedBytes) ->
+      window.webkitRequestFileSystem(
+        PERSISTENT,
+        grantedBytes,
+        (filesystem) ->
+          setFileSystem(filesystem)
+          startPage()
+        ,
+        (err2) ->
+          console.log 'error while requesting filesystem'
+          console.log err2
+      )
+    ,
+    (err1) ->
+      console.log 'error while requesting quota'
+      console.log err1
   )
-  #return
+*/

@@ -82,13 +82,7 @@
         if (docs == null || docs.length == null) {
           docs = [];
         }
-        console.log('docs are:');
-        console.log(docs);
         return getBoolParam('admin', function(admin){
-          console.log('admin is:');
-          console.log(admin);
-          console.log('docs is:');
-          console.log(docs);
           if (docs.length === 0 || (admin && docs.map(function(it){
             return it.itemtype;
           }).indexOf('admin') === -1)) {
@@ -104,7 +98,12 @@
       });
     },
     ready: function(){
-      return this.updateItems();
+      var self;
+      self = this;
+      this.updateItems();
+      return setSyncHandler('feeditems', function(change){
+        return self.updateItems();
+      });
     }
   });
   function deepEq$(x, y, type){

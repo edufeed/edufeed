@@ -17,7 +17,7 @@ get_imagedata_by_name_real = (name, callback) ->
   callback imgdata
 
 if isChromeApp()
-  export get_imagedata_by_name = cache_func_localstorage get_imagedata_by_name, 'get_imagedata_by_name'
+  export get_imagedata_by_name = cache_func_localstorage get_imagedata_by_name_real, 'get_imagedata_by_name'
 else
   export get_imagedata_by_name = get_imagedata_by_name_real
 

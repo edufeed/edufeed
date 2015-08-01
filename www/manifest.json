@@ -27,6 +27,7 @@
         "<all_urls>",
         "storage",
         "unlimitedStorage",
-        "fullscreen"
+        "fullscreen",
+        {"fileSystem": ["write", "retainEntries", "directory"]}
     ]
 }

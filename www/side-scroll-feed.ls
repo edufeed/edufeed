@@ -55,20 +55,15 @@ Polymer {
     docs <- getItems 'feeditems'
     if not docs? or not docs.length?
       docs = []
-    console.log 'docs are:'
-    console.log docs
     admin <- getBoolParam 'admin'
-    console.log 'admin is:'
-    console.log admin
-    console.log 'docs is:'
-    console.log docs
     if docs.length == 0 or (admin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
     self.items = docs
   ready: ->
     #console.log 'docs 1 are:'
     #console.log docs
+    self = this
     this.updateItems()
-    #setSyncHandler 'feeditems', (change) ->
-    #  update_items()
+    setSyncHandler 'feeditems', (change) ->
+      self.updateItems()
 }
