@@ -2,7 +2,7 @@
 
 ## Demo (Web Version)
 
-See [http://edfeed.herokuapp.com/](http://edfeed.herokuapp.com/) for a demo (chrome only - other browsers don't yet support the Web Components standard).
+See WEBROOT for a demo (chrome only - other browsers don't yet support the Web Components standard).
 
 ## Installing and Running (Web Version)
 
