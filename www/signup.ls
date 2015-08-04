@@ -9,6 +9,11 @@ send_signup_info = ->
     $('#statusinfo').attr('class', 'bg-danger')
     $('#statusinfo').text('need password')
     return
+  botcheck = $('#botcheckinput').val().trim()
+  if not botcheck? or botcheck.length == 0
+    $('#statusinfo').attr('class', 'bg-danger')
+    $('#statusinfo').text('bot check failed')
+    return
   $('#statusinfo').attr('class', 'bg-success')
   $('#statusinfo').text 'Creating account, please wait'
   $.ajax {
@@ -16,7 +21,7 @@ send_signup_info = ->
     url: '/signup'
     dataType: 'json'
     contentType: 'application/json; charset=utf-8'
-    data: JSON.stringify({username: username, password: password})
+    data: JSON.stringify({username: username, password: password, botcheck: botcheck})
     success: (data) ->
       if data.status == 'success'
         setUsername username, ->
@@ -38,6 +43,9 @@ $(document).ready ->
     if evt.keyCode == 13
       send_signup_info()
   $('#passwordinput').keydown (evt) ->
+    if evt.keyCode == 13
+      send_signup_info()
+  $('#botcheckinput').keydown (evt) ->
     if evt.keyCode == 13
       send_signup_info()
   $('#signup').click ->

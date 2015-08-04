@@ -144,8 +144,8 @@
     });
   };
   app.post('/signup', function(req, res){
-    var ref$, username, password, allowed_letters, c, users;
-    ref$ = req.body, username = ref$.username, password = ref$.password;
+    var ref$, username, password, botcheck, allowed_letters, c, users;
+    ref$ = req.body, username = ref$.username, password = ref$.password, botcheck = ref$.botcheck;
     if (username == null) {
       res.send({
         status: 'error',
@@ -157,6 +157,13 @@
       res.send({
         status: 'error',
         text: 'missing password'
+      });
+      return;
+    }
+    if (botcheck == null || botcheck !== '7,000') {
+      res.send({
+        status: 'error',
+        text: 'bot check failed'
       });
       return;
     }

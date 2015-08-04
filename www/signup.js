@@ -2,7 +2,7 @@
 (function(){
   var send_signup_info;
   send_signup_info = function(){
-    var username, password;
+    var username, password, botcheck;
     username = $('#usernameinput').val().trim();
     if (username == null || username.length === 0) {
       $('#statusinfo').attr('class', 'bg-danger');
@@ -15,6 +15,12 @@
       $('#statusinfo').text('need password');
       return;
     }
+    botcheck = $('#botcheckinput').val().trim();
+    if (botcheck == null || botcheck.length === 0) {
+      $('#statusinfo').attr('class', 'bg-danger');
+      $('#statusinfo').text('bot check failed');
+      return;
+    }
     $('#statusinfo').attr('class', 'bg-success');
     $('#statusinfo').text('Creating account, please wait');
     return $.ajax({
@@ -24,7 +30,8 @@
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify({
         username: username,
-        password: password
+        password: password,
+        botcheck: botcheck
       }),
       success: function(data){
         if (data.status === 'success') {
@@ -54,6 +61,11 @@
       }
     });
     $('#passwordinput').keydown(function(evt){
+      if (evt.keyCode === 13) {
+        return send_signup_info();
+      }
+    });
+    $('#botcheckinput').keydown(function(evt){
       if (evt.keyCode === 13) {
         return send_signup_info();
       }

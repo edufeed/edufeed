@@ -114,12 +114,15 @@ couch_put = (url, data, callback) ->
     callback(data)
 
 app.post '/signup', (req, res) ->
-  {username, password} = req.body
+  {username, password, botcheck} = req.body
   if not username?
     res.send {status: 'error', text: 'missing username'}
     return
   if not password?
     res.send {status: 'error', text: 'missing password'}
+    return
+  if not botcheck? or botcheck != '7,000'
+    res.send {status: 'error', text: 'bot check failed'}
     return
   allowed_letters = [\a to \z].join('')
   if [allowed_letters.indexOf(c) for c in username].indexOf(-1) != -1
