@@ -78,7 +78,7 @@ By default, the image shown for a word-task will be the first Bing images search
 
 ### Viewing Logs
 
-Visit COUCHROOT/_utils.html and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
+Visit COUCHROOT/_utils/ and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
 
 ## Development Details
 
