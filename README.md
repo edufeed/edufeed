@@ -6,7 +6,7 @@ See WEBROOT for a demo (chrome only - other browsers don't yet support the Web C
 
 ## Installing and Running (Web Version)
 
-First install [node.js](https://nodejs.org/) and [mongoDB](https://www.mongodb.org/)
+First install [git](http://www.git-scm.com/) and [node.js](https://nodejs.org/) and [mongoDB](https://www.mongodb.org/)
 
 Then clone the repository and install prerequisites:
 
