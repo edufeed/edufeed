@@ -26,33 +26,36 @@
   };
   loginfo = {};
   out$.addlog = addlog = function(postdata, callback){
-    var output, db, activity_name, activity_tag, ref$, itemtype, data, social;
+    var output;
     output = import$({}, postdata);
-    db = getDb('logs', {
-      replicatetoremote: true
-    });
-    if (output.username == null) {
-      output.username = 'guestuser';
-    }
-    output.posttime = Date.now();
-    if (loginfo.sessionstart == null) {
-      loginfo.sessionstart = Date.now();
-    }
-    activity_name = getActivityName();
-    activity_tag = getActivityTag();
-    if (activity_name === 'side-scroll-feed') {
-      output.itemtype = 'side-scroll-feed';
-      output.feeditems = activity_tag.items;
-    } else {
-      ref$ = activity_tag.getalldata(), itemtype = ref$.itemtype, data = ref$.data, social = ref$.social;
-      output.itemtype = itemtype;
-      output.data = data;
-      output.social = social;
-    }
-    return postItem('logs', output, function(){
-      if (callback != null) {
-        return callback();
+    return getUsername(function(username){
+      var db, activity_name, activity_tag, ref$, itemtype, data, social;
+      db = getDb("logs_" + username, {
+        replicatetoremote: true
+      });
+      if (output.username == null) {
+        output.username = 'guestuser';
       }
+      output.posttime = Date.now();
+      if (loginfo.sessionstart == null) {
+        loginfo.sessionstart = Date.now();
+      }
+      activity_name = getActivityName();
+      activity_tag = getActivityTag();
+      if (activity_name === 'side-scroll-feed') {
+        output.itemtype = 'side-scroll-feed';
+        output.feeditems = activity_tag.items;
+      } else {
+        ref$ = activity_tag.getalldata(), itemtype = ref$.itemtype, data = ref$.data, social = ref$.social;
+        output.itemtype = itemtype;
+        output.data = data;
+        output.social = social;
+      }
+      return postItem(db, output, function(){
+        if (callback != null) {
+          return callback();
+        }
+      });
     });
   };
   function import$(obj, src){

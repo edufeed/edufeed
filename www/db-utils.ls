@@ -1,7 +1,29 @@
+export test_if_can_login = (username, password, callback) ->
+  couchurl <- getCouchURL()
+  db = new PouchDB("http://#{couchurl}/logs_#{username}")
+  db.login username, password, (err, response) ->
+    if err
+      console.log err
+      callback(false)
+    else
+      callback(true)
+
+export get_couchdb_login = (callback) ->
+  username <- getUsername()
+  password <- getPassword()
+  couchurl <- getCouchURL()
+  callback {
+    username: username
+    password: password
+    couchurl: couchurl
+  }
+
 db_cache = {}
 remote_db_cache = {}
 db_sync_handlers = {}
 export getDb = (dbname, options) ->
+  if typeof(dbname) != typeof('') # probably supplied a db instead of a dbname
+    return dbname
   if not options?
     options = {}
   if db_cache[dbname]?
@@ -15,23 +37,26 @@ export getDb = (dbname, options) ->
   sync = options.sync? or params.sync?
   replicatetoremote = options.replicatetoremote? or params.replicatetoremote?
   if sync or replicatetoremote
-    username = options.username ? params.username ? 'guestuser'
-    password = options.username ? params.password ? 'guestpassword'
-    remote_db = remote_db_cache[dbname] = new PouchDB('http://edufeed.iriscouch.com/' + dbname, {auth: {username, password}})
-    if sync
-      db.sync(remote_db, {live: true})/*.on('change', (change) ->
-        if db_sync_handlers[dbname]?
-          db_sync_handlers[dbname](change)
-      )*/.on('error', (err) ->
-        console.log 'sync error'
-        console.log err
-      )
-    else if replicatetoremote
-      db.replicate.to(remote_db, {live: true})
-      .on('error', (err) ->
-        console.log 'replicatetoremote error'
-        console.log err
-      )
+    get_couchdb_login (couchdb_login) ->
+      {username, password, couchurl} = couchdb_login
+      # remote_db = remote_db_cache[dbname] = new PouchDB("http://#{couchurl}/" + dbname, {auth: {username, password}})
+      remote_db_url_string = "http://#{username}:#{password}@#{couchurl}/" + dbname
+      console.log remote_db_url_string
+      remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
+      if sync
+        db.sync(remote_db, {live: true})/*.on('change', (change) ->
+          if db_sync_handlers[dbname]?
+            db_sync_handlers[dbname](change)
+        )*/.on('error', (err) ->
+          console.log 'sync error'
+          console.log err
+        )
+      else if replicatetoremote
+        db.replicate.to(remote_db, {live: true})
+        .on('error', (err) ->
+          console.log 'replicatetoremote error'
+          console.log err
+        )
   return db
 
 export setSyncHandler = (dbname, callback) ->

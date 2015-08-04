@@ -51,7 +51,8 @@ Polymer {
       this.addItemToFeed item
   updateItems: (firstvisit) ->
     self = this
-    docs <- getItems 'feeditems'
+    username <- getUsername()
+    docs <- getItems "feeditems_#{username}"
     if not docs? or not docs.length?
       docs = []
     admin <- getBoolParam 'admin'
@@ -67,6 +68,7 @@ Polymer {
     #console.log docs
     self = this
     this.updateItems(true)
-    setSyncHandler 'feeditems', (change) ->
-      self.updateItems()
+    getUsername (username) ->
+      setSyncHandler "feeditems_#{username}", (change) ->
+        self.updateItems()
 }

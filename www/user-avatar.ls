@@ -29,7 +29,13 @@ Polymer {
       return
     #if not newname? or newname.length == 0
     #  newname = 'cat'
-    this.$$('#profilepic').query = newname
+    profilepic_paths <~ get_profilepic_paths()
+    if newname != this.username # username changed
+      return
+    if profilepic_paths[newname]?
+      this.$$('#profilepic').imgsrc = profilepic_paths[newname]
+    else
+      this.$$('#profilepic').query = newname
   checkedChanged: ->
     if this.checked
       $(this.$$('#checkmark')).show()

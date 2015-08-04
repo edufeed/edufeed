@@ -21,12 +21,23 @@ Polymer {
       value: 100
       notify: true
     }
+    imgsrc: {
+      type: String
+      value: ''
+      observer: 'imgsrcChanged'
+    }
     imgstyle: {
       type: String
       value: ''
       observer: 'imgstyleChanged'
     }
   }
+  imgsrcChanged: (newvalue, oldvalue) ->
+    if newvalue == oldvalue
+      return
+    if not newvalue? or newvalue == ''
+      return
+    this.$$('#imgtag').src = newvalue
   #ready: ->
   #  this.data = []
   queryChanged: (newvalue, oldvalue) ->
@@ -36,10 +47,16 @@ Polymer {
       this.$$('#imgtag').src = '/transparent.png'
       return
     self = this
-    get_imagedata_by_name newvalue, (imgdata) ->
+    get_image_paths (image_paths) ->
       if self.query != newvalue # query property has changed!
         return
-      self.$$('#imgtag').src = imgdata
+      if image_paths[newvalue]?
+        self.$$('#imgtag').src = image_paths[newvalue]
+        return
+      get_imagedata_by_name newvalue, (imgdata) ->
+        if self.query != newvalue # query property has changed!
+          return
+        self.$$('#imgtag').src = imgdata
     /*
     $.getJSON '/image?' + $.param({name: newvalue}), (data) ->
       if self.query != newvalue # query property has changed!

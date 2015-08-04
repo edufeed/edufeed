@@ -8,11 +8,13 @@
   </style>
   <template>
     <div>This is the admin console. Use setParam("admin", true) to ensure it will always be visible.</div>
-    <div>Application Cache status: <span>{{appcacheStatus()}}</span></div>
+    <!--<div>Application Cache status: <span>{{appcacheStatus()}}</span></div>-->
     <!-- <button class="btn btn-lg btn-primary" on-click="makeFullScreen">Make Fullscreen</button><br> -->
-    <div>Set username:</div>
+    <div>Username:</div>
     <input id="usernameinput"></input><br>
-    <button class="btn btn-lg btn-primary" on-click="setUsername">Set Username</button>
+    <div>Password:</div>
+    <input id="passwordinput" type="password"></input><br>
+    <button class="btn btn-lg btn-primary" on-click="setUsername">Login</button>
     <br><br>
     <button class="btn btn-lg btn-primary" on-click="clearItems">Clear all feed items</button><br>
     <button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>

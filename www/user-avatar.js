@@ -29,10 +29,20 @@
       }
     },
     usernameChanged: function(newname, oldname){
+      var this$ = this;
       if (newname === oldname) {
         return;
       }
-      return this.$$('#profilepic').query = newname;
+      return get_profilepic_paths(function(profilepic_paths){
+        if (newname !== this$.username) {
+          return;
+        }
+        if (profilepic_paths[newname] != null) {
+          return this$.$$('#profilepic').imgsrc = profilepic_paths[newname];
+        } else {
+          return this$.$$('#profilepic').query = newname;
+        }
+      });
     },
     checkedChanged: function(){
       if (this.checked) {

@@ -6,9 +6,17 @@ require! {
   getsecret
   throttle_call
   request
+  restler
 }
 
 func_cache = require('func_cache_mongo')()
+
+couchdb_server = getsecret('couchdb_server')
+couchdb_user = getsecret('couchdb_user')
+couchdb_password = getsecret('couchdb_password')
+couchdb_url = "http://#{couchdb_user}:#{couchdb_password}@#{couchdb_server}/"
+
+nano = require('nano')(couchdb_url)
 
 bing_api_key = getsecret 'bing_api_key'
 Bing = require('node-bing-api')({accKey: bing_api_key})
@@ -18,6 +26,8 @@ app = express()
 app.set 'port', (process.env.PORT || 8080)
 
 app.use express.static(path.join(__dirname, 'www'))
+
+app.use require('body-parser').json()
 
 app.listen app.get('port'), '0.0.0.0'
 
@@ -96,3 +106,48 @@ app.get '/imagedatabyname', (req, res) ->
 app.get '/getfeeditems', (req, res) ->
   wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
+
+# signup
+
+couch_put = (url, data, callback) ->
+  restler.putJson(couchdb_url + url, data).on 'complete', (data, response) ->
+    callback(data)
+
+app.post '/signup', (req, res) ->
+  {username, password} = req.body
+  if not username?
+    res.send {status: 'error', text: 'missing username'}
+    return
+  if not password?
+    res.send {status: 'error', text: 'missing password'}
+    return
+  allowed_letters = [\a to \z].join('')
+  if [allowed_letters.indexOf(c) for c in username].indexOf(-1) != -1
+    res.send {status: 'error', text: 'username should contain only lowercase letters a-z'}
+    return
+  if [allowed_letters.indexOf(c) for c in password].indexOf(-1) != -1
+    res.send {status: 'error', text: 'password should contain only lowercase letters a-z'}
+    return
+  users = nano.use('_users')
+  <- users.insert {
+    _id: "org.couchdb.user:#{username}"
+    name: username
+    type: 'user'
+    roles: ["logs_#{username}", "feeditems_#{username}"]
+    password: password
+  }
+  <- nano.db.create("logs_#{username}")
+  <- couch_put "/logs_#{username}/_security", {
+    members: {
+      names: [username]
+      roles: ["logs_#{username}"]
+    }
+  }
+  <- nano.db.create("feeditems_#{username}")
+  <- couch_put "/feeditems_#{username}/_security", {
+    members: {
+      names: [username]
+      roles: ["feeditems_#{username}"]
+    }
+  }
+  res.send {status: 'success', text: 'User account created'}

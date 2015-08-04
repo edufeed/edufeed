@@ -8,18 +8,46 @@
     ready: function(){
       var self;
       self = this;
-      return getLocalStorage().get('username', function(username){
-        if (username == null) {
-          username = 'cat';
-        }
-        return self.S('#usernameinput').val(username);
+      return getUsername(function(username){
+        return getPassword(function(password){
+          self.S('#usernameinput').val(username);
+          return self.S('#passwordinput').val(password);
+        });
       });
     },
     appcacheStatus: function(){
       return ['uncached', 'idle', 'checking', 'downloading', 'updateready'][window.applicationCache.status];
     },
+    reallySetUsername: function(username, password){
+      return setUsername(username, function(){
+        return setPassword(password, function(){
+          return window.location = '/';
+        });
+      });
+    },
     setUsername: function(){
-      return getLocalStorage().set('username', this.S('#usernameinput').val().trim());
+      var self, username, password;
+      self = this;
+      username = this.S('#usernameinput').val().trim();
+      password = this.S('#passwordinput').val().trim();
+      return test_if_can_login(username, password, function(login_successful){
+        if (!login_successful) {
+          return bootbox.confirm("Login was unsuccessful, are you sure you would like to update the stored username and password?", function(certain){
+            if (certain) {
+              return self.reallySetUsername(username, password);
+            } else {
+              return getUsername(function(nusername){
+                return getPassword(function(npassword){
+                  self.S('#usernameinput').val(nusername);
+                  return self.S('#passwordinput').val(npassword);
+                });
+              });
+            }
+          });
+        } else {
+          return self.reallySetUsername(username, password);
+        }
+      });
     },
     makeFullScreen: function(){
       var ssfeed, rfs;
@@ -32,52 +60,57 @@
     clearItems: function(){
       var self;
       self = this;
-      return clearDb('feeditems', function(){
-        return self.fire('task-finished', self);
+      return getUsername(function(username){
+        return clearDb("feeditems_" + username, function(){
+          return self.fire('task-finished', self);
+        });
       });
     },
     addSampleItems: function(){
-      var self, wordlist, items, word;
+      var self;
       self = this;
-      wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
-      items = [
-        {
-          itemtype: 'admin',
-          social: {
-            poster: 'horse'
-          }
-        }, {
-          itemtype: 'example',
-          data: {
-            foo: 'somefooval',
-            bar: 'somebarval'
-          },
-          social: {
-            poster: 'mouse',
-            finishedby: ['elephant']
-          }
-        }
-      ].concat((function(){
-        var i$, ref$, len$, results$ = [];
-        for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
-          word = ref$[i$];
-          results$.push({
-            itemtype: 'typeword',
+      return getUsername(function(username){
+        var wordlist, items, word;
+        wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
+        items = [
+          {
+            itemtype: 'admin',
+            social: {
+              poster: 'horse'
+            }
+          }, {
+            itemtype: 'example',
             data: {
-              word: word
+              foo: 'somefooval',
+              bar: 'somebarval'
             },
             social: {
-              poster: 'dog',
-              finishedby: ['zebra']
+              poster: 'mouse',
+              finishedby: ['elephant']
             }
-          });
-        }
-        return results$;
-      }()));
-      return async.each(items, function(item, callback){
-        return postItem('feeditems', item, callback);
-      }, function(results){
-        return self.fire('task-finished', self);
+          }
+        ].concat((function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
+            word = ref$[i$];
+            results$.push({
+              itemtype: 'typeword',
+              data: {
+                word: word
+              },
+              social: {
+                poster: 'dog',
+                finishedby: ['zebra']
+              }
+            });
+          }
+          return results$;
+        }()));
+        return async.each(items, function(item, callback){
+          return postItem("feeditems_" + username, item, callback);
+        }, function(results){
+          return self.fire('task-finished', self);
+        });
       });
     },
     addCustomItem: function(){
@@ -92,7 +125,7 @@
       data = jsyaml.safeLoad(data_text);
       social_text = this.S('#socialinput').val();
       social = jsyaml.safeLoad(social_text);
-      return postItem('feeditems', {
+      return postItem("feeditems_" + username, {
         itemtype: itemtype,
         data: data,
         social: social

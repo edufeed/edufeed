@@ -83,27 +83,29 @@
     updateItems: function(firstvisit){
       var self;
       self = this;
-      return getItems('feeditems', function(docs){
-        if (docs == null || docs.length == null) {
-          docs = [];
-        }
-        return getBoolParam('admin', function(admin){
-          if (docs.length === 0 || (admin && docs.map(function(it){
-            return it.itemtype;
-          }).indexOf('admin') === -1)) {
-            docs = [{
-              itemtype: 'admin',
-              social: {
-                poster: 'horse'
-              }
-            }].concat(docs);
+      return getUsername(function(username){
+        return getItems("feeditems_" + username, function(docs){
+          if (docs == null || docs.length == null) {
+            docs = [];
           }
-          self.items = docs;
-          if (firstvisit != null && firstvisit) {
-            return addlog({
-              event: 'visitfeed'
-            });
-          }
+          return getBoolParam('admin', function(admin){
+            if (docs.length === 0 || (admin && docs.map(function(it){
+              return it.itemtype;
+            }).indexOf('admin') === -1)) {
+              docs = [{
+                itemtype: 'admin',
+                social: {
+                  poster: 'horse'
+                }
+              }].concat(docs);
+            }
+            self.items = docs;
+            if (firstvisit != null && firstvisit) {
+              return addlog({
+                event: 'visitfeed'
+              });
+            }
+          });
         });
       });
     },
@@ -111,8 +113,10 @@
       var self;
       self = this;
       this.updateItems(true);
-      return setSyncHandler('feeditems', function(change){
-        return self.updateItems();
+      return getUsername(function(username){
+        return setSyncHandler("feeditems_" + username, function(change){
+          return self.updateItems();
+        });
       });
     }
   });

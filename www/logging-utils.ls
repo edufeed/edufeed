@@ -18,7 +18,8 @@ export getActivityTag = ->
 loginfo = {}
 export addlog = (postdata, callback) ->
   output = {} <<< postdata
-  db = getDb 'logs', {replicatetoremote: true}
+  username <- getUsername()
+  db = getDb "logs_#{username}", {replicatetoremote: true}
   if not output.username?
     output.username = 'guestuser'
   output.posttime = Date.now()
@@ -34,6 +35,6 @@ export addlog = (postdata, callback) ->
     output.itemtype = itemtype
     output.data = data
     output.social = social
-  postItem 'logs', output, ->
+  postItem db, output, ->
     if callback?
       callback()

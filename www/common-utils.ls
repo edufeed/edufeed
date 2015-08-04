@@ -26,6 +26,23 @@ export getLocalStorage = ->
           callback(val)
     }
 
+export getUsername = (callback) ->
+  getLocalStorage().get 'username', (username) ->
+    callback(username ? 'guestuser')
+
+export getPassword = (callback) ->
+  getLocalStorage().get 'password', (password) ->
+    callback(password ? 'guestpassword')
+
+export getCouchURL = (callback) ->
+  callback 'edufeed.iriscouch.com'
+
+export setUsername = (username, callback) ->
+  getLocalStorage().set 'username', username, callback
+
+export setPassword = (password, callback) ->
+  getLocalStorage().set 'password', password, callback
+
 # filesystem related
 
 /*
