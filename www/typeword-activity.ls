@@ -18,7 +18,7 @@ play_wrong_sound = ->
   video_tag[0].currentTime = 0
   video_tag[0].play()
 
-Polymer {
+RegisterActivity {
   is: 'typeword-activity'
   properties: {
     word: {

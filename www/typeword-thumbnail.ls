@@ -1,4 +1,4 @@
-Polymer {
+RegisterThumbnail {
   is: 'typeword-thumbnail'
   properties: {
     word: {

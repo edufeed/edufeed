@@ -1,4 +1,4 @@
-Polymer {
+RegisterActivity {
   is: 'admin-activity'
   S: (pattern) ->
     return $(this.$$(pattern))

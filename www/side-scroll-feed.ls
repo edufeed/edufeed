@@ -22,9 +22,6 @@ Polymer {
       if not tag?
         return
       if tagMatchesItem tag, item
-        console.log 'tagMatchesItem'
-        console.log tag
-        console.log item
         username <- getLocalStorage().get('username')
         username = username ? 'cat'
         if x.finishedby.indexOf(username) == -1
@@ -36,12 +33,14 @@ Polymer {
     this.S('#activity').html('')
     activity = makeActivity(item) # feed-items.ls
     activity.on 'task-finished', ~>
+      addlog {event: 'task-finished', item: item}
       this.itemFinished item
       this.closeActivity()
     activity.appendTo this.S('#activity')
   addItemToFeed: (item) ->
     thumbnail = makeSocialThumbnail item
     thumbnail.find('#thumbnail').click ~>
+      addlog {event: 'task-started', item: item}
       this.openItem item
     this.S('#thumbnails').append thumbnail
   itemsChanged: (newitems, olditems) ->
@@ -50,7 +49,7 @@ Polymer {
     this.S('#thumbnails').html('')
     for item in this.items
       this.addItemToFeed item
-  updateItems: ->
+  updateItems: (firstvisit) ->
     self = this
     docs <- getItems 'feeditems'
     if not docs? or not docs.length?
@@ -59,11 +58,15 @@ Polymer {
     if docs.length == 0 or (admin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
     self.items = docs
+    if firstvisit? and firstvisit
+      addlog {event: 'visitfeed'}
+  #listVisibleItems: ->
+  #  
   ready: ->
     #console.log 'docs 1 are:'
     #console.log docs
     self = this
-    this.updateItems()
+    this.updateItems(true)
     setSyncHandler 'feeditems', (change) ->
       self.updateItems()
 }

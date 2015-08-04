@@ -1,7 +1,9 @@
 db_cache = {}
 remote_db_cache = {}
 db_sync_handlers = {}
-export getDb = (dbname) ->
+export getDb = (dbname, options) ->
+  if not options?
+    options = {}
   if db_cache[dbname]?
     return db_cache[dbname]
   db = db_cache[dbname] = new PouchDB(dbname)
@@ -10,17 +12,26 @@ export getDb = (dbname) ->
     if db_sync_handlers[dbname]?
       db_sync_handlers[dbname](change)
   params = getUrlParameters()
-  if params.sync?
-    username = params.username ? 'guestuser'
-    password = params.password ? 'guestpassword'
+  sync = options.sync? or params.sync?
+  replicatetoremote = options.replicatetoremote? or params.replicatetoremote?
+  if sync or replicatetoremote
+    username = options.username ? params.username ? 'guestuser'
+    password = options.username ? params.password ? 'guestpassword'
     remote_db = remote_db_cache[dbname] = new PouchDB('http://edufeed.iriscouch.com/' + dbname, {auth: {username, password}})
-    db.sync(remote_db, {live: true})/*.on('change', (change) ->
-      if db_sync_handlers[dbname]?
-        db_sync_handlers[dbname](change)
-    )*/.on('error', (err) ->
-      console.log 'sync error'
-      console.log err
-    )
+    if sync
+      db.sync(remote_db, {live: true})/*.on('change', (change) ->
+        if db_sync_handlers[dbname]?
+          db_sync_handlers[dbname](change)
+      )*/.on('error', (err) ->
+        console.log 'sync error'
+        console.log err
+      )
+    else if replicatetoremote
+      db.replicate.to(remote_db, {live: true})
+      .on('error', (err) ->
+        console.log 'replicatetoremote error'
+        console.log err
+      )
   return db
 
 export setSyncHandler = (dbname, callback) ->
@@ -65,3 +76,4 @@ export postItem = (dbname, item, callback) ->
   db.put new_item, (err, res) ->
     if callback?
       callback(err, res)
+

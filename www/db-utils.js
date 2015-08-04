@@ -4,8 +4,11 @@
   db_cache = {};
   remote_db_cache = {};
   db_sync_handlers = {};
-  out$.getDb = getDb = function(dbname){
-    var db, changes, params, username, ref$, password, remote_db;
+  out$.getDb = getDb = function(dbname, options){
+    var db, changes, params, sync, replicatetoremote, username, ref$, password, remote_db;
+    if (options == null) {
+      options = {};
+    }
     if (db_cache[dbname] != null) {
       return db_cache[dbname];
     }
@@ -19,21 +22,36 @@
       }
     });
     params = getUrlParameters();
-    if (params.sync != null) {
-      username = (ref$ = params.username) != null ? ref$ : 'guestuser';
-      password = (ref$ = params.password) != null ? ref$ : 'guestpassword';
+    sync = options.sync != null || params.sync != null;
+    replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null;
+    if (sync || replicatetoremote) {
+      username = (ref$ = options.username) != null
+        ? ref$
+        : (ref$ = params.username) != null ? ref$ : 'guestuser';
+      password = (ref$ = options.username) != null
+        ? ref$
+        : (ref$ = params.password) != null ? ref$ : 'guestpassword';
       remote_db = remote_db_cache[dbname] = new PouchDB('http://edufeed.iriscouch.com/' + dbname, {
         auth: {
           username: username,
           password: password
         }
       });
-      db.sync(remote_db, {
-        live: true
-      }).on('error', function(err){
-        console.log('sync error');
-        return console.log(err);
-      });
+      if (sync) {
+        db.sync(remote_db, {
+          live: true
+        }).on('error', function(err){
+          console.log('sync error');
+          return console.log(err);
+        });
+      } else if (replicatetoremote) {
+        db.replicate.to(remote_db, {
+          live: true
+        }).on('error', function(err){
+          console.log('replicatetoremote error');
+          return console.log(err);
+        });
+      }
     }
     return db;
   };

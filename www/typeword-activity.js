@@ -32,7 +32,7 @@
     video_tag[0].currentTime = 0;
     return video_tag[0].play();
   };
-  Polymer({
+  RegisterActivity({
     is: 'typeword-activity',
     properties: {
       word: {

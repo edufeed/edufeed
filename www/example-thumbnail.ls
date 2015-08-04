@@ -1,4 +1,4 @@
-Polymer {
+RegisterThumbnail {
   is: 'example-thumbnail'
   properties: {
     foo: {

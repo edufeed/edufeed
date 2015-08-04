@@ -11,7 +11,19 @@ Polymer {
       value: false
       observer: 'checkedChanged'
     }
+    size: {
+      type: String
+      value: 'r'
+      observer: 'sizeChanged'
+    }
   }
+  sizeChanged: ->
+    if this.size == 's'
+      this.$$('#profilepic').width = 50
+      this.$$('#profilepic').height = 50
+    else if this.size == 'r'
+      this.$$('#profilepic').width = 100
+      this.$$('#profilepic').height = 100
   usernameChanged: (newname, oldname) ->
     if newname == oldname
       return

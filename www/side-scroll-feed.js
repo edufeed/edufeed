@@ -30,9 +30,6 @@
           return;
         }
         if (tagMatchesItem(tag, item)) {
-          console.log('tagMatchesItem');
-          console.log(tag);
-          console.log(item);
           getLocalStorage().get('username', fn$);
         }
       }
@@ -50,6 +47,10 @@
       this.S('#activity').html('');
       activity = makeActivity(item);
       activity.on('task-finished', function(){
+        addlog({
+          event: 'task-finished',
+          item: item
+        });
         this$.itemFinished(item);
         return this$.closeActivity();
       });
@@ -59,6 +60,10 @@
       var thumbnail, this$ = this;
       thumbnail = makeSocialThumbnail(item);
       thumbnail.find('#thumbnail').click(function(){
+        addlog({
+          event: 'task-started',
+          item: item
+        });
         return this$.openItem(item);
       });
       return this.S('#thumbnails').append(thumbnail);
@@ -75,7 +80,7 @@
       }
       return results$;
     },
-    updateItems: function(){
+    updateItems: function(firstvisit){
       var self;
       self = this;
       return getItems('feeditems', function(docs){
@@ -93,14 +98,19 @@
               }
             }].concat(docs);
           }
-          return self.items = docs;
+          self.items = docs;
+          if (firstvisit != null && firstvisit) {
+            return addlog({
+              event: 'visitfeed'
+            });
+          }
         });
       });
     },
     ready: function(){
       var self;
       self = this;
-      this.updateItems();
+      this.updateItems(true);
       return setSyncHandler('feeditems', function(change){
         return self.updateItems();
       });

@@ -1,4 +1,4 @@
-Polymer {
+RegisterActivity {
   is: 'example-activity'
   properties: {
     foo: {

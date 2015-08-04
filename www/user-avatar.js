@@ -12,6 +12,20 @@
         type: Boolean,
         value: false,
         observer: 'checkedChanged'
+      },
+      size: {
+        type: String,
+        value: 'r',
+        observer: 'sizeChanged'
+      }
+    },
+    sizeChanged: function(){
+      if (this.size === 's') {
+        this.$$('#profilepic').width = 50;
+        return this.$$('#profilepic').height = 50;
+      } else if (this.size === 'r') {
+        this.$$('#profilepic').width = 100;
+        return this.$$('#profilepic').height = 100;
       }
     },
     usernameChanged: function(newname, oldname){

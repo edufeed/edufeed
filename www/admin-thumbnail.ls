@@ -1,3 +1,3 @@
-Polymer {
+RegisterThumbnail {
   is: 'admin-thumbnail'
 }
