@@ -54,7 +54,31 @@ Now, [enable USB Debugging on your Android device](http://developer.android.com/
 cca run android --device
 ```
 
+## Setting up Accounts
 
+### Account Creation
+
+Visit the signup page: WEBROOT/signup.html
+
+### Logging in
+
+Visit the feed page, and open the admin console (it should be the first feed item). It will have a place for you to log in.
+
+## Customization
+
+### Customizing Profile Pictures
+
+By default, the profile pic shown will be the first Bing images search result for the username. If you want a different profile pic, add an image in either png or jpg format, to the [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics) folder, and edit the [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml) file to add an entry from the username to the profile pic.
+
+### Customizing Word-Task Images
+
+By default, the image shown for a word-task will be the first Bing images search result for the word. If you want a different image shown, add an image in either png or jpg format, to the [images](https://github.com/edufeed/edufeed/tree/master/www/images) folder, and edit the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml) file to add an entry from the username to the profile pic.
+
+## Logs
+
+### Viewing Logs
+
+Visit COUCHROOT/_utils.html and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
 
 ## Development Details
 
