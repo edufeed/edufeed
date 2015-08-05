@@ -48,7 +48,7 @@ Then, install the [Chrome App Developer Tool](https://github.com/MobileChromeApp
 
 Then install the [Chrome Apps for Mobile toolchain](https://github.com/MobileChromeApps/mobile-chrome-apps/blob/master/docs/Installation.md) to your desktop.
 
-Now, [enable USB Debugging on your Android device](http://developer.android.com/tools/device.html), open the Chrome App Developer Tool on the Android device, hook up your Android device to your desktop, and run the following command to deploy the app (from the edufeed directory):
+Now, install the USB drivers for your Android device (for either [Nexus](http://developer.android.com/sdk/win-usb.html) or [other](http://developer.android.com/tools/extras/oem-usb.html) devices) on your desktop, [enable USB Debugging on your Android device](http://developer.android.com/tools/device.html), open the Chrome App Developer Tool on the Android device, hook up your Android device to your desktop, and run the following command to deploy the app (from the edufeed directory):
 
 ```
 cca run android --device
