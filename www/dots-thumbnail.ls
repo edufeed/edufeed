@@ -1,0 +1,3 @@
+RegisterThumbnail {
+  is: 'dots-thumbnail'
+}
