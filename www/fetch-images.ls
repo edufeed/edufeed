@@ -16,7 +16,7 @@ get_imagedata_by_name_real = (name, callback) ->
   imgdata <- $.get urlbase + $.param({name: name})
   callback imgdata
 
-if isChromeApp()
+if isChromeApp() and not isMobileChromeApp()
   export get_imagedata_by_name = cache_func_localstorage get_imagedata_by_name_real, 'get_imagedata_by_name'
 else
   export get_imagedata_by_name = get_imagedata_by_name_real

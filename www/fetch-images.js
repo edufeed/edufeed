@@ -29,7 +29,7 @@
       return callback(imgdata);
     });
   };
-  if (isChromeApp()) {
+  if (isChromeApp() && !isMobileChromeApp()) {
     out$.get_imagedata_by_name = get_imagedata_by_name = cache_func_localstorage(get_imagedata_by_name_real, 'get_imagedata_by_name');
   } else {
     out$.get_imagedata_by_name = get_imagedata_by_name = get_imagedata_by_name_real;
