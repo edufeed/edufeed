@@ -21,7 +21,7 @@
     reallySetUsername: function(username, password){
       return setUsername(username, function(){
         return setPassword(password, function(){
-          return window.location = '/';
+          return window.location.reload();
         });
       });
     },

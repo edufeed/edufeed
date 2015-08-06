@@ -2,7 +2,7 @@ export isChromeApp = ->
   return chrome? and chrome.app? and chrome.app.runtime?
 
 export getLocalStorage = ->
-  if chrome? and chrome.storage? and chrome.storage.local?
+  if chrome? and chrome.storage? and chrome.storage.local? # and not chrome.mobile? # chrome.storage doesn't seem to work on android
     return {
       get: (key, callback) ->
         chrome.storage.local.get key, (dict) ->
@@ -15,7 +15,6 @@ export getLocalStorage = ->
         else
           chrome.storage.local.set dict
     }
-    return chrome.storage.local
   if window.localStorage?
     return {
       get: (key, callback) ->

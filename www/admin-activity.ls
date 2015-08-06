@@ -13,7 +13,7 @@ RegisterActivity {
   reallySetUsername: (username, password) ->
     setUsername username, ->
       setPassword password, ->
-        window.location = '/'
+        window.location.reload()
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()

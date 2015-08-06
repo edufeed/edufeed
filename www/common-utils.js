@@ -25,7 +25,6 @@
           }
         }
       };
-      return chrome.storage.local;
     }
     if (window.localStorage != null) {
       return {

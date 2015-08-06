@@ -34,7 +34,6 @@
     });
   };
   get_binary_content_as_base64 = function(url, callback){
-    console.log('get_binary_content_as_base64: ' + url);
     return get_binary_content(url, function(data, content_type){
       var encoded_content;
       encoded_content = new Buffer(data).toString('base64');
@@ -68,6 +67,10 @@
   get_image_url = function(query, callback){
     return Bing.images(query, {}, function(error, res2, body){
       var x;
+      if (body == null || body.d == null || body.d.results == null) {
+        callback([]);
+        return;
+      }
       return callback((function(){
         var i$, ref$, len$, results$ = [];
         for (i$ = 0, len$ = (ref$ = body.d.results).length; i$ < len$; ++i$) {
@@ -93,6 +96,10 @@
   get_imagedata_by_name = function(query, callback){
     return get_image_url(query, function(imgurls){
       var imgurl;
+      if (imgurls == null || imgurls.length === 0) {
+        callback('');
+        return;
+      }
       imgurl = imgurls[0];
       return get_binary_content_as_base64_cached(imgurl, function(imgdata){
         return callback(imgdata);

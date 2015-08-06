@@ -39,7 +39,6 @@ get_binary_content = (url, callback) ->
     callback(data, content_type)
 
 get_binary_content_as_base64 = (url, callback) ->
-  console.log 'get_binary_content_as_base64: ' + url
   get_binary_content url, (data, content_type) ->
     encoded_content = new Buffer(data).toString('base64')
     callback "data:#{content_type};base64,#{encoded_content}"
@@ -70,6 +69,9 @@ app.get '/proxy', (req, res) ->
 get_image_url = (query, callback) ->
   Bing.images query, {}, (error, res2, body) ->
     #callback body.d.results[0].MediaUrl
+    if not body? or not body.d? or not body.d.results?
+      callback []
+      return
     callback [x.MediaUrl for x in body.d.results]
     #callback body.d.results
 
@@ -88,6 +90,9 @@ app.get '/image', (req, res) ->
 
 get_imagedata_by_name = (query, callback) ->
   get_image_url query, (imgurls) ->
+    if not imgurls? or imgurls.length == 0
+      callback ''
+      return
     imgurl = imgurls[0]
     get_binary_content_as_base64_cached imgurl, (imgdata) ->
       callback imgdata
