@@ -142,7 +142,7 @@
     downloadLogs: function(){
       var this$ = this;
       return getlogs(function(logs){
-        return document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs));
+        return document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2));
       });
     }
   });

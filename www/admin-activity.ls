@@ -67,5 +67,5 @@ RegisterActivity {
       this.S('#logdisplay').text JSON.stringify(logs)
   downloadLogs: ->
     getlogs (logs) ~>
-      document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs))
+      document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2))
 }
