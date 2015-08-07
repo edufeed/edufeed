@@ -30,7 +30,7 @@
       self = this;
       username = this.S('#usernameinput').val().trim();
       password = this.S('#passwordinput').val().trim();
-      return test_if_can_login(username, password, function(login_successful){
+      return (function(login_successful){
         if (!login_successful) {
           return bootbox.confirm("Login was unsuccessful, are you sure you would like to update the stored username and password?", function(certain){
             if (certain) {
@@ -47,7 +47,7 @@
         } else {
           return self.reallySetUsername(username, password);
         }
-      });
+      }.call(this, true));
     },
     makeFullScreen: function(){
       var ssfeed, rfs;
@@ -131,6 +131,18 @@
         social: social
       }, function(){
         return self.fire('task-finished', self);
+      });
+    },
+    displayLogs: function(){
+      var this$ = this;
+      return getlogs(function(logs){
+        return this$.S('#logdisplay').text(JSON.stringify(logs, null, 2));
+      });
+    },
+    downloadLogs: function(){
+      var this$ = this;
+      return getlogs(function(logs){
+        return document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2));
       });
     }
   });

@@ -1,7 +1,15 @@
 export test_if_can_login = (username, password, callback) ->
   couchurl <- getCouchURL()
-  db = new PouchDB("http://#{couchurl}/logs_#{username}")
-  db.login username, password, (err, response) ->
+  pouchOpts = {
+    skipSetup: true
+  }
+  db = new PouchDB("https://#{couchurl}/logs_#{username}", pouchOpts)
+  ajaxOpts = {
+    headers: {
+      Authorization: 'Basic ' + window.btoa(username + ':' + password)
+    }
+  }
+  db.login username, password, ajaxOpts, (err, response) ->
     if err
       console.log err
       callback(false)
@@ -40,7 +48,7 @@ export getDb = (dbname, options) ->
     get_couchdb_login (couchdb_login) ->
       {username, password, couchurl} = couchdb_login
       # remote_db = remote_db_cache[dbname] = new PouchDB("http://#{couchurl}/" + dbname, {auth: {username, password}})
-      remote_db_url_string = "http://#{username}:#{password}@#{couchurl}/" + dbname
+      remote_db_url_string = "https://#{username}:#{password}@#{couchurl}/" + dbname
       console.log remote_db_url_string
       remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
       if sync

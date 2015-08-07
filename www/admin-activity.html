@@ -4,6 +4,9 @@
   <style>
     :host {
       display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
     }
   </style>
   <template>
@@ -28,6 +31,10 @@
     <textarea id="socialinput"></textarea>
     <br>
     <button class="btn btn-lg btn-primary" on-click="addCustomItem">Add custom feed item</button>
+    <br>
+    <!--<button class="btn btn-lg btn-primary" on-click="downloadLogs" download="logs.json">Download Logs</button>-->
+    <button class="btn btn-lg btn-primary" on-click="displayLogs">Display Logs</button>
+    <pre id="logdisplay"></pre>
   </template>
   <script src="admin-activity.js"></script>  
 </dom-module>

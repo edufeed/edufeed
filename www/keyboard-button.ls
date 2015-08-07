@@ -110,9 +110,13 @@ Polymer {
     sound = this.sound
     if not sound? or sound.length == 0
       sound = this.keytext
-    keysynth.src = '/lettersound/' + sound + '.mp3'
-    keysynth.currentTime = 0
-    keysynth.play()
+    fetchAsDataURL '/lettersound/' + sound + '.mp3', (dataurl) ->
+      play_audio = ->
+        keysynth.currentTime = 0
+        keysynth.play()
+      keysynth.removeEventListener('canplaythrough', play_audio)
+      keysynth.addEventListener('canplaythrough', play_audio)
+      keysynth.src = dataurl
     this.fire 'key-typed', this
   #setClickCallback: (callback) ->
   #  console.log 'set click callback'

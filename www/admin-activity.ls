@@ -18,7 +18,8 @@ RegisterActivity {
     self = this
     username = this.S('#usernameinput').val().trim()
     password = this.S('#passwordinput').val().trim()
-    test_if_can_login username, password, (login_successful) ->
+    let login_successful = true
+    #test_if_can_login username, password, (login_successful) ->
       if not login_successful
         bootbox.confirm "Login was unsuccessful, are you sure you would like to update the stored username and password?", (certain) ->
           if certain
@@ -61,4 +62,10 @@ RegisterActivity {
     social = jsyaml.safeLoad social_text
     postItem "feeditems_#{username}", {itemtype, data, social}, ->
       self.fire 'task-finished', self
+  displayLogs: ->
+    getlogs (logs) ~>
+      this.S('#logdisplay').text JSON.stringify(logs, null, 2)
+  downloadLogs: ->
+    getlogs (logs) ~>
+      document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2))
 }

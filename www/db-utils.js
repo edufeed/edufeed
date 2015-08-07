@@ -3,9 +3,17 @@
   var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, clearDb, padWithZeros, prevUUID, makeUUID, postItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
-      var db;
-      db = new PouchDB("http://" + couchurl + "/logs_" + username);
-      return db.login(username, password, function(err, response){
+      var pouchOpts, db, ajaxOpts;
+      pouchOpts = {
+        skipSetup: true
+      };
+      db = new PouchDB("https://" + couchurl + "/logs_" + username, pouchOpts);
+      ajaxOpts = {
+        headers: {
+          Authorization: 'Basic ' + window.btoa(username + ':' + password)
+        }
+      };
+      return db.login(username, password, ajaxOpts, function(err, response){
         if (err) {
           console.log(err);
           return callback(false);
@@ -58,7 +66,7 @@
       get_couchdb_login(function(couchdb_login){
         var username, password, couchurl, remote_db_url_string, remote_db;
         username = couchdb_login.username, password = couchdb_login.password, couchurl = couchdb_login.couchurl;
-        remote_db_url_string = ("http://" + username + ":" + password + "@" + couchurl + "/") + dbname;
+        remote_db_url_string = ("https://" + username + ":" + password + "@" + couchurl + "/") + dbname;
         console.log(remote_db_url_string);
         remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
         if (sync) {
