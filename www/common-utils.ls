@@ -37,7 +37,7 @@ export getPassword = (callback) ->
     callback(password ? 'guestpassword')
 
 export getCouchURL = (callback) ->
-  callback 'edufeed.iriscouch.com'
+  callback 'edufeed.cloudant.com'
 
 export setUsername = (username, callback) ->
   getLocalStorage().set 'username', username, callback

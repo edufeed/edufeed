@@ -54,7 +54,7 @@
     });
   };
   out$.getCouchURL = getCouchURL = function(callback){
-    return callback('edufeed.iriscouch.com');
+    return callback('edufeed.cloudant.com');
   };
   out$.setUsername = setUsername = function(username, callback){
     return getLocalStorage().set('username', username, callback);

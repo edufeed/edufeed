@@ -118,24 +118,7 @@ couch_put = (url, data, callback) ->
   restler.putJson(couchdb_url + url, data).on 'complete', (data, response) ->
     callback(data)
 
-app.post '/signup', (req, res) ->
-  {username, password, botcheck} = req.body
-  if not username?
-    res.send {status: 'error', text: 'missing username'}
-    return
-  if not password?
-    res.send {status: 'error', text: 'missing password'}
-    return
-  if not botcheck? or botcheck != '7,000'
-    res.send {status: 'error', text: 'bot check failed'}
-    return
-  allowed_letters = [\a to \z].join('')
-  if [allowed_letters.indexOf(c) for c in username].indexOf(-1) != -1
-    res.send {status: 'error', text: 'username should contain only lowercase letters a-z'}
-    return
-  if [allowed_letters.indexOf(c) for c in password].indexOf(-1) != -1
-    res.send {status: 'error', text: 'password should contain only lowercase letters a-z'}
-    return
+signup_couchdb = (username, password, callback) ->
   users = nano.use('_users')
   <- users.insert {
     _id: "org.couchdb.user:#{username}"
@@ -158,4 +141,58 @@ app.post '/signup', (req, res) ->
       roles: ["feeditems_#{username}"]
     }
   }
-  res.send {status: 'success', text: 'User account created'}
+  if callback?
+    callback()
+
+signup_cloudant = (username, password, callback) ->
+  users = nano.use('_users')
+  <- users.insert {
+    _id: "org.couchdb.user:#{username}"
+    name: username
+    type: 'user'
+    roles: ["logs_#{username}", "feeditems_#{username}"]
+    password: password
+  }
+  <- nano.db.create("logs_#{username}")
+  <- couch_put "/logs_#{username}/_security", {
+    couchdb_auth_only: true
+    members: {
+      names: [username]
+      roles: ["logs_#{username}"]
+    }
+  }
+  <- nano.db.create("feeditems_#{username}")
+  <- couch_put "/feeditems_#{username}/_security", {
+    couchdb_auth_only: true
+    members: {
+      names: [username]
+      roles: ["feeditems_#{username}"]
+    }
+  }
+  if callback?
+    callback()
+
+app.post '/signup', (req, res) ->
+  {username, password, botcheck} = req.body
+  if not username?
+    res.send {status: 'error', text: 'missing username'}
+    return
+  if not password?
+    res.send {status: 'error', text: 'missing password'}
+    return
+  if not botcheck? or botcheck != '7,000'
+    res.send {status: 'error', text: 'bot check failed'}
+    return
+  allowed_letters = [\a to \z].join('')
+  if [allowed_letters.indexOf(c) for c in username].indexOf(-1) != -1
+    res.send {status: 'error', text: 'username should contain only lowercase letters a-z'}
+    return
+  if [allowed_letters.indexOf(c) for c in password].indexOf(-1) != -1
+    res.send {status: 'error', text: 'password should contain only lowercase letters a-z'}
+    return
+  if couchdb_url.indexOf('cloudant.com') == -1
+    signup_couchdb username, password, ->
+      res.send {status: 'success', text: 'User account created'}
+  else
+    signup_cloudant username, password, ->
+      res.send {status: 'success', text: 'User account created'}
