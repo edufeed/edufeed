@@ -19,7 +19,9 @@
     video_tag[0].addEventListener('canplaythrough', play_audio);
     return get_speechsynth_paths(function(speechsynth_paths){
       if (speechsynth_paths[word] != null) {
-        return video_tag.attr('src', speechsynth_paths[word]);
+        return fetchAsDataURL(speechsynth_paths[word], function(dataurl){
+          return video_tag.attr('src', dataurl);
+        });
       } else {
         return video_tag.attr('src', 'http://speechsynth.herokuapp.com/speechsynth?' + $.param({
           lang: synth_lang,

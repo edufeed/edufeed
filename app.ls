@@ -129,14 +129,14 @@ signup_couchdb = (username, password, callback) ->
     password: password
   }
   <- nano.db.create("logs_#{username}")
-  <- couch_put "/logs_#{username}/_security", {
+  <- couch_put "logs_#{username}/_security", {
     members: {
       names: [username]
       roles: ["logs_#{username}"]
     }
   }
   <- nano.db.create("feeditems_#{username}")
-  <- couch_put "/feeditems_#{username}/_security", {
+  <- couch_put "feeditems_#{username}/_security", {
     members: {
       names: [username]
       roles: ["feeditems_#{username}"]
@@ -160,7 +160,7 @@ signup_cloudant = (username, password, callback) ->
     salt: salt
   }
   <- nano.db.create("logs_#{username}")
-  <- couch_put "/logs_#{username}/_security", {
+  <- couch_put "logs_#{username}/_security", {
     couchdb_auth_only: true
     members: {
       names: [username]
@@ -168,7 +168,7 @@ signup_cloudant = (username, password, callback) ->
     }
   }
   <- nano.db.create("feeditems_#{username}")
-  <- couch_put "/feeditems_#{username}/_security", {
+  <- couch_put "feeditems_#{username}/_security", {
     couchdb_auth_only: true
     members: {
       names: [username]

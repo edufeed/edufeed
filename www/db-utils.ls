@@ -1,7 +1,15 @@
 export test_if_can_login = (username, password, callback) ->
   couchurl <- getCouchURL()
-  db = new PouchDB("http://#{couchurl}/logs_#{username}")
-  db.login username, password, (err, response) ->
+  pouchOpts = {
+    skipSetup: true
+  }
+  db = new PouchDB("https://#{couchurl}/logs_#{username}", pouchOpts)
+  ajaxOpts = {
+    headers: {
+      Authorization: 'Basic ' + window.btoa(username + ':' + password)
+    }
+  }
+  db.login username, password, ajaxOpts, (err, response) ->
     if err
       console.log err
       callback(false)

@@ -11,7 +11,8 @@ synthesize_word = (word) ->
   video_tag[0].addEventListener('canplaythrough', play_audio)
   get_speechsynth_paths (speechsynth_paths) ->
     if speechsynth_paths[word]?
-      video_tag.attr 'src', speechsynth_paths[word]
+      fetchAsDataURL speechsynth_paths[word], (dataurl) ->
+        video_tag.attr 'src', dataurl
     else
       video_tag.attr 'src', 'http://speechsynth.herokuapp.com/speechsynth?' + $.param({lang: synth_lang, word})
 
