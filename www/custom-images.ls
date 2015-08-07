@@ -16,3 +16,12 @@ export get_profilepic_paths = (callback) ->
     data = jsyaml.safeLoad(yamltxt)
     custom_images.profilepic_paths = data
     callback data
+
+export get_speechsynth_paths = (callback) ->
+  if custom_images.speechsynth_paths?
+    callback custom_images.speechsynth_paths
+    return
+  $.get '/speechsynth_en_paths.yaml', (yamltxt) ->
+    data = jsyaml.safeLoad(yamltxt)
+    custom_images.speechsynth_paths = data
+    callback data
