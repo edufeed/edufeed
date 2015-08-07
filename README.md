@@ -68,11 +68,11 @@ Visit the feed page, and open the admin console (it should be the first feed ite
 
 ### Customizing Profile Pictures
 
-By default, the profile pic shown will be the first Bing images search result for the username. If you want a different profile pic, add an image in either png or jpg format, to the [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics) folder, and edit the [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml) file to add an entry from the username to the profile pic.
+By default, the profile pic shown will be the first Bing images search result for the username. If you want a different profile pic, add an image in either png or jpg format, to the [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics) folder, and edit the [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml) file to add an entry from the username to the profile pic (or use the [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) script, instructions below).
 
 ### Customizing Word-Task Images
 
-By default, the image shown for a word-task will be the first Bing images search result for the word. If you want a different image shown, add an image in either png or jpg format, to the [images](https://github.com/edufeed/edufeed/tree/master/www/images) folder, and edit the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml) file to add an entry from the username to the profile pic.
+By default, the image shown for a word-task will be the first Bing images search result for the word. If you want a different image shown, add an image in either png or jpg format, to the [images](https://github.com/edufeed/edufeed/tree/master/www/images) folder, and edit the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml) file to add an entry from the username to the profile pic (or use the [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) script, instructions below).
 
 The script [fetch_bing_image.ls](https://github.com/edufeed/edufeed/blob/master/scripts/fetch_bing_image.ls) automates the task of downloading images from bing and putting them in the `www/images` folder. To run it, provide a list of search queries to download as arguments:
 
@@ -84,7 +84,7 @@ node scripts/fetch_bing_image.js cat dog mouse
 
 ## Caching Speech Synthesis Results
 
-By default, the voice synthesis result for the word will be from Google's speech synthesis service. If you want to cache it, or have something else said for a word, add an audio file in mp3 format to the [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) folder, and edit the [speechsynth_en_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/speechsynth_en_paths.yaml) file to add an entry from the utterance to the file name.
+By default, the voice synthesis result for the word will be from Google's speech synthesis service. If you want to cache it, or have something else said for a word, add an audio file in mp3 format to the [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) folder, and edit the [speechsynth_en_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/speechsynth_en_paths.yaml) file to add an entry from the utterance to the file name (or use the [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) script, instructions below).
 
 The script [fetch_speechsynth.ls](https://github.com/edufeed/edufeed/blob/master/scripts/fetch_speechsynth.ls) automates the task of downloading speech synthesis audio recordings and putting them in the `www/speechsynth_en` folder. To run it, provide a list of words to download as arguments:
 
