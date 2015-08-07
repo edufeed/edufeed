@@ -7,6 +7,7 @@ require! {
   throttle_call
   request
   restler
+  crypto
 }
 
 func_cache = require('func_cache_mongo')()
@@ -146,12 +147,17 @@ signup_couchdb = (username, password, callback) ->
 
 signup_cloudant = (username, password, callback) ->
   users = nano.use('_users')
+  salt = crypto.randomBytes(16).toString('hex')
+  hash = crypto.createHash('sha1')
+  hash.update(password + salt)
+  password_sha = hash.digest('hex')
   <- users.insert {
     _id: "org.couchdb.user:#{username}"
     name: username
     type: 'user'
     roles: ["logs_#{username}", "feeditems_#{username}"]
-    password: password
+    password_sha: password_sha
+    salt: salt
   }
   <- nano.db.create("logs_#{username}")
   <- couch_put "/logs_#{username}/_security", {
