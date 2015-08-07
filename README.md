@@ -64,7 +64,7 @@ Visit the signup page: WEBROOT/signup.html
 
 Visit the feed page, and open the admin console (it should be the first feed item). It will have a place for you to log in.
 
-## Customization
+## Offline Caching and Customization
 
 ### Customizing Profile Pictures
 
@@ -73,6 +73,32 @@ By default, the profile pic shown will be the first Bing images search result fo
 ### Customizing Word-Task Images
 
 By default, the image shown for a word-task will be the first Bing images search result for the word. If you want a different image shown, add an image in either png or jpg format, to the [images](https://github.com/edufeed/edufeed/tree/master/www/images) folder, and edit the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml) file to add an entry from the username to the profile pic.
+
+The script [fetch_bing_image.ls](https://github.com/edufeed/edufeed/blob/master/scripts/fetch_bing_image.ls) automates the task of downloading images from bing and putting them in the `www/images` folder. To run it, provide a list of search queries to download as arguments:
+
+```
+node scripts/fetch_bing_image.js cat dog mouse
+```
+
+(If you get any errors about missing modules, run the command `npm install` and try again)
+
+## Caching Speech Synthesis Results
+
+By default, the voice synthesis result for the word will be from Google's speech synthesis service. If you want to cache it, or have something else said for a word, add an audio file in mp3 format to the [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) folder, and edit the [speechsynth_en_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/speechsynth_en_paths.yaml) file to add an entry from the utterance to the file name.
+
+The script [fetch_speechsynth.ls](https://github.com/edufeed/edufeed/blob/master/scripts/fetch_speechsynth.ls) automates the task of downloading speech synthesis audio recordings and putting them in the `www/speechsynth_en` folder. To run it, provide a list of words to download as arguments:
+
+```
+node scripts/fetch_speechsynth.js cat dog mouse
+```
+
+## Generating the directory listing yaml files
+
+The script [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) automates the task of generating the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml), [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml), and [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) files based on the contents of the corresponding directories ([images](https://github.com/edufeed/edufeed/tree/master/www/images), [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics), [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en)). Run it using:
+
+```
+node scripts/make_directory_listings.js
+```
 
 ## Logs
 
