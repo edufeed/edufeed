@@ -136,7 +136,7 @@
     displayLogs: function(){
       var this$ = this;
       return getlogs(function(logs){
-        return this$.S('#logdisplay').text(JSON.stringify(logs));
+        return this$.S('#logdisplay').text(JSON.stringify(logs, null, 2));
       });
     },
     downloadLogs: function(){

@@ -64,7 +64,7 @@ RegisterActivity {
       self.fire 'task-finished', self
   displayLogs: ->
     getlogs (logs) ~>
-      this.S('#logdisplay').text JSON.stringify(logs)
+      this.S('#logdisplay').text JSON.stringify(logs, null, 2)
   downloadLogs: ->
     getlogs (logs) ~>
       document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2))
