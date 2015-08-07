@@ -162,14 +162,14 @@
       password: password
     }, function(){
       return nano.db.create("logs_" + username, function(){
-        return couch_put("/logs_" + username + "/_security", {
+        return couch_put("logs_" + username + "/_security", {
           members: {
             names: [username],
             roles: ["logs_" + username]
           }
         }, function(){
           return nano.db.create("feeditems_" + username, function(){
-            return couch_put("/feeditems_" + username + "/_security", {
+            return couch_put("feeditems_" + username + "/_security", {
               members: {
                 names: [username],
                 roles: ["feeditems_" + username]
@@ -200,7 +200,7 @@
       salt: salt
     }, function(){
       return nano.db.create("logs_" + username, function(){
-        return couch_put("/logs_" + username + "/_security", {
+        return couch_put("logs_" + username + "/_security", {
           couchdb_auth_only: true,
           members: {
             names: [username],
@@ -208,7 +208,7 @@
           }
         }, function(){
           return nano.db.create("feeditems_" + username, function(){
-            return couch_put("/feeditems_" + username + "/_security", {
+            return couch_put("feeditems_" + username + "/_security", {
               couchdb_auth_only: true,
               members: {
                 names: [username],
