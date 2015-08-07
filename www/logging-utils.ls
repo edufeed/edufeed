@@ -38,3 +38,12 @@ export addlog = (postdata, callback) ->
   postItem db, output, ->
     if callback?
       callback()
+
+export getlogs = (callback) ->
+  username <- getUsername()
+  db = getDb "logs_#{username}"
+  db.allDocs({include_docs: true}).then((docs) -> callback(docs.rows))
+
+export printlogs = ->
+  getlogs (logs) ->
+    console.log JSON.stringify(logs)

@@ -62,4 +62,10 @@ RegisterActivity {
     social = jsyaml.safeLoad social_text
     postItem "feeditems_#{username}", {itemtype, data, social}, ->
       self.fire 'task-finished', self
+  displayLogs: ->
+    getlogs (logs) ~>
+      this.S('#logdisplay').text JSON.stringify(logs)
+  downloadLogs: ->
+    getlogs (logs) ~>
+      document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs))
 }

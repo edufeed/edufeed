@@ -132,6 +132,18 @@
       }, function(){
         return self.fire('task-finished', self);
       });
+    },
+    displayLogs: function(){
+      var this$ = this;
+      return getlogs(function(logs){
+        return this$.S('#logdisplay').text(JSON.stringify(logs));
+      });
+    },
+    downloadLogs: function(){
+      var this$ = this;
+      return getlogs(function(logs){
+        return document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs));
+      });
     }
   });
 }).call(this);
