@@ -58,7 +58,7 @@
       get_couchdb_login(function(couchdb_login){
         var username, password, couchurl, remote_db_url_string, remote_db;
         username = couchdb_login.username, password = couchdb_login.password, couchurl = couchdb_login.couchurl;
-        remote_db_url_string = ("http://" + username + ":" + password + "@" + couchurl + "/") + dbname;
+        remote_db_url_string = ("https://" + username + ":" + password + "@" + couchurl + "/") + dbname;
         console.log(remote_db_url_string);
         remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
         if (sync) {

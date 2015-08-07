@@ -40,7 +40,7 @@ export getDb = (dbname, options) ->
     get_couchdb_login (couchdb_login) ->
       {username, password, couchurl} = couchdb_login
       # remote_db = remote_db_cache[dbname] = new PouchDB("http://#{couchurl}/" + dbname, {auth: {username, password}})
-      remote_db_url_string = "http://#{username}:#{password}@#{couchurl}/" + dbname
+      remote_db_url_string = "https://#{username}:#{password}@#{couchurl}/" + dbname
       console.log remote_db_url_string
       remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
       if sync

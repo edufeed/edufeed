@@ -15,7 +15,7 @@ func_cache = require('func_cache_mongo')()
 couchdb_server = getsecret('couchdb_server')
 couchdb_user = getsecret('couchdb_user')
 couchdb_password = getsecret('couchdb_password')
-couchdb_url = "http://#{couchdb_user}:#{couchdb_password}@#{couchdb_server}/"
+couchdb_url = "https://#{couchdb_user}:#{couchdb_password}@#{couchdb_server}/"
 
 nano = require('nano')(couchdb_url)
 
