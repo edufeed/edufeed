@@ -21,7 +21,7 @@ RegisterActivity {
     selection.css({width: endx - startx, height: endy - starty})
   createDots: ->
     #this.S('.colordot').remove()
-    $('.colordot').remove()
+    $(this).find('.colordot').remove()
     numdots = this.numdots
     spacing = 100 / numdots
     for i in [0 til numdots]

@@ -34,7 +34,7 @@
     },
     createDots: function(){
       var numdots, spacing, i$, ref$, len$, i, lresult$, j$, ref1$, len1$, j, newdot, results$ = [];
-      $('.colordot').remove();
+      $(this).find('.colordot').remove();
       numdots = this.numdots;
       spacing = 100 / numdots;
       for (i$ = 0, len$ = (ref$ = (fn$())).length; i$ < len$; ++i$) {
