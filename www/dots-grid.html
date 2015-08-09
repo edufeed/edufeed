@@ -1,30 +1,29 @@
 <link rel="import" href="polymer-utils.html">
-<link rel="import" href="dots-grid.html">
-<link rel="import" href="multiply-formula-display.html">
 
-<dom-module id="dots-activity">
+<dom-module id="dots-grid">
   <style>
     :host {
       display: block;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
-      overflow-x: hidden;
-      overflow-y: hidden;
     }
-    #formuladisplay {
-      position: absolute;
-      right: 0px;
-      top: 0px;
-      width: 20%;
+    #contents {
+      width: 100%;
       height: 100%;
+    }
+    #selection {
+      background-color: lightblue;
+      border: solid 5px black;
+      border-radius: 5px;
+      opacity: 0.5;
       pointer-events: none;
-      z-index: -100;
+      cursor: default;
     }
     /*
     .colordot {
@@ -36,8 +35,11 @@
     */
   </style>
   <template>
-    <dots-grid id="dotsgrid"></dots-grid>
-    <multiply-formula-display id="formuladisplay"></multiply-formula-display>
+    <div id="contents"></div>
+    <template>
+    </template>
+    <!--<canvas id="plainCanvas"></canvas>-->
+    <div id="selection"></div>
   </template>
-  <script src="dots-activity.js"></script>  
+  <script src="dots-grid.js"></script>  
 </dom-module>

@@ -1,5 +1,6 @@
-RegisterActivity {
-  is: 'dots-activity'
+Polymer {
+  is: 'multiply-formula-display'
+  /*
   properties: {
     numdots: {
       type: Number
@@ -15,4 +16,5 @@ RegisterActivity {
     width = Math.min $(window).height(), $(window).width()
     this.S('#dotsgrid').prop 'width', width
     this.numdotsChanged()
+  */
 }
