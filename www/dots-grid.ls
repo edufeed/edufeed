@@ -39,7 +39,8 @@ Polymer {
     xdim = maxxidx - minxidx + 1
     ydim = maxyidx - minyidx + 1
     if !isFinite(xdim) or !isFinite(ydim)
-      return
+      xdim = 0
+      ydim = 0
     if xdim != this.prev_xdim or ydim != this.prev_ydim
       this.prev_xdim = xdim
       this.prev_ydim = ydim

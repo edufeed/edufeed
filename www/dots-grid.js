@@ -46,7 +46,8 @@
       xdim = maxxidx - minxidx + 1;
       ydim = maxyidx - minyidx + 1;
       if (!isFinite(xdim) || !isFinite(ydim)) {
-        return;
+        xdim = 0;
+        ydim = 0;
       }
       if (xdim !== this.prev_xdim || ydim !== this.prev_ydim) {
         this.prev_xdim = xdim;
