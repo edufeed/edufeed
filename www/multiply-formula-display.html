@@ -14,9 +14,55 @@
       overflow-x: hidden;
       overflow-y: hidden;
     }
+    #contents {
+      font-size: 64px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+    #term1 {
+      text-align: right;
+      margin-bottom: -20px;
+    }
+    #term2 {
+      text-align: right;
+    }
+    #productcontainer {
+      position: relative;
+      width: 100%;
+      height: 80px;
+    }
+    #product {
+      text-align: right;
+    }
+    #productbackground {
+      position: absolute;
+      top: 10px;
+      left: 0px;
+      height: 70px;
+      width: 100%;
+      z-index: -100;
+      background-color: yellow;
+      opacity: 0;
+    }
+    #blackline {
+      width: 100%;
+      height: 5px;
+      background-color: black;
+    }
   </style>
   <template>
-    <span>a x b = c</span>
+    <div id="contents">
+      <div id="term1">{{term1}}</div>
+      <div id="term2">x <span>{{term2}}</span></div>
+      <div id="blackline"></div>
+      <div id="productcontainer">
+        <div id="product">{{product}}</div>
+        <div id="productbackground"></div>
+      </div>
+    </div>
   </template>
   <script src="multiply-formula-display.js"></script>  
 </dom-module>
