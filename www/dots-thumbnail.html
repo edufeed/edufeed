@@ -1,4 +1,5 @@
 <link rel="import" href="polymer-utils.html">
+<link rel="import" href="dots-grid.html">
 
 <dom-module id="dots-thumbnail">
   <style>
@@ -7,11 +8,19 @@
       vertical-align: top;
       width: 350px;
       height: 350px;
-      background-color: #DDFFFF;
+      overflow-x: hidden;
+      overflow-y: hidden;
+    }
+    #thumbnaildotsgrid {
+      width: 350px;
+      height: 350px;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      pointer-events: none;
     }
   </style>
   <template>
-    <div>This is a thumbnail for the dots activity.
+    <dots-grid id="thumbnaildotsgrid" width="350"></dots-grid>
   </template>
   <script src="dots-thumbnail.js"></script>  
 </dom-module>

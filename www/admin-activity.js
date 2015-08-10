@@ -69,7 +69,7 @@
       var self;
       self = this;
       return getUsername(function(username){
-        var wordlist, items, word;
+        var wordlist, items, numdots, word;
         wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
         items = [
           {
@@ -89,6 +89,21 @@
             }
           }
         ].concat((function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = [2, 3, 4, 5]).length; i$ < len$; ++i$) {
+            numdots = ref$[i$];
+            results$.push({
+              itemtype: 'dots',
+              data: {
+                numdots: numdots
+              },
+              social: {
+                poster: 'mouse'
+              }
+            });
+          }
+          return results$;
+        }()), (function(){
           var i$, ref$, len$, results$ = [];
           for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
             word = ref$[i$];
