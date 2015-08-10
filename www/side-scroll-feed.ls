@@ -22,11 +22,9 @@ Polymer {
       if not tag?
         return
       if tagMatchesItem tag, item
-        username <- getLocalStorage().get('username')
-        username = username ? 'cat'
+        username <- getUsername()
         if x.finishedby.indexOf(username) == -1
           x.finishedby = x.finishedby ++ [username]
-          #x.finishedby.push 'cat'
   openItem: (item) ->
     this.S('#thumbnails').hide()
     this.S('#exitbutton').show()
@@ -61,11 +59,7 @@ Polymer {
     self.items = docs
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
-  #listVisibleItems: ->
-  #  
   ready: ->
-    #console.log 'docs 1 are:'
-    #console.log docs
     self = this
     this.updateItems(true)
     getUsername (username) ->

@@ -1,4 +1,7 @@
+console.log 'index.js loaded!'
+
 startPage = ->
+  console.log 'startPage called!'
   params = getUrlParameters()
   tagname = params.tag
   if params.activity?
@@ -35,8 +38,12 @@ startPage = ->
   , 1000
   */
 
-window.addEventListener 'WebComponentsReady', (e) ->
-  startPage()
+if isChromeApp()
+  $(document).ready ->
+    startPage()
+else
+  window.addEventListener 'WebComponentsReady', (e) ->
+    startPage()
 /*
 window.addEventListener 'WebComponentsReady', (e) ->
   navigator.webkitPersistentStorage.requestQuota(

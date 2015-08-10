@@ -31,5 +31,4 @@ Polymer {
     this.S('#productbackground').animate({
       'opacity': 0
     }, 800)
-    console.log this.product
 }

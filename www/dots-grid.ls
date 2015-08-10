@@ -16,15 +16,15 @@ Polymer {
     $(this.$$(pattern))
   hideSelectionRectangle: ->
     this.S('#selection').hide()
-  computeSelectedDotDimensions: (startx, starty, endx, endy) ->
+  computeSelectedDotDimensionsReal: (startx, starty, endx, endy) ->
     minxidx = Number.MAX_VALUE
     maxxidx = -Number.MAX_VALUE
     minyidx = Number.MAX_VALUE
     maxyidx = -Number.MAX_VALUE
     for dotnode in $(this).find('.colordot')
       dot = $(dotnode)
-      x = dot.offset().left
-      y = dot.offset().top
+      x = dot.data('xpos')
+      y = dot.data('ypos')
       if startx <= x <= endx and starty <= y <= endy
         dot.css 'background-color', 'red'
       else
@@ -47,13 +47,20 @@ Polymer {
       this.fire 'selected-dots-changed', {xdim, ydim}
     return
   selectionRectangle: (startx, starty, endx, endy) ->
+    if startx == this.prev_startx and starty == this.prev_starty and endx == this.prev_startx and endy == this.prev_starty
+      return
     selection = this.S('#selection')
     if selection.length == 0
       selection = $('<div>').prop('id', 'selection')
       selection.appendTo this
     selection.show()
-    selection.offset({left: startx, top: starty})
+    if startx != this.prev_startx or starty != this.prev_starty
+      this.prev_startx = startx
+      this.prev_starty = starty
+      selection.offset({left: startx, top: starty})
     selection.css({width: endx - startx, height: endy - starty})
+    this.prev_startx = startx
+    this.prev_starty = starty
     this.computeSelectedDotDimensions(startx, starty, endx, endy)
     return
   createDots: ->
@@ -64,6 +71,8 @@ Polymer {
     for i in [0 til numdots]
       for j in [0 til numdots]
         newdot = $('<div>')
+        xpos = Math.round(spacing * (j + 0.5))
+        ypos = Math.round(spacing * (i + 0.5))
         newdot.css {
           width: '10px'
           height: '10px'
@@ -77,11 +86,14 @@ Polymer {
         newdot.data {
           xidx: i
           yidx: j
+          xpos: xpos
+          ypos: ypos
         }
         newdot.addClass('colordot')
         newdot.appendTo this
   ready: ->
     self = this
+    this.computeSelectedDotDimensions = _.throttle(this.computeSelectedDotDimensionsReal, 100)
     $(this).on 'pointerdown', (evt) ->
       self.drawing = true
       self.startx = evt.offsetX
@@ -91,13 +103,16 @@ Polymer {
         diffx = self.startx - evt.offsetX
         diffy = self.starty - evt.offsetY
         self.selectionRectangle(self.startx, self.starty, evt.offsetX, evt.offsetY)
-    $(this).on 'pointerout', (evt) ->
-      self.drawing = false
-      self.hideSelectionRectangle()
+    #$(this).on 'pointerout', (evt) ->
+    #  console.log 'pointerout'
+    #  self.drawing = false
+    #  self.hideSelectionRectangle()
     $(this).on 'pointerleave', (evt) ->
+      console.log 'pointerleave'
       self.drawing = false
       self.hideSelectionRectangle()
     $(this).on 'pointerup', (evt) ->
+      console.log 'pointerup'
       self.drawing = false
       self.hideSelectionRectangle()
     console.log 'activity started'

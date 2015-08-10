@@ -6,13 +6,13 @@ require! {
   'gulp-livescript'
 }
 
-lspattern = ['./app.ls', './**/*.ls', '!./gulpfile.ls', '!./(node_modules)/', '!./(node_modules)/**', '!./(mongodata)/', '!./(mongodata)/**']
+lspattern = ['app.ls', 'scripts/*.ls', 'www/*.ls']
 gulp.task 'livescript', ->
-  return gulp.src(lspattern)
+  return gulp.src(lspattern, {base: './'})
   .pipe(gulp-changed('.', {extension: '.js'}))
   .pipe(gulp-livescript({bare: false}))
   .on('error', gulp-util.log)
-  .pipe(gulp-print())
+  .pipe(gulp-print({colors: false}))
   .pipe(gulp.dest('.'))
 
 gulp.task 'build', ['livescript']

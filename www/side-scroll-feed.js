@@ -29,11 +29,10 @@
           return;
         }
         if (tagMatchesItem(tag, item)) {
-          getLocalStorage().get('username', fn$);
+          getUsername(fn$);
         }
       }
       function fn$(username){
-        username = username != null ? username : 'cat';
         if (x.finishedby.indexOf(username) === -1) {
           return x.finishedby = x.finishedby.concat([username]);
         }
