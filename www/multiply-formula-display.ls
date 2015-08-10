@@ -26,6 +26,7 @@ Polymer {
   productChanged: ->
     if this.product == 0
       return
+    this.S('#productbackground').stop(true, true)
     this.S('#productbackground').css('opacity', '1')
     this.S('#productbackground').animate({
       'opacity': 0
