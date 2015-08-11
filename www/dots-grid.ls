@@ -15,6 +15,11 @@ Polymer {
       type: Boolean
       value: false
     }
+    nolabels: {
+      type: Boolean
+      value: false
+      observer: 'createDots'
+    }
   }
   S: (pattern) ->
     $(this.$$(pattern))
@@ -80,32 +85,34 @@ Polymer {
     numdots = this.numdots
     width = this.width
     spacing = width / numdots
-    for i in [0 til numdots]
-      newlabel = $('<div>')
-      xpos = Math.round(spacing * (i + 0.5))
-      newlabel.css {
-        position: 'absolute'
-        top: '0px'
-        left: xpos + 'px'
-        'font-size': '32px'
-      }
-      newlabel.text(i + 1)
-      newlabel.addClass('numberlabelhorizontal')
-      newlabel.addClass('numberlabelhorizontal_' + i)
-      newlabel.appendTo this
-    for i in [0 til numdots]
-      newlabel = $('<div>')
-      ypos = Math.round(spacing * (i + 0.5))
-      newlabel.css {
-        position: 'absolute'
-        left: '5px'
-        top: (ypos - 7) + 'px'
-        'font-size': '32px'
-      }
-      newlabel.text(i + 1)
-      newlabel.addClass('numberlabelvertical')
-      newlabel.addClass('numberlabelvertical_' + i)
-      newlabel.appendTo this
+    if not this.nolabels
+      for i in [0 til numdots]
+        newlabel = $('<div>')
+        xpos = Math.round(spacing * (i + 0.5))
+        newlabel.css {
+          position: 'absolute'
+          top: '0px'
+          left: xpos + 'px'
+          'font-size': '32px'
+        }
+        newlabel.text(i + 1)
+        newlabel.addClass('numberlabelhorizontal')
+        newlabel.addClass('numberlabelhorizontal_' + i)
+        newlabel.appendTo this
+    if not this.nolabels
+      for i in [0 til numdots]
+        newlabel = $('<div>')
+        ypos = Math.round(spacing * (i + 0.5))
+        newlabel.css {
+          position: 'absolute'
+          left: '5px'
+          top: (ypos - 7) + 'px'
+          'font-size': '32px'
+        }
+        newlabel.text(i + 1)
+        newlabel.addClass('numberlabelvertical')
+        newlabel.addClass('numberlabelvertical_' + i)
+        newlabel.appendTo this
     for i in [0 til numdots]
       for j in [0 til numdots]
         newdot = $('<div>')

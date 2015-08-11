@@ -4,8 +4,7 @@
     properties: {
       numdots: {
         type: Number,
-        value: 5,
-        observer: 'numdotsChanged'
+        value: 5
       },
       targetformula: {
         type: String,
@@ -16,39 +15,14 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
-    numdotsChanged: function(){
-      return this.S('#dotsgrid').prop('numdots', this.numdots);
-    },
     targetformulaChanged: function(){
-      var numvars;
-      numvars = this.targetformula.split('_').length - 1;
-      this.target_product = parseInt(
-      this.targetformula.split('=')[1]);
-      this.target_terms = this.targetformula.split('=')[0].split('x').map(function(x){
-        return parseInt(x);
-      });
-      this.target_term1 = this.target_terms[0];
-      this.target_term2 = this.target_terms[1];
-      if (numvars === 2) {
-        this.task = 'both_terms';
-        this.target_term1 = this.target_term2 = 0;
-      } else if (numvars === 1) {
-        if (!isFinite(this.target_product)) {
-          this.task = 'product';
-          this.target_product = this.target_term1 * this.target_term2;
-        } else if (!isFinite(this.target_term1)) {
-          this.task = 'first_term';
-          this.target_term1 = Math.round(this.target_product / this.target_term2);
-        } else if (!isFinite(this.target_term2)) {
-          this.task = 'second_term';
-          this.target_term2 = Math.round(this.target_product / this.target_term1);
-        }
-      } else {
-        this.task = '';
-        this.target_product = 0;
-        this.target_term1 = 0;
-        this.target_term2 = 0;
-      }
+      var ref$, task, term1, term2, product;
+      ref$ = parseMultiplicationProblem(this.targetformula), task = ref$.task, term1 = ref$.term1, term2 = ref$.term2, product = ref$.product;
+      this.task = task;
+      this.target_term1 = term1;
+      this.target_term2 = term2;
+      this.target_terms = [term1, term2];
+      this.target_product = product;
       return this.S('#formuladisplay').prop({
         task: this.task,
         term1: this.target_term1,
@@ -113,8 +87,7 @@
     ready: function(){
       var width;
       width = Math.min($(window).height(), $(window).width());
-      this.S('#dotsgrid').prop('width', width);
-      return this.numdotsChanged();
+      return this.S('#dotsgrid').prop('width', width);
     }
   });
 }).call(this);

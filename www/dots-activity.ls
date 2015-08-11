@@ -4,7 +4,6 @@ RegisterActivity {
     numdots: {
       type: Number
       value: 5
-      observer: 'numdotsChanged'
     }
     targetformula: {
       type: String
@@ -14,32 +13,13 @@ RegisterActivity {
   }
   S: (pattern) ->
     $(this.$$(pattern))
-  numdotsChanged: ->
-    this.S('#dotsgrid').prop 'numdots', this.numdots
   targetformulaChanged: ->
-    numvars = this.targetformula.split('_').length - 1
-    this.target_product = this.targetformula.split('=')[1] |> parseInt
-    this.target_terms = this.targetformula.split('=')[0].split('x').map((x) -> parseInt(x))
-    this.target_term1 = this.target_terms[0]
-    this.target_term2 = this.target_terms[1]
-    if numvars == 2
-      this.task = 'both_terms'
-      this.target_term1 = this.target_term2 = 0
-    else if numvars == 1
-      if !isFinite(this.target_product)
-        this.task = 'product'
-        this.target_product = this.target_term1 * this.target_term2
-      else if !isFinite(this.target_term1)
-        this.task = 'first_term'
-        this.target_term1 = Math.round(this.target_product / this.target_term2)
-      else if !isFinite(this.target_term2)
-        this.task = 'second_term'
-        this.target_term2 = Math.round(this.target_product / this.target_term1)
-    else
-      this.task = ''
-      this.target_product = 0
-      this.target_term1 = 0
-      this.target_term2 = 0
+    {task, term1, term2, product} = parseMultiplicationProblem(this.targetformula)
+    this.task = task
+    this.target_term1 = term1
+    this.target_term2 = term2
+    this.target_terms = [term1, term2]
+    this.target_product = product
     this.S('#formuladisplay').prop {
       task: this.task
       term1: this.target_term1
@@ -91,5 +71,4 @@ RegisterActivity {
   ready: ->
     width = Math.min $(window).height(), $(window).width()
     this.S('#dotsgrid').prop 'width', width
-    this.numdotsChanged()
 }
