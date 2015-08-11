@@ -34,6 +34,11 @@ Polymer {
         color: 'white'
         border-width: '2px'
       }
+    if task == 'first_term'
+      this.S('#term1num').css {
+        color: 'white'
+        border-width: '2px'
+      }
     if task == 'second_term'
       this.S('#term2num').css {
         color: 'white'

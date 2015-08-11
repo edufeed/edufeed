@@ -64,6 +64,10 @@ RegisterActivity {
         this.S('#formuladisplay')[0].showterm('term1')
         this.S('#formuladisplay')[0].showterm('term2')
         this.finished()
+    if this.task == 'first_term'
+      if product == this.target_product and (this.target_terms.indexOf(term1) != -1 or this.target_terms.indexOf(term2) != -1)
+        this.S('#formuladisplay')[0].showterm('term1')
+        this.finished()
     if this.task == 'second_term'
       if product == this.target_product and (this.target_terms.indexOf(term1) != -1 or this.target_terms.indexOf(term2) != -1)
         this.S('#formuladisplay')[0].showterm('term2')

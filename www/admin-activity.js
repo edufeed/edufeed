@@ -98,6 +98,9 @@
               numdots: 4,
               targetformula: '3x4=_'
             }, {
+              numdots: 6,
+              targetformula: '_x6=18'
+            }, {
               numdots: 5,
               targetformula: '3x_=15'
             }, {
