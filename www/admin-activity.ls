@@ -45,7 +45,14 @@ RegisterActivity {
     self = this
     username <- getUsername()
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-    items = [{itemtype: 'admin', social: {poster: 'horse'}}, {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}] ++ [{itemtype: 'dots', data: {numdots: numdots}, social: {poster: 'mouse'}} for numdots in [2 to 5]] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    items = (
+      [
+        {itemtype: 'admin', social: {poster: 'horse'}}
+        {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}
+      ] ++
+      [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]] ++
+      [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    )
     async.each items, (item, callback) ->
       postItem "feeditems_#{username}", item, callback
     , (results) ->

@@ -4,7 +4,6 @@
   <style>
     :host {
       display: block;
-      background-color: lightgreen;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
@@ -24,10 +23,24 @@
     }
     #term1 {
       text-align: right;
-      margin-bottom: -20px;
+      margin-bottom: -15px;
+      color: #EB008B;
     }
     #term2 {
       text-align: right;
+      color: #00A551;
+    }
+    #term1num {
+      border-style: solid;
+      border-width: 0px;
+      border-color: #EB008B;
+      border-radius: 10px;
+    }
+    #term2num {
+      border-style: solid;
+      border-width: 0px;
+      border-color: #00A551;
+      border-radius: 10px;
     }
     #productcontainer {
       position: relative;
@@ -36,6 +49,13 @@
     }
     #product {
       text-align: right;
+      color: #00ADEE;
+    }
+    #productnum {
+      border-style: solid;
+      border-width: 0px;
+      border-color: #00ADEE;
+      border-radius: 10px;
     }
     #productbackground {
       position: absolute;
@@ -52,14 +72,20 @@
       height: 5px;
       background-color: black;
     }
+    #xsign {
+      color: black;
+    }
+    #eqsign {
+      color: black;
+    }
   </style>
   <template>
     <div id="contents">
-      <div id="term1">{{term1}}</div>
-      <div id="term2">x <span>{{term2}}</span></div>
+      <div id="term1"><span style="color: white">x</span><span id="term1num">{{termToStr(term1)}}</span></div>
+      <div id="term2"><span id="xsign">x</span><span id="term2num">{{termToStr(term2)}}</span></div>
       <div id="blackline"></div>
       <div id="productcontainer">
-        <div id="product">{{product}}</div>
+        <div id="product"><span id="eqsign">=</span><span id="productnum">{{termToStr(product)}}</span></div>
         <div id="productbackground"></div>
       </div>
     </div>

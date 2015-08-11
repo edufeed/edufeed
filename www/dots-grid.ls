@@ -11,6 +11,10 @@ Polymer {
       value: 500
       observer: 'createDots'
     }
+    ignoretouch: {
+      type: Boolean
+      value: false
+    }
   }
   S: (pattern) ->
     $(this.$$(pattern))
@@ -26,7 +30,7 @@ Polymer {
       x = dot.data('xpos')
       y = dot.data('ypos')
       if startx <= x <= endx and starty <= y <= endy
-        dot.css 'background-color', 'red'
+        dot.css 'background-color', '#00ADEE'
       else
         dot.css 'background-color', 'black'
         continue
@@ -42,6 +46,12 @@ Polymer {
       xdim = 0
       ydim = 0
     if xdim != this.prev_xdim or ydim != this.prev_ydim
+      if ydim != this.prev_ydim
+        $(this).find('.numberlabelhorizontal').css('color', 'black')
+        $(this).find('.numberlabelhorizontal_' + (ydim - 1)).css('color', '#EB008B')
+      if xdim != this.prev_xdim
+        $(this).find('.numberlabelvertical').css('color', 'black')
+        $(this).find('.numberlabelvertical_' + (xdim - 1)).css('color', '#00A551')
       this.prev_xdim = xdim
       this.prev_ydim = ydim
       this.fire 'selected-dots-changed', {xdim, ydim}
@@ -65,23 +75,51 @@ Polymer {
     return
   createDots: ->
     $(this).find('.colordot').remove()
+    $(this).find('.numberlabelhorizontal').remove()
+    $(this).find('.numberlabelvertical').remove()
     numdots = this.numdots
     width = this.width
     spacing = width / numdots
+    for i in [0 til numdots]
+      newlabel = $('<div>')
+      xpos = Math.round(spacing * (i + 0.5))
+      newlabel.css {
+        position: 'absolute'
+        top: '0px'
+        left: xpos + 'px'
+        'font-size': '32px'
+      }
+      newlabel.text(i + 1)
+      newlabel.addClass('numberlabelhorizontal')
+      newlabel.addClass('numberlabelhorizontal_' + i)
+      newlabel.appendTo this
+    for i in [0 til numdots]
+      newlabel = $('<div>')
+      ypos = Math.round(spacing * (i + 0.5))
+      newlabel.css {
+        position: 'absolute'
+        left: '5px'
+        top: (ypos - 7) + 'px'
+        'font-size': '32px'
+      }
+      newlabel.text(i + 1)
+      newlabel.addClass('numberlabelvertical')
+      newlabel.addClass('numberlabelvertical_' + i)
+      newlabel.appendTo this
     for i in [0 til numdots]
       for j in [0 til numdots]
         newdot = $('<div>')
         xpos = Math.round(spacing * (j + 0.5))
         ypos = Math.round(spacing * (i + 0.5))
         newdot.css {
-          width: '10px'
-          height: '10px'
+          width: '20px'
+          height: '20px'
           'background-color': 'black'
           'border-radius': '50%'
           position: 'absolute'
           top: Math.round(spacing * (i + 0.5)) + 'px'
           left: Math.round(spacing * (j + 0.5)) + 'px'
-          'pointer-events': 'noner'
+          'pointer-events': 'none'
         }
         newdot.data {
           xidx: i
@@ -95,24 +133,31 @@ Polymer {
     self = this
     this.computeSelectedDotDimensions = _.throttle(this.computeSelectedDotDimensionsReal, 100)
     $(this).on 'pointerdown', (evt) ->
+      if self.ignoretouch
+        return
       self.drawing = true
-      self.startx = evt.offsetX
-      self.starty = evt.offsetY
+      #self.startx = evt.offsetX
+      #self.starty = evt.offsetY
+      self.startx = 0
+      self.starty = 0
     $(this).on 'pointermove', (evt) ->
+      if self.ignoretouch
+        return
       if self.drawing
         diffx = self.startx - evt.offsetX
         diffy = self.starty - evt.offsetY
         self.selectionRectangle(self.startx, self.starty, evt.offsetX, evt.offsetY)
     #$(this).on 'pointerout', (evt) ->
-    #  console.log 'pointerout'
     #  self.drawing = false
     #  self.hideSelectionRectangle()
     $(this).on 'pointerleave', (evt) ->
-      console.log 'pointerleave'
+      if self.ignoretouch
+        return
       self.drawing = false
       self.hideSelectionRectangle()
     $(this).on 'pointerup', (evt) ->
-      console.log 'pointerup'
+      if self.ignoretouch
+        return
       self.drawing = false
       self.hideSelectionRectangle()
     console.log 'activity started'
