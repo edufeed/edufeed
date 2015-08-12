@@ -19,6 +19,9 @@
       }
     },
     playword: function(){
+      if (this.word == null || this.word.length === 0) {
+        return;
+      }
       return synthesize_word(this.word);
     },
     wordChanged: function(){

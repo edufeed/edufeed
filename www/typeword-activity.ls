@@ -18,6 +18,8 @@ RegisterActivity {
     }
   }
   playword: ->
+    if not this.word? or this.word.length == 0
+      return
     synthesize_word this.word
   #ready: ->
   #  console.log 'practice word ready'

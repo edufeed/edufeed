@@ -123,6 +123,22 @@
           for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
             word = ref$[i$];
             results$.push({
+              itemtype: 'typeletter',
+              data: {
+                word: word
+              },
+              social: {
+                poster: 'dog',
+                finishedby: ['zebra']
+              }
+            });
+          }
+          return results$;
+        }()), (function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
+            word = ref$[i$];
+            results$.push({
               itemtype: 'typeword',
               data: {
                 word: word

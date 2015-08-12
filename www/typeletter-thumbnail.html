@@ -1,0 +1,22 @@
+<link rel="import" href="polymer-utils.html">
+<link rel="import" href="bing-image.html">
+<link rel="import" href="colored-block-text.html">
+
+<dom-module id="typeletter-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+    }
+    .shadowtext {
+      text-shadow: 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black, 0 0 4px black;
+      /*-webkit-font-smoothing: antialiased;*/
+    }
+  </style>
+  <template>
+  <div id="outerdiv" style="position: relative">
+  <bing-image style="cursor: pointer" query="{{word}}" width="{{width}}" height="{{height}}"></bing-image>
+  <div id="textdiv" style="text-align: center; font-size: 48px; color: black; position: absolute; bottom: 20px"><colored-block-text word="{{letter}}"></colored-block-text></div>
+  </div>
+  </template>
+  <script src="typeletter-thumbnail.js"></script>  
+</dom-module>
