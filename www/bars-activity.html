@@ -1,0 +1,92 @@
+﻿<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Bar Activity</title>
+</head>
+
+<body>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <style>
+        #sortable {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #sortable li {
+            margin: 3px 0px 3px 0px;
+            font-size: 1.0em;
+            height: 20px;
+            text-align:left;
+        }
+
+        #sortable li > div {
+            height:20px;
+            display:flex;
+            justify-content:space-between;
+        }
+
+        #sortable li > div div {
+            border:1px solid black;
+            width:100px;
+            border-left-color:transparent;
+        }
+
+        #sortable li > div div:first-child {
+            border-left-color:black;
+        }
+
+        .bar-init{background:#ffd800;font-weight:normal;color:black}
+        .bar-green{background:#2ed743;font-weight:normal;color:black}
+
+    </style>
+
+    <audio id="tada" src="Audio\tada.mp3"></audio>
+
+    <ul id="sortable">
+        <li class="bar-init"></li>
+        <li class="bar-init"></li>
+        <li class="bar-init"></li>
+        <li class="bar-init"></li>
+        <li class="bar-init"></li>
+    </ul>
+
+    <script src="bars-activity.js"></script>
+
+    <script>
+
+        $(function () {
+            $("#sortable").sortable( {
+                update: function (event, ui) {
+                    checkIfDoneAsc();
+                }
+            });
+            $("#sortable").disableSelection();
+        });
+
+        $(document).ready(function () {
+            init();
+        });
+
+        var inputs = [
+          [1, 2, 3, 4, 5],
+          [2, 4, 6, 8, 10],
+          [10, 20, 30, 40, 50]
+        ];
+        var unitPx = 50;
+
+    </script>
+
+
+
+</body>
+
+</html>
