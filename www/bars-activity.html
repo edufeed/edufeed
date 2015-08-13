@@ -1,19 +1,6 @@
-﻿<!doctype html>
+﻿<link rel="import" href="polymer-utils.html">
 
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <title>Bar Activity</title>
-</head>
-
-<body>
-
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-    <link rel="stylesheet" href="/resources/demos/style.css">
-
+<dom-module id="bars-activity">
     <style>
         #sortable {
             list-style-type: none;
@@ -49,8 +36,7 @@
 
     </style>
 
-    <audio id="tada" src="Audio\tada.mp3"></audio>
-
+    <template>
     <ul id="sortable">
         <li class="bar-init"></li>
         <li class="bar-init"></li>
@@ -59,34 +45,8 @@
         <li class="bar-init"></li>
     </ul>
 
+    <audio id="tada" src="audio/tada.mp3"></audio>
+    </template>
+
     <script src="bars-activity.js"></script>
-
-    <script>
-
-        $(function () {
-            $("#sortable").sortable( {
-                update: function (event, ui) {
-                    checkIfDoneAsc();
-                }
-            });
-            $("#sortable").disableSelection();
-        });
-
-        $(document).ready(function () {
-            init();
-        });
-
-        var inputs = [
-          [1, 2, 3, 4, 5],
-          [2, 4, 6, 8, 10],
-          [10, 20, 30, 40, 50]
-        ];
-        var unitPx = 50;
-
-    </script>
-
-
-
-</body>
-
-</html>
+</dom-module>
