@@ -53,16 +53,22 @@
     });
   };
   out$.getCouchURL = getCouchURL = function(callback){
+    var default_couch_server;
+    default_couch_server = 'edufeed.cloudant.com';
     return getLocalStorage().get('couchserver', function(couchserver){
-      if (couchserver != null) {
+      if (couchserver != null && couchserver.length > 0) {
         callback(couchserver);
       } else {
         return $.get('/getcouchserver').done(function(data){
-          return setCouchURL(data, function(){
-            return callback(data);
-          });
+          if (data != null && data.length > 0) {
+            return setCouchURL(data, function(){
+              return callback(data);
+            });
+          } else {
+            return callback(default_couch_server);
+          }
         }).fail(function(){
-          return callback('edufeed.cloudant.com');
+          return callback(default_couch_server);
         });
       }
     });

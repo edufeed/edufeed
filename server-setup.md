@@ -12,9 +12,8 @@ Install mongodb https://www.mongodb.org/
 
 Install couchdb http://couchdb.apache.org/
 
-Install gulp:
+Install gulp and node-dev:
 
 ```
-npm install -g gulp
+npm install -g gulp node-dev
 ```
-
