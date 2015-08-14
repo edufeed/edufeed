@@ -43,7 +43,7 @@ export getCouchURL = (callback) ->
       return
     else
       $.get('/getcouchserver').done((data) ->
-        setCouchURL, data, ->
+        setCouchURL data, ->
           callback data
       ).fail( ->
         callback 'edufeed.cloudant.com'

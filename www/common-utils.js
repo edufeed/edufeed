@@ -58,7 +58,7 @@
         callback(couchserver);
       } else {
         return $.get('/getcouchserver').done(function(data){
-          return getLocalStorage().set('couchserver', data, function(){
+          return setCouchURL(data, function(){
             return callback(data);
           });
         }).fail(function(){
