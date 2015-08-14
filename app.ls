@@ -32,6 +32,11 @@ app.use require('body-parser').json()
 
 app.listen app.get('port'), '0.0.0.0'
 
+# couchdb info
+
+app.get '/getcouchserver', (req, res) ->
+  res.send couchdb_server
+
 # base64 caching proxy
 
 get_binary_content = (url, callback) ->

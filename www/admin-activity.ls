@@ -6,31 +6,37 @@ RegisterActivity {
     self = this
     getUsername (username) ->
       getPassword (password) ->
-        self.S('#usernameinput').val(username)
-        self.S('#passwordinput').val(password)
+        getCouchURL (couchserver) ->
+          self.S('#usernameinput').val(username)
+          self.S('#passwordinput').val(password)
+          self.S('#couchserverinput').val(couchserver)
   appcacheStatus: ->
     return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
-  reallySetUsername: (username, password) ->
+  reallySetUsername: (username, password, couchserver) ->
     setUsername username, ->
       setPassword password, ->
-        window.location.reload()
+        setCouchURL couchserver, ->
+          window.location.reload()
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()
     password = this.S('#passwordinput').val().trim()
+    couchserver = this.S('#couchserverinput').val().trim()
     let login_successful = true
     #test_if_can_login username, password, (login_successful) ->
       if not login_successful
         bootbox.confirm "Login was unsuccessful, are you sure you would like to update the stored username and password?", (certain) ->
           if certain
-            self.reallySetUsername(username, password)
+            self.reallySetUsername(username, password, couchserver)
           else
             getUsername (nusername) ->
               getPassword (npassword) ->
-                self.S('#usernameinput').val(nusername)
-                self.S('#passwordinput').val(npassword)
+                getCouchURL (ncouchserver) ->
+                  self.S('#usernameinput').val(nusername)
+                  self.S('#passwordinput').val(npassword)
+                  self.S('#couchserverinput').val(ncouchserver)
       else
-        self.reallySetUsername(username, password)
+        self.reallySetUsername(username, password, couchserver)
   makeFullScreen: ->
     ssfeed = $('side-scroll-feed')[0]
     rfs = document.body.mozRequestFullScreen || document.body.webkitRequestFullScreen || document.body.requestFullScreen

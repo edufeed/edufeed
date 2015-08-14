@@ -37,13 +37,26 @@ export getPassword = (callback) ->
     callback(password ? 'guestpassword')
 
 export getCouchURL = (callback) ->
-  callback 'edufeed.cloudant.com'
+  getLocalStorage().get 'couchserver', (couchserver) ->
+    if couchserver?
+      callback couchserver
+      return
+    else
+      $.get('/getcouchserver').done((data) ->
+        setCouchURL, data, ->
+          callback data
+      ).fail( ->
+        callback 'edufeed.cloudant.com'
+      )
 
 export setUsername = (username, callback) ->
   getLocalStorage().set 'username', username, callback
 
 export setPassword = (password, callback) ->
   getLocalStorage().set 'password', password, callback
+
+export setCouchURL = (couchserver, callback) ->
+  getLocalStorage().set 'couchserver', couchserver, callback
 
 # filesystem related
 

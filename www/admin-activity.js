@@ -9,42 +9,51 @@
       self = this;
       return getUsername(function(username){
         return getPassword(function(password){
-          self.S('#usernameinput').val(username);
-          return self.S('#passwordinput').val(password);
+          return getCouchURL(function(couchserver){
+            self.S('#usernameinput').val(username);
+            self.S('#passwordinput').val(password);
+            return self.S('#couchserverinput').val(couchserver);
+          });
         });
       });
     },
     appcacheStatus: function(){
       return ['uncached', 'idle', 'checking', 'downloading', 'updateready'][window.applicationCache.status];
     },
-    reallySetUsername: function(username, password){
+    reallySetUsername: function(username, password, couchserver){
       return setUsername(username, function(){
         return setPassword(password, function(){
-          return window.location.reload();
+          return setCouchURL(couchserver, function(){
+            return window.location.reload();
+          });
         });
       });
     },
     setUsername: function(){
-      var self, username, password;
+      var self, username, password, couchserver;
       self = this;
       username = this.S('#usernameinput').val().trim();
       password = this.S('#passwordinput').val().trim();
+      couchserver = this.S('#couchserverinput').val().trim();
       return (function(login_successful){
         if (!login_successful) {
           return bootbox.confirm("Login was unsuccessful, are you sure you would like to update the stored username and password?", function(certain){
             if (certain) {
-              return self.reallySetUsername(username, password);
+              return self.reallySetUsername(username, password, couchserver);
             } else {
               return getUsername(function(nusername){
                 return getPassword(function(npassword){
-                  self.S('#usernameinput').val(nusername);
-                  return self.S('#passwordinput').val(npassword);
+                  return getCouchURL(function(ncouchserver){
+                    self.S('#usernameinput').val(nusername);
+                    self.S('#passwordinput').val(npassword);
+                    return self.S('#couchserverinput').val(ncouchserver);
+                  });
                 });
               });
             }
           });
         } else {
-          return self.reallySetUsername(username, password);
+          return self.reallySetUsername(username, password, couchserver);
         }
       }.call(this, true));
     },
