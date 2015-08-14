@@ -17,3 +17,10 @@ Install gulp and node-dev:
 ```
 npm install -g gulp node-dev
 ```
+
+Determine your IP address:
+
+```
+node scripts/getip.js
+```
+
