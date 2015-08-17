@@ -10,6 +10,11 @@
       letter: {
         type: String,
         computed: 'getFirstLetter(word)'
+      },
+      difficulty: {
+        type: Number,
+        value: 0,
+        observer: 'shownKeysChanged'
       }
     },
     playword: function(){
@@ -49,18 +54,42 @@
         keyboard.highlightkey = next_letter;
       }
       if (letter === next_letter) {
+        if (this.difficulty < 3) {
+          this.difficulty += 1;
+        } else {
+          setTimeout(function(){
+            return this$.fire('task-finished', this$);
+          }, 1000);
+        }
         return setTimeout(function(){
-          this$.playword();
-          return this$.fire('task-finished', this$);
-        }, 1000);
+          return this$.playword();
+        }, 500);
       }
     },
     shownKeysChanged: function(){
-      var keyboard;
+      var keyboard, next_letter;
       this.incorrect = 0;
       keyboard = this.$$('#keyboard');
+      next_letter = this.nextLetter();
       this.$$('#wordspan').highlightidx = 0;
-      return keyboard.shownkeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join('');
+      keyboard.highlightkey = '';
+      if (this.difficulty === 0) {
+        keyboard.shownkeys = next_letter;
+      }
+      if (this.difficulty === 1) {
+        keyboard.shownkeys = keyboard.getKeysInSameSection(next_letter);
+      }
+      if (this.difficulty === 2) {
+        keyboard.shownkeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join('');
+      }
+      if (this.difficulty === 3) {
+        keyboard.shownkeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join('');
+      }
+      if (this.difficulty === 3) {
+        return this.$$('#wordspan').style.visibility = 'hidden';
+      } else {
+        return this.$$('#wordspan').style.visibility = 'visible';
+      }
     }
   });
 }).call(this);

@@ -86,6 +86,18 @@
         observer: 'highlightkeyChanged'
       }
     },
+    getKeysInSameSection: function(key){
+      var sections, output, i$, len$, section;
+      sections = ['aeoiuyw', 'mnlr', 'bpdtgcqxk', 'fvszcghj'];
+      output = [];
+      for (i$ = 0, len$ = sections.length; i$ < len$; ++i$) {
+        section = sections[i$];
+        if (section.indexOf(key) !== -1) {
+          output.push(section);
+        }
+      }
+      return output.join('');
+    },
     keyTyped: function(evt, key){
       this.fire('key-typed', key);
     }

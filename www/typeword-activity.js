@@ -59,7 +59,9 @@
           if (this.difficulty < 3) {
             this.difficulty += 1;
           } else {
-            this.fire('task-finished', this);
+            setTimeout(function(){
+              return this$.fire('task-finished', this$);
+            }, 1000);
           }
           this.partialword = '';
           return setTimeout(function(){

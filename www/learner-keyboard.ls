@@ -68,6 +68,18 @@ Polymer {
     #  observer: 'hiddenKeysChanged'
     #}
   }
+  getKeysInSameSection: (key) ->
+    sections = [
+      'aeoiuyw'
+      'mnlr'
+      'bpdtgcqxk'
+      'fvszcghj'
+    ]
+    output = []
+    for section in sections
+      if section.indexOf(key) != -1
+        output.push section
+    return output.join('')
   keyTyped: (evt, key) ->
     #console.log evt
     #console.log key

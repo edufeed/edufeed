@@ -49,7 +49,9 @@ RegisterActivity {
           this.difficulty += 1
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
-          this.fire 'task-finished', this
+          setTimeout ~>
+            this.fire 'task-finished', this
+          , 1000
         this.partialword = ''
         setTimeout ~>
           this.playword()
