@@ -1,9 +1,13 @@
 node_modules
 .DS_Store
 .getsecret.yaml
-mongodata
+/mongodata
 /.dpd
 /data
+/config.json
+/couchdata
+/log.txt
+/couchdb_log.txt
 
 # Usually, you shouldn't version control `platforms/` and `plugins/`. They are
 # build artefacts which change from machine to machine and over time.

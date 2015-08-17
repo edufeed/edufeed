@@ -1,19 +1,13 @@
 (function(){
-  var root, express, path, getsecret, throttle_call, request, restler, crypto, func_cache, couchdb_server, couchdb_user, couchdb_password, couchdb_url, nano, bing_api_key, Bing, app, get_binary_content, get_binary_content_as_base64, get_binary_content_as_base64_cached, get_image_url, get_image_url_throttled, get_image_url_cached, get_image_url_cached_throttled, get_imagedata_by_name, get_imagedata_by_name_cached, couch_put, signup_couchdb, signup_cloudant;
+  var root, express, path, getsecret, throttle_call, request, func_cache, ref$, couchdb_server, couchdb_url, signup_couchdb, signup_cloudant, bing_api_key, Bing, app, get_binary_content, get_binary_content_as_base64, get_binary_content_as_base64_cached, get_image_url, get_image_url_throttled, get_image_url_cached, get_image_url_cached_throttled, get_imagedata_by_name, get_imagedata_by_name_cached;
   root = typeof exports != 'undefined' && exports !== null ? exports : this;
   express = require('express');
   path = require('path');
   getsecret = require('getsecret');
   throttle_call = require('throttle_call');
   request = require('request');
-  restler = require('restler');
-  crypto = require('crypto');
   func_cache = require('func_cache_mongo')();
-  couchdb_server = getsecret('couchdb_server');
-  couchdb_user = getsecret('couchdb_user');
-  couchdb_password = getsecret('couchdb_password');
-  couchdb_url = "https://" + couchdb_user + ":" + couchdb_password + "@" + couchdb_server + "/";
-  nano = require('nano')(couchdb_url);
+  ref$ = require('./couchdb_utils'), couchdb_server = ref$.couchdb_server, couchdb_url = ref$.couchdb_url, signup_couchdb = ref$.signup_couchdb, signup_cloudant = ref$.signup_cloudant;
   bing_api_key = getsecret('bing_api_key');
   Bing = require('node-bing-api')({
     accKey: bing_api_key
@@ -148,84 +142,6 @@
       return results$;
     }())));
   });
-  couch_put = function(url, data, callback){
-    return restler.putJson(couchdb_url + url, data).on('complete', function(data, response){
-      return callback(data);
-    });
-  };
-  signup_couchdb = function(username, password, callback){
-    var users;
-    users = nano.use('_users');
-    return users.insert({
-      _id: "org.couchdb.user:" + username,
-      name: username,
-      type: 'user',
-      roles: ["logs_" + username, "feeditems_" + username],
-      password: password
-    }, function(){
-      return nano.db.create("logs_" + username, function(){
-        return couch_put("logs_" + username + "/_security", {
-          members: {
-            names: [username],
-            roles: ["logs_" + username]
-          }
-        }, function(){
-          return nano.db.create("feeditems_" + username, function(){
-            return couch_put("feeditems_" + username + "/_security", {
-              members: {
-                names: [username],
-                roles: ["feeditems_" + username]
-              }
-            }, function(){
-              if (callback != null) {
-                return callback();
-              }
-            });
-          });
-        });
-      });
-    });
-  };
-  signup_cloudant = function(username, password, callback){
-    var users, salt, hash, password_sha;
-    users = nano.use('_users');
-    salt = crypto.randomBytes(16).toString('hex');
-    hash = crypto.createHash('sha1');
-    hash.update(password + salt);
-    password_sha = hash.digest('hex');
-    return users.insert({
-      _id: "org.couchdb.user:" + username,
-      name: username,
-      type: 'user',
-      roles: ["logs_" + username, "feeditems_" + username],
-      password_sha: password_sha,
-      salt: salt
-    }, function(){
-      return nano.db.create("logs_" + username, function(){
-        return couch_put("logs_" + username + "/_security", {
-          couchdb_auth_only: true,
-          members: {
-            names: [username],
-            roles: ["logs_" + username]
-          }
-        }, function(){
-          return nano.db.create("feeditems_" + username, function(){
-            return couch_put("feeditems_" + username + "/_security", {
-              couchdb_auth_only: true,
-              members: {
-                names: [username],
-                roles: ["feeditems_" + username]
-              }
-            }, function(){
-              if (callback != null) {
-                return callback();
-              }
-            });
-          });
-        });
-      });
-    });
-  };
   app.post('/signup', function(req, res){
     var ref$, username, password, botcheck, allowed_letters, c;
     ref$ = req.body, username = ref$.username, password = ref$.password, botcheck = ref$.botcheck;

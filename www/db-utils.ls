@@ -3,7 +3,11 @@ export test_if_can_login = (username, password, callback) ->
   pouchOpts = {
     skipSetup: true
   }
-  db = new PouchDB("https://#{couchurl}/logs_#{username}", pouchOpts)
+  use_https = couchurl.indexOf('cloudant.com') != -1
+  if use_https
+    db = new PouchDB("https://#{couchurl}/logs_#{username}", pouchOpts)
+  else
+    db = new PouchDB("http://#{couchurl}:5984/logs_#{username}", pouchOpts)
   ajaxOpts = {
     headers: {
       Authorization: 'Basic ' + window.btoa(username + ':' + password)
@@ -47,8 +51,11 @@ export getDb = (dbname, options) ->
   if sync or replicatetoremote
     get_couchdb_login (couchdb_login) ->
       {username, password, couchurl} = couchdb_login
-      # remote_db = remote_db_cache[dbname] = new PouchDB("http://#{couchurl}/" + dbname, {auth: {username, password}})
-      remote_db_url_string = "https://#{username}:#{password}@#{couchurl}/" + dbname
+      use_https = couchurl.indexOf('cloudant.com') != -1
+      if use_https
+        remote_db_url_string = "https://#{username}:#{password}@#{couchurl}/" + dbname
+      else
+        remote_db_url_string = "http://#{username}:#{password}@#{couchurl}:5984/" + dbname
       console.log remote_db_url_string
       remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
       if sync

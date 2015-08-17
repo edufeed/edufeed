@@ -6,18 +6,11 @@ require! {
   getsecret
   throttle_call
   request
-  restler
-  crypto
 }
 
 func_cache = require('func_cache_mongo')()
 
-couchdb_server = getsecret('couchdb_server')
-couchdb_user = getsecret('couchdb_user')
-couchdb_password = getsecret('couchdb_password')
-couchdb_url = "https://#{couchdb_user}:#{couchdb_password}@#{couchdb_server}/"
-
-nano = require('nano')(couchdb_url)
+{couchdb_server, couchdb_url, signup_couchdb, signup_cloudant} = require('./couchdb_utils')
 
 bing_api_key = getsecret 'bing_api_key'
 Bing = require('node-bing-api')({accKey: bing_api_key})
@@ -118,70 +111,6 @@ app.get '/getfeeditems', (req, res) ->
   wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
   res.json([{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'geza'}}] ++ [{itemtype: 'typeword', data: {word: word}, social: {poster: 'someuser'}} for word in wordlist])
 
-# signup
-
-couch_put = (url, data, callback) ->
-  restler.putJson(couchdb_url + url, data).on 'complete', (data, response) ->
-    callback(data)
-
-signup_couchdb = (username, password, callback) ->
-  users = nano.use('_users')
-  <- users.insert {
-    _id: "org.couchdb.user:#{username}"
-    name: username
-    type: 'user'
-    roles: ["logs_#{username}", "feeditems_#{username}"]
-    password: password
-  }
-  <- nano.db.create("logs_#{username}")
-  <- couch_put "logs_#{username}/_security", {
-    members: {
-      names: [username]
-      roles: ["logs_#{username}"]
-    }
-  }
-  <- nano.db.create("feeditems_#{username}")
-  <- couch_put "feeditems_#{username}/_security", {
-    members: {
-      names: [username]
-      roles: ["feeditems_#{username}"]
-    }
-  }
-  if callback?
-    callback()
-
-signup_cloudant = (username, password, callback) ->
-  users = nano.use('_users')
-  salt = crypto.randomBytes(16).toString('hex')
-  hash = crypto.createHash('sha1')
-  hash.update(password + salt)
-  password_sha = hash.digest('hex')
-  <- users.insert {
-    _id: "org.couchdb.user:#{username}"
-    name: username
-    type: 'user'
-    roles: ["logs_#{username}", "feeditems_#{username}"]
-    password_sha: password_sha
-    salt: salt
-  }
-  <- nano.db.create("logs_#{username}")
-  <- couch_put "logs_#{username}/_security", {
-    couchdb_auth_only: true
-    members: {
-      names: [username]
-      roles: ["logs_#{username}"]
-    }
-  }
-  <- nano.db.create("feeditems_#{username}")
-  <- couch_put "feeditems_#{username}/_security", {
-    couchdb_auth_only: true
-    members: {
-      names: [username]
-      roles: ["feeditems_#{username}"]
-    }
-  }
-  if callback?
-    callback()
 
 app.post '/signup', (req, res) ->
   {username, password, botcheck} = req.body

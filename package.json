@@ -17,6 +17,7 @@
     "node-bing-api": "^2.0.0",
     "request": "^2.60.0",
     "restler": "^3.3.0",
+    "shelljs": "^0.5.3",
     "throttle_call": "^1.0.0",
     "yamlfile": "^1.0.1"
   },
