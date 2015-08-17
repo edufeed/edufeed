@@ -37,6 +37,7 @@ RegisterActivity {
     term1 = xdim
     term2 = ydim
     product = term1 * term2
+    synthesize_word(product.toString())
     if this.task == ''
       this.S('#formuladisplay').prop {
         term1: term1
