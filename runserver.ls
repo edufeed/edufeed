@@ -24,11 +24,21 @@ for command in ['pouchdb-server', 'gulp', 'node-dev']
 
 exec 'gulp', {async: true}
 
-is_couchdb_running (running) ->
-  if running
-    console.log 'using already-running couchdb instance at ' + couchdb_server
-  else
-    exec 'pouchdb-server', {async: true}
+couchserver_started = ->
   exec 'node scripts/create_users'
   exec 'node-dev app.ls', {async: true}
 
+is_couchdb_running (running) ->
+  if running
+    console.log 'using already-running couchdb instance at ' + couchdb_server
+    couchserver_started()
+    return
+  exec 'pouchdb-server', {async: true}
+  setTimeout ->
+    is_couchdb_running (running) ->
+      if running
+        couchserver_started()
+      else
+        console.log 'failed to start pouchdb-server'
+        return
+  , 2000

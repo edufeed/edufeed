@@ -1,5 +1,5 @@
 (function(){
-  var fs, async, ref$, exec, which, is_couchdb_running, does_user_exist, couchdb_server, i$, len$, command;
+  var fs, async, ref$, exec, which, is_couchdb_running, does_user_exist, couchdb_server, i$, len$, command, couchserver_started;
   fs = require('fs');
   async = require('async');
   ref$ = require('shelljs'), exec = ref$.exec, which = ref$.which;
@@ -24,17 +24,29 @@
   exec('gulp', {
     async: true
   });
-  is_couchdb_running(function(running){
-    if (running) {
-      console.log('using already-running couchdb instance at ' + couchdb_server);
-    } else {
-      exec('pouchdb-server', {
-        async: true
-      });
-    }
+  couchserver_started = function(){
     exec('node scripts/create_users');
     return exec('node-dev app.ls', {
       async: true
     });
+  };
+  is_couchdb_running(function(running){
+    if (running) {
+      console.log('using already-running couchdb instance at ' + couchdb_server);
+      couchserver_started();
+      return;
+    }
+    exec('pouchdb-server', {
+      async: true
+    });
+    return setTimeout(function(){
+      return is_couchdb_running(function(running){
+        if (running) {
+          return couchserver_started();
+        } else {
+          console.log('failed to start pouchdb-server');
+        }
+      });
+    }, 2000);
   });
 }).call(this);
