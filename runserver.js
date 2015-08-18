@@ -40,6 +40,9 @@
       async: true
     });
     return setTimeout(function(){
+      console.log('=====================================================');
+      exec('node scripts/getip');
+      console.log('=====================================================');
       return is_couchdb_running(function(running){
         if (running) {
           return couchserver_started();

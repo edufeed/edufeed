@@ -35,6 +35,9 @@ is_couchdb_running (running) ->
     return
   exec 'pouchdb-server', {async: true}
   setTimeout ->
+    console.log '====================================================='
+    exec 'node scripts/getip'
+    console.log '====================================================='
     is_couchdb_running (running) ->
       if running
         couchserver_started()
