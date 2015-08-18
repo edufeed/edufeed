@@ -5,6 +5,7 @@ class1:
     - mouse
     - pattern
     - dog
+    - cat
 class2:
   users:
     - zebra

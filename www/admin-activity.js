@@ -12,7 +12,15 @@
           return getCouchURL(function(couchserver){
             self.S('#usernameinput').val(username);
             self.S('#passwordinput').val(password);
-            return self.S('#couchserverinput').val(couchserver);
+            self.S('#couchserverinput').val(couchserver);
+            self.S('#itemtypeinput').val('typeword');
+            self.S('#datainput').val(jsyaml.safeDump({
+              word: 'cat'
+            }).trim());
+            self.S('#socialinput').val(jsyaml.safeDump({
+              poster: username
+            }).trim());
+            return self.S('#targetinput').val(username.trim());
           });
         });
       });
@@ -183,23 +191,28 @@
       });
     },
     addCustomItem: function(){
-      var self, itemtype, data_text, data, social_text, social;
+      var self, itemtype;
+      console.log('addCustomItem called');
       self = this;
       itemtype = this.S('#itemtypeinput').val();
       if (itemtype == null || itemtype.length === 0) {
         alert('must specify itemtype');
         return;
       }
-      data_text = this.S('#datainput').val();
-      data = jsyaml.safeLoad(data_text);
-      social_text = this.S('#socialinput').val();
-      social = jsyaml.safeLoad(social_text);
-      return postItem("feeditems_" + username, {
-        itemtype: itemtype,
-        data: data,
-        social: social
-      }, function(){
-        return self.fire('task-finished', self);
+      return getUsername(function(username){
+        var data_text, data, social_text, social, target;
+        data_text = self.S('#datainput').val().trim();
+        data = jsyaml.safeLoad(data_text);
+        social_text = self.S('#socialinput').val().trim();
+        social = jsyaml.safeLoad(social_text);
+        target = self.S('#targetinput').val().trim();
+        return postItemToTarget(target, {
+          itemtype: itemtype,
+          data: data,
+          social: social
+        }, function(){
+          return self.fire('task-finished', self);
+        });
       });
     },
     displayLogs: function(){

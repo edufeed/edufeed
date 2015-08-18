@@ -40,14 +40,16 @@ export getDb = (dbname, options) ->
     options = {}
   if db_cache[dbname]?
     return db_cache[dbname]
-  db = db_cache[dbname] = new PouchDB(dbname)
-  changes = db.changes({live: true})
+  db = db_cache[dbname] = new PouchDB(dbname, {auto_compaction: true})
+  #couch_options = {live: true, retry: true, continuous: true, heartbeat: 3000, timeout: 3000}
+  couch_options = {live: true, retry: true, continuous: true, batch_size: 500, batches_limit: 100}
+  changes = db.changes(couch_options)
   changes.on 'change', (change) ->
     if db_sync_handlers[dbname]?
       db_sync_handlers[dbname](change)
   params = getUrlParameters()
-  sync = options.sync? or params.sync?
-  replicatetoremote = options.replicatetoremote? or params.replicatetoremote?
+  sync = options.sync? or params.sync? or dbname.indexOf('feeditems_') == 0
+  replicatetoremote = options.replicatetoremote? or params.replicatetoremote? or dbname.indexOf('logs_') == 0
   if sync or replicatetoremote
     get_couchdb_login (couchdb_login) ->
       {username, password, couchurl} = couchdb_login
@@ -59,7 +61,7 @@ export getDb = (dbname, options) ->
       console.log remote_db_url_string
       remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
       if sync
-        db.sync(remote_db, {live: true})/*.on('change', (change) ->
+        db.sync(remote_db, couch_options)/*.on('change', (change) -> # {live: true, retry: true, continuous: true}
           if db_sync_handlers[dbname]?
             db_sync_handlers[dbname](change)
         )*/.on('error', (err) ->
@@ -67,7 +69,7 @@ export getDb = (dbname, options) ->
           console.log err
         )
       else if replicatetoremote
-        db.replicate.to(remote_db, {live: true})
+        db.replicate.to(remote_db, couch_options)
         .on('error', (err) ->
           console.log 'replicatetoremote error'
           console.log err
@@ -109,6 +111,9 @@ export makeUUID = ->
   return padWithZeros(prevUUID.time, 13) ++ padWithZeros(prevUUID.idx, 7)
 
 export postItem = (dbname, item, callback) ->
+  console.log 'postItem called: '
+  console.log dbname
+  console.log item
   db = getDb(dbname)
   new_item = {} <<< item
   if not new_item._id?
@@ -117,3 +122,18 @@ export postItem = (dbname, item, callback) ->
     if callback?
       callback(err, res)
 
+export postItemToTarget = (target, item, callback) ->
+  console.log 'postItemToTarget before getClasses'
+  getClasses (classes) ->
+    console.log 'postItemToTarget'
+    console.log target
+    if not classes[target]?
+      # is username
+      postItem "feeditems_#{target}", item, callback
+      return
+    users = classes[target].users
+    async.eachSeries users, (username, ncallback) ->
+      postItem "feeditems_#{username}", item, ncallback
+    , ->
+      if callback?
+        callback()

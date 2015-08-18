@@ -25,3 +25,12 @@ export get_speechsynth_paths = (callback) ->
     data = jsyaml.safeLoad(yamltxt)
     custom_images.speechsynth_paths = data
     callback data
+
+export getClasses = (callback) ->
+  if custom_images.classes?
+    callback custom_images.classes
+    return
+  $.get '/classes.yaml', (yamltxt) ->
+    data = jsyaml.safeLoad(yamltxt)
+    custom_images.classes = data
+    callback data

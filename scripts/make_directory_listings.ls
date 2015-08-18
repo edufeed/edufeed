@@ -21,6 +21,8 @@ make_directory_listing = (directory, outfile) ->
   output = {}
   for filename in file_list
     basename = filename.split('.')[0]
+    if basename.length == 0
+      continue
     output[basename] = "#{directory}/#{filename}"
   yamlfile.writeFileSync outfile, output
   log_success {message: directory, directory_path, outfile}

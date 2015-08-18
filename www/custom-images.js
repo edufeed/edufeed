@@ -1,5 +1,5 @@
 (function(){
-  var custom_images, get_image_paths, get_profilepic_paths, get_speechsynth_paths, out$ = typeof exports != 'undefined' && exports || this;
+  var custom_images, get_image_paths, get_profilepic_paths, get_speechsynth_paths, getClasses, out$ = typeof exports != 'undefined' && exports || this;
   custom_images = {};
   out$.get_image_paths = get_image_paths = function(callback){
     if (custom_images.image_paths != null) {
@@ -34,6 +34,18 @@
       var data;
       data = jsyaml.safeLoad(yamltxt);
       custom_images.speechsynth_paths = data;
+      return callback(data);
+    });
+  };
+  out$.getClasses = getClasses = function(callback){
+    if (custom_images.classes != null) {
+      callback(custom_images.classes);
+      return;
+    }
+    return $.get('/classes.yaml', function(yamltxt){
+      var data;
+      data = jsyaml.safeLoad(yamltxt);
+      custom_images.classes = data;
       return callback(data);
     });
   };

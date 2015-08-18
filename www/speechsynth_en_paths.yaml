@@ -99,7 +99,6 @@
 '98': speechsynth_en/98.mp3
 '99': speechsynth_en/99.mp3
 '100': speechsynth_en/100.mp3
-'': speechsynth_en/.DS_Store
 apple: speechsynth_en/apple.mp3
 banana: speechsynth_en/banana.mp3
 bee: speechsynth_en/bee.mp3

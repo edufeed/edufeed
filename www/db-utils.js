@@ -1,5 +1,5 @@
 (function(){
-  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, clearDb, padWithZeros, prevUUID, makeUUID, postItem, out$ = typeof exports != 'undefined' && exports || this;
+  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
       var pouchOpts, use_https, db, ajaxOpts;
@@ -44,7 +44,7 @@
   remote_db_cache = {};
   db_sync_handlers = {};
   out$.getDb = getDb = function(dbname, options){
-    var db, changes, params, sync, replicatetoremote;
+    var db, couch_options, changes, params, sync, replicatetoremote;
     if (typeof dbname !== typeof '') {
       return dbname;
     }
@@ -54,18 +54,25 @@
     if (db_cache[dbname] != null) {
       return db_cache[dbname];
     }
-    db = db_cache[dbname] = new PouchDB(dbname);
-    changes = db.changes({
-      live: true
+    db = db_cache[dbname] = new PouchDB(dbname, {
+      auto_compaction: true
     });
+    couch_options = {
+      live: true,
+      retry: true,
+      continuous: true,
+      batch_size: 500,
+      batches_limit: 100
+    };
+    changes = db.changes(couch_options);
     changes.on('change', function(change){
       if (db_sync_handlers[dbname] != null) {
         return db_sync_handlers[dbname](change);
       }
     });
     params = getUrlParameters();
-    sync = options.sync != null || params.sync != null;
-    replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null;
+    sync = options.sync != null || params.sync != null || dbname.indexOf('feeditems_') === 0;
+    replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null || dbname.indexOf('logs_') === 0;
     if (sync || replicatetoremote) {
       get_couchdb_login(function(couchdb_login){
         var username, password, couchurl, use_https, remote_db_url_string, remote_db;
@@ -79,16 +86,12 @@
         console.log(remote_db_url_string);
         remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
         if (sync) {
-          return db.sync(remote_db, {
-            live: true
-          }).on('error', function(err){
+          return db.sync(remote_db, couch_options).on('error', function(err){
             console.log('sync error');
             return console.log(err);
           });
         } else if (replicatetoremote) {
-          return db.replicate.to(remote_db, {
-            live: true
-          }).on('error', function(err){
+          return db.replicate.to(remote_db, couch_options).on('error', function(err){
             console.log('replicatetoremote error');
             return console.log(err);
           });
@@ -156,6 +159,9 @@
   };
   out$.postItem = postItem = function(dbname, item, callback){
     var db, new_item;
+    console.log('postItem called: ');
+    console.log(dbname);
+    console.log(item);
     db = getDb(dbname);
     new_item = import$({}, item);
     if (new_item._id == null) {
@@ -165,6 +171,26 @@
       if (callback != null) {
         return callback(err, res);
       }
+    });
+  };
+  out$.postItemToTarget = postItemToTarget = function(target, item, callback){
+    console.log('postItemToTarget before getClasses');
+    return getClasses(function(classes){
+      var users;
+      console.log('postItemToTarget');
+      console.log(target);
+      if (classes[target] == null) {
+        postItem("feeditems_" + target, item, callback);
+        return;
+      }
+      users = classes[target].users;
+      return async.eachSeries(users, function(username, ncallback){
+        return postItem("feeditems_" + username, item, ncallback);
+      }, function(){
+        if (callback != null) {
+          return callback();
+        }
+      });
     });
   };
   function repeatString$(str, n){

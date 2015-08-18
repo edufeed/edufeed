@@ -10,6 +10,10 @@ RegisterActivity {
           self.S('#usernameinput').val(username)
           self.S('#passwordinput').val(password)
           self.S('#couchserverinput').val(couchserver)
+          self.S('#itemtypeinput').val 'typeword'
+          self.S('#datainput').val jsyaml.safeDump({word: 'cat'}).trim()
+          self.S('#socialinput').val jsyaml.safeDump({poster: username}).trim()
+          self.S('#targetinput').val username.trim()
   appcacheStatus: ->
     return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
   reallySetUsername: (username, password, couchserver) ->
@@ -66,17 +70,22 @@ RegisterActivity {
     , (results) ->
       self.fire 'task-finished', self
   addCustomItem: ->
+    console.log 'addCustomItem called'
     self = this
     itemtype = this.S('#itemtypeinput').val()
     if not itemtype? or itemtype.length == 0
       alert 'must specify itemtype'
       return
-    data_text = this.S('#datainput').val()
-    data = jsyaml.safeLoad data_text
-    social_text = this.S('#socialinput').val()
-    social = jsyaml.safeLoad social_text
-    postItem "feeditems_#{username}", {itemtype, data, social}, ->
-      self.fire 'task-finished', self
+    getUsername (username) ->
+      data_text = self.S('#datainput').val().trim()
+      data = jsyaml.safeLoad data_text
+      social_text = self.S('#socialinput').val().trim()
+      social = jsyaml.safeLoad social_text
+      target = self.S('#targetinput').val().trim()
+      postItemToTarget target, {itemtype, data, social}, ->
+        self.fire 'task-finished', self
+      #postItem "feeditems_#{username}", {itemtype, data, social}, ->
+      #  self.fire 'task-finished', self
   displayLogs: ->
     getlogs (logs) ~>
       this.S('#logdisplay').text JSON.stringify(logs, null, 2)

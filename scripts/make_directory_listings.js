@@ -19,6 +19,9 @@
     for (i$ = 0, len$ = file_list.length; i$ < len$; ++i$) {
       filename = file_list[i$];
       basename = filename.split('.')[0];
+      if (basename.length === 0) {
+        continue;
+      }
       output[basename] = directory + "/" + filename;
     }
     yamlfile.writeFileSync(outfile, output);
