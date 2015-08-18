@@ -7,7 +7,7 @@ export test_if_can_login = (username, password, callback) ->
   if use_https
     db = new PouchDB("https://#{couchurl}/logs_#{username}", pouchOpts)
   else
-    db = new PouchDB("http://#{couchurl}:5984/logs_#{username}", pouchOpts)
+    db = new PouchDB("http://#{couchurl}/logs_#{username}", pouchOpts)
   ajaxOpts = {
     headers: {
       Authorization: 'Basic ' + window.btoa(username + ':' + password)
@@ -55,7 +55,7 @@ export getDb = (dbname, options) ->
       if use_https
         remote_db_url_string = "https://#{username}:#{password}@#{couchurl}/" + dbname
       else
-        remote_db_url_string = "http://#{username}:#{password}@#{couchurl}:5984/" + dbname
+        remote_db_url_string = "http://#{username}:#{password}@#{couchurl}/" + dbname
       console.log remote_db_url_string
       remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string)
       if sync

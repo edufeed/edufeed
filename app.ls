@@ -10,7 +10,7 @@ require! {
 
 func_cache = require('func_cache_mongo')()
 
-{couchdb_server, couchdb_url, signup_couchdb, signup_cloudant} = require('./couchdb_utils')
+{couchdb_server, signup_user} = require('./couchdb_utils')
 
 bing_api_key = getsecret 'bing_api_key'
 Bing = require('node-bing-api')({accKey: bing_api_key})
@@ -130,9 +130,5 @@ app.post '/signup', (req, res) ->
   if [allowed_letters.indexOf(c) for c in password].indexOf(-1) != -1
     res.send {status: 'error', text: 'password should contain only lowercase letters a-z'}
     return
-  if couchdb_url.indexOf('cloudant.com') == -1
-    signup_couchdb username, password, ->
-      res.send {status: 'success', text: 'User account created'}
-  else
-    signup_cloudant username, password, ->
-      res.send {status: 'success', text: 'User account created'}
+  signup_user username, password, ->
+    res.send {status: 'success', text: 'User account created'}

@@ -18,17 +18,45 @@ export couchdb_url
 
 nano = require('nano')(couchdb_url)
 
+export is_couchdb_running = (callback) ->
+  restler.get(couchdb_url, {parser: restler.parsers.json}).on('complete', (result) ->
+    if result? and (result.couchdb? or result['express-pouchdb']?)
+      callback(true)
+      return
+    callback(false)
+  )
+
+export does_user_exist = (username, callback) ->
+  users = nano.use('_users')
+  (err1, results) <- users.list()
+  if err1?
+    console.log err1 
+  users = []
+  for doc in results.rows
+    if doc.id.indexOf('org.couchdb.user:') != -1
+      users.push doc.id.split('org.couchdb.user:').join('')
+  if users.indexOf(username) != -1
+    callback(true)
+  else
+    callback(false)
+
 couch_put = (url, data, callback) ->
   restler.putJson(couchdb_url + url, data).on 'complete', (data, response) ->
     callback(data)
 
-export signup_couchdb = (username, password, callback) ->
+export signup_user = (username, password, callback) ->
+  if couchdb_url.indexOf('cloudant.com') == -1
+    signup_couchdb username, password, callback
+  else
+    signup_cloudant username, password, callback
+
+signup_couchdb = (username, password, callback) ->
   users = nano.use('_users')
   (err1) <- users.insert {
     _id: "org.couchdb.user:#{username}"
     name: username
     type: 'user'
-    roles: ["logs_#{username}", "feeditems_#{username}"]
+    roles: ["logs_#{username}", "feeditems_#{username}", "allusers"]
     password: password
   }
   if err1?
@@ -39,7 +67,7 @@ export signup_couchdb = (username, password, callback) ->
   (err3) <- couch_put "logs_#{username}/_security", {
     members: {
       names: [username]
-      roles: ["logs_#{username}"]
+      roles: ["logs_#{username}", "allusers"]
     }
   }
   if err3?
@@ -50,7 +78,7 @@ export signup_couchdb = (username, password, callback) ->
   (err5) <- couch_put "feeditems_#{username}/_security", {
     members: {
       names: [username]
-      roles: ["feeditems_#{username}"]
+      roles: ["feeditems_#{username}", "allusers"]
     }
   }
   if err5?
@@ -58,7 +86,7 @@ export signup_couchdb = (username, password, callback) ->
   if callback?
     callback()
 
-export signup_cloudant = (username, password, callback) ->
+signup_cloudant = (username, password, callback) ->
   users = nano.use('_users')
   salt = crypto.randomBytes(16).toString('hex')
   hash = crypto.createHash('sha1')
@@ -68,7 +96,7 @@ export signup_cloudant = (username, password, callback) ->
     _id: "org.couchdb.user:#{username}"
     name: username
     type: 'user'
-    roles: ["logs_#{username}", "feeditems_#{username}"]
+    roles: ["logs_#{username}", "feeditems_#{username}", "allusers"]
     password_sha: password_sha
     salt: salt
   }
@@ -81,7 +109,7 @@ export signup_cloudant = (username, password, callback) ->
     couchdb_auth_only: true
     members: {
       names: [username]
-      roles: ["logs_#{username}"]
+      roles: ["logs_#{username}", "allusers"]
     }
   }
   if err3?
@@ -93,7 +121,7 @@ export signup_cloudant = (username, password, callback) ->
     couchdb_auth_only: true
     members: {
       names: [username]
-      roles: ["feeditems_#{username}"]
+      roles: ["feeditems_#{username}", "allusers"]
     }
   }
   if err5?

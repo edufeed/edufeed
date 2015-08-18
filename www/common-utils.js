@@ -80,6 +80,11 @@
     return getLocalStorage().set('password', password, callback);
   };
   out$.setCouchURL = setCouchURL = function(couchserver, callback){
+    if (couchserver.indexOf('cloudant.com') === -1) {
+      if (couchserver.indexOf(':') === -1) {
+        couchserver = couchserver + ':5984';
+      }
+    }
     return getLocalStorage().set('couchserver', couchserver, callback);
   };
   /*

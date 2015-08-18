@@ -1,5 +1,5 @@
 (function(){
-  var root, express, path, getsecret, throttle_call, request, func_cache, ref$, couchdb_server, couchdb_url, signup_couchdb, signup_cloudant, bing_api_key, Bing, app, get_binary_content, get_binary_content_as_base64, get_binary_content_as_base64_cached, get_image_url, get_image_url_throttled, get_image_url_cached, get_image_url_cached_throttled, get_imagedata_by_name, get_imagedata_by_name_cached;
+  var root, express, path, getsecret, throttle_call, request, func_cache, ref$, couchdb_server, signup_user, bing_api_key, Bing, app, get_binary_content, get_binary_content_as_base64, get_binary_content_as_base64_cached, get_image_url, get_image_url_throttled, get_image_url_cached, get_image_url_cached_throttled, get_imagedata_by_name, get_imagedata_by_name_cached;
   root = typeof exports != 'undefined' && exports !== null ? exports : this;
   express = require('express');
   path = require('path');
@@ -7,7 +7,7 @@
   throttle_call = require('throttle_call');
   request = require('request');
   func_cache = require('func_cache_mongo')();
-  ref$ = require('./couchdb_utils'), couchdb_server = ref$.couchdb_server, couchdb_url = ref$.couchdb_url, signup_couchdb = ref$.signup_couchdb, signup_cloudant = ref$.signup_cloudant;
+  ref$ = require('./couchdb_utils'), couchdb_server = ref$.couchdb_server, signup_user = ref$.signup_user;
   bing_api_key = getsecret('bing_api_key');
   Bing = require('node-bing-api')({
     accKey: bing_api_key
@@ -195,20 +195,11 @@
       });
       return;
     }
-    if (couchdb_url.indexOf('cloudant.com') === -1) {
-      return signup_couchdb(username, password, function(){
-        return res.send({
-          status: 'success',
-          text: 'User account created'
-        });
+    return signup_user(username, password, function(){
+      return res.send({
+        status: 'success',
+        text: 'User account created'
       });
-    } else {
-      return signup_cloudant(username, password, function(){
-        return res.send({
-          status: 'success',
-          text: 'User account created'
-        });
-      });
-    }
+    });
   });
 }).call(this);

@@ -60,6 +60,9 @@ export setPassword = (password, callback) ->
   getLocalStorage().set 'password', password, callback
 
 export setCouchURL = (couchserver, callback) ->
+  if couchserver.indexOf('cloudant.com') == -1
+    if couchserver.indexOf(':') == -1
+      couchserver = couchserver + ':5984'
   getLocalStorage().set 'couchserver', couchserver, callback
 
 # filesystem related

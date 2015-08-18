@@ -1,8 +1,11 @@
 require! {
   fs
+  async
 }
 
 {exec, which} = require 'shelljs'
+
+{is_couchdb_running, does_user_exist, couchdb_server} = require './couchdb_utils'
 
 if not fs.existsSync 'config.json'
   fs.writeFileSync 'config.json', JSON.stringify {
@@ -19,6 +22,13 @@ for command in ['pouchdb-server', 'gulp', 'node-dev']
     console.log "missing #{command} command"
     process.exit()
 
-exec 'pouchdb-server', {async: true}
 exec 'gulp', {async: true}
-exec 'node-dev app.ls', {async: true}
+
+is_couchdb_running (running) ->
+  if running
+    console.log 'using already-running couchdb instance at ' + couchdb_server
+  else
+    exec 'pouchdb-server', {async: true}
+  exec 'node scripts/create_users'
+  exec 'node-dev app.ls', {async: true}
+

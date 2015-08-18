@@ -1,0 +1,11 @@
+class1:
+  users:
+    - guestuser
+    - ksobel
+    - mouse
+    - pattern
+    - dog
+class2:
+  users:
+    - zebra
+    - elephant
