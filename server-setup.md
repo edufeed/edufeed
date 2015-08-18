@@ -8,6 +8,8 @@ Install git http://msysgit.github.io/
 
 Install nodejs https://nodejs.org/
 
+Install python 2.7 https://www.python.org/download/releases/2.7/
+
 Install gulp, node-dev, and pouchdb-server
 
 ```

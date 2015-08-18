@@ -62,7 +62,9 @@
       retry: true,
       continuous: true,
       batch_size: 500,
-      batches_limit: 100
+      batches_limit: 100,
+      heartbeat: 3000,
+      timeout: 3000
     };
     changes = db.changes(couch_options);
     changes.on('change', function(change){

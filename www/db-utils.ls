@@ -42,7 +42,7 @@ export getDb = (dbname, options) ->
     return db_cache[dbname]
   db = db_cache[dbname] = new PouchDB(dbname, {auto_compaction: true})
   #couch_options = {live: true, retry: true, continuous: true, heartbeat: 3000, timeout: 3000}
-  couch_options = {live: true, retry: true, continuous: true, batch_size: 500, batches_limit: 100}
+  couch_options = {live: true, retry: true, continuous: true, batch_size: 500, batches_limit: 100, heartbeat: 3000, timeout: 3000}
   changes = db.changes(couch_options)
   changes.on 'change', (change) ->
     if db_sync_handlers[dbname]?
