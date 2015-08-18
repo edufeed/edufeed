@@ -34,6 +34,7 @@ db_cache = {}
 remote_db_cache = {}
 db_sync_handlers = {}
 export getDb = (dbname, options) ->
+  (local_username) <- getUsername()
   if typeof(dbname) != typeof('') # probably supplied a db instead of a dbname
     return dbname
   if not options?
@@ -48,8 +49,8 @@ export getDb = (dbname, options) ->
     if db_sync_handlers[dbname]?
       db_sync_handlers[dbname](change)
   params = getUrlParameters()
-  sync = options.sync? or params.sync? or dbname.indexOf('feeditems_') == 0
-  replicatetoremote = options.replicatetoremote? or params.replicatetoremote? or dbname.indexOf('logs_') == 0
+  sync = options.sync? or params.sync? or dbname.indexOf('feeditems_' + local_username) == 0
+  replicatetoremote = options.replicatetoremote? or params.replicatetoremote? or dbname.indexOf('logs_') == 0 or (dbname.indexOf('feeditems_') == 0 and !sync)
   if sync or replicatetoremote
     get_couchdb_login (couchdb_login) ->
       {username, password, couchurl} = couchdb_login

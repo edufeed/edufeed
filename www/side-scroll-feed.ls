@@ -53,8 +53,9 @@ Polymer {
     docs <- getItems "feeditems_#{username}"
     if not docs? or not docs.length?
       docs = []
-    admin <- getBoolParam 'admin'
-    if docs.length == 0 or (admin and (docs.map (.itemtype)).indexOf('admin') == -1)
+    #admin <- getBoolParam 'admin'
+    noadmin <- getBoolParam 'noadmin'
+    if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
     self.items = docs
     if firstvisit? and firstvisit

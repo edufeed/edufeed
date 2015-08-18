@@ -86,8 +86,8 @@
           if (docs == null || docs.length == null) {
             docs = [];
           }
-          return getBoolParam('admin', function(admin){
-            if (docs.length === 0 || (admin && docs.map(function(it){
+          return getBoolParam('noadmin', function(noadmin){
+            if (docs.length === 0 || (!noadmin && docs.map(function(it){
               return it.itemtype;
             }).indexOf('admin') === -1)) {
               docs = [{

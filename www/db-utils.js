@@ -44,63 +44,65 @@
   remote_db_cache = {};
   db_sync_handlers = {};
   out$.getDb = getDb = function(dbname, options){
-    var db, couch_options, changes, params, sync, replicatetoremote;
-    if (typeof dbname !== typeof '') {
-      return dbname;
-    }
-    if (options == null) {
-      options = {};
-    }
-    if (db_cache[dbname] != null) {
-      return db_cache[dbname];
-    }
-    db = db_cache[dbname] = new PouchDB(dbname, {
-      auto_compaction: true
-    });
-    couch_options = {
-      live: true,
-      retry: true,
-      continuous: true,
-      batch_size: 500,
-      batches_limit: 100,
-      heartbeat: 3000,
-      timeout: 3000
-    };
-    changes = db.changes(couch_options);
-    changes.on('change', function(change){
-      if (db_sync_handlers[dbname] != null) {
-        return db_sync_handlers[dbname](change);
+    return getUsername(function(local_username){
+      var options, db, couch_options, changes, params, sync, replicatetoremote;
+      if (typeof dbname !== typeof '') {
+        return dbname;
       }
-    });
-    params = getUrlParameters();
-    sync = options.sync != null || params.sync != null || dbname.indexOf('feeditems_') === 0;
-    replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null || dbname.indexOf('logs_') === 0;
-    if (sync || replicatetoremote) {
-      get_couchdb_login(function(couchdb_login){
-        var username, password, couchurl, use_https, remote_db_url_string, remote_db;
-        username = couchdb_login.username, password = couchdb_login.password, couchurl = couchdb_login.couchurl;
-        use_https = couchurl.indexOf('cloudant.com') !== -1;
-        if (use_https) {
-          remote_db_url_string = ("https://" + username + ":" + password + "@" + couchurl + "/") + dbname;
-        } else {
-          remote_db_url_string = ("http://" + username + ":" + password + "@" + couchurl + "/") + dbname;
-        }
-        console.log(remote_db_url_string);
-        remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
-        if (sync) {
-          return db.sync(remote_db, couch_options).on('error', function(err){
-            console.log('sync error');
-            return console.log(err);
-          });
-        } else if (replicatetoremote) {
-          return db.replicate.to(remote_db, couch_options).on('error', function(err){
-            console.log('replicatetoremote error');
-            return console.log(err);
-          });
+      if (options == null) {
+        options = {};
+      }
+      if (db_cache[dbname] != null) {
+        return db_cache[dbname];
+      }
+      db = db_cache[dbname] = new PouchDB(dbname, {
+        auto_compaction: true
+      });
+      couch_options = {
+        live: true,
+        retry: true,
+        continuous: true,
+        batch_size: 500,
+        batches_limit: 100,
+        heartbeat: 3000,
+        timeout: 3000
+      };
+      changes = db.changes(couch_options);
+      changes.on('change', function(change){
+        if (db_sync_handlers[dbname] != null) {
+          return db_sync_handlers[dbname](change);
         }
       });
-    }
-    return db;
+      params = getUrlParameters();
+      sync = options.sync != null || params.sync != null || dbname.indexOf('feeditems_' + local_username) === 0;
+      replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null || dbname.indexOf('logs_') === 0 || (dbname.indexOf('feeditems_') === 0 && !sync);
+      if (sync || replicatetoremote) {
+        get_couchdb_login(function(couchdb_login){
+          var username, password, couchurl, use_https, remote_db_url_string, remote_db;
+          username = couchdb_login.username, password = couchdb_login.password, couchurl = couchdb_login.couchurl;
+          use_https = couchurl.indexOf('cloudant.com') !== -1;
+          if (use_https) {
+            remote_db_url_string = ("https://" + username + ":" + password + "@" + couchurl + "/") + dbname;
+          } else {
+            remote_db_url_string = ("http://" + username + ":" + password + "@" + couchurl + "/") + dbname;
+          }
+          console.log(remote_db_url_string);
+          remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
+          if (sync) {
+            return db.sync(remote_db, couch_options).on('error', function(err){
+              console.log('sync error');
+              return console.log(err);
+            });
+          } else if (replicatetoremote) {
+            return db.replicate.to(remote_db, couch_options).on('error', function(err){
+              console.log('replicatetoremote error');
+              return console.log(err);
+            });
+          }
+        });
+      }
+      return db;
+    });
   };
   out$.setSyncHandler = setSyncHandler = function(dbname, callback){
     return db_sync_handlers[dbname] = callback;
