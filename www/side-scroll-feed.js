@@ -11,10 +11,13 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
+    closeShareWidget: function(){
+      return this.$$('#sharingbutton').closeShareWidget();
+    },
     closeActivity: function(){
       this.S('#activity').html('');
       this.S('#thumbnails').show();
-      return this.S('#exitbutton').hide();
+      return this.S('#activitybuttons').hide();
     },
     itemFinished: function(item){
       var i$, ref$, len$, x, tag;
@@ -41,7 +44,7 @@
     openItem: function(item){
       var activity, this$ = this;
       this.S('#thumbnails').hide();
-      this.S('#exitbutton').show();
+      this.S('#activitybuttons').show();
       this.S('#activity').html('');
       activity = makeActivity(item);
       activity.on('task-finished', function(){
@@ -104,6 +107,32 @@
               });
             }
           });
+        });
+      });
+    },
+    shareActivity: function(obj, evt){
+      var self, username;
+      self = this;
+      username = evt.username;
+      return getUsername(function(local_username){
+        var ref$, itemtype, data, social;
+        console.log('sharing with: ' + username);
+        if (username == null) {
+          console.log('no username');
+          return;
+        }
+        console.log('current activity info is: ');
+        ref$ = self.S('#activity').children()[0].getalldata(), itemtype = ref$.itemtype, data = ref$.data, social = ref$.social;
+        if (itemtype == null) {
+          console.log('do not have itemtype');
+          return;
+        }
+        return postItemToTarget(username, {
+          itemtype: itemtype,
+          data: data,
+          social: {
+            poster: local_username
+          }
         });
       });
     },

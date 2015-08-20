@@ -1,6 +1,6 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="feed-items.html">
-<link rel="import" href="share-button.html">
+<link rel="import" href="sharing-button.html">
 
 <dom-module id="side-scroll-feed">
   <style>
@@ -15,18 +15,29 @@
       right: 0px;
       color: red;
       cursor: pointer;
-      display: none;
     }
     #thumbnails {
       width: 100vl;
       height: 100vh;
       overflow: auto;
     }
+    #sharingbutton {
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      cursor: pointer;
+    }
+    #activitybuttons {
+      display: none;
+    }
   </style>
   <template>
   <div id="thumbnails"></div>
-  <div id="activity"></div>
-  <div id="exitbutton" on-click="closeActivity" class="glyphicon glyphicon-remove-sign"></div>
+  <div id="activity" on-click="closeShareWidget"></div>
+  <div id="activitybuttons">
+    <sharing-button id="sharingbutton" on-share-activity="shareActivity"></sharing-button>
+    <div id="exitbutton" on-click="closeActivity" class="glyphicon glyphicon-remove-sign"></div>
+  </div>
   </template>
   <script src="feed-items.js"></script>
   <script src="side-scroll-feed.js"></script>

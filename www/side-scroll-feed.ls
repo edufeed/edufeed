@@ -9,10 +9,12 @@ Polymer {
   }
   S: (pattern) ->
     $(this.$$(pattern))
+  closeShareWidget: ->
+    this.$$('#sharingbutton').closeShareWidget()
   closeActivity: ->
     this.S('#activity').html('')
     this.S('#thumbnails').show()
-    this.S('#exitbutton').hide()
+    this.S('#activitybuttons').hide()
   itemFinished: (item) ->
     for x in $('social-thumbnail')
       tag = $(x).find('#thumbnail')
@@ -27,7 +29,7 @@ Polymer {
           x.finishedby = x.finishedby ++ [username]
   openItem: (item) ->
     this.S('#thumbnails').hide()
-    this.S('#exitbutton').show()
+    this.S('#activitybuttons').show()
     this.S('#activity').html('')
     activity = makeActivity(item) # feed-items.ls
     activity.on 'task-finished', ~>
@@ -60,6 +62,26 @@ Polymer {
     self.items = docs
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
+  shareActivity: (obj, evt) ->
+    self = this
+    {username} = evt
+    local_username <- getUsername()
+    console.log 'sharing with: ' + username
+    if not username?
+      console.log 'no username'
+      return
+    console.log 'current activity info is: '
+    {itemtype, data, social} = self.S('#activity').children()[0].getalldata()
+    if not itemtype?
+      console.log 'do not have itemtype'
+      return
+    postItemToTarget username, {
+      itemtype: itemtype
+      data: data
+      social: {
+        poster: local_username
+      }
+    }
   ready: ->
     self = this
     this.updateItems(true)

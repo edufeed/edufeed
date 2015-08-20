@@ -1,0 +1,22 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="sharing-button">
+  <style>
+    :host {
+      width: 300px;
+    }
+    #sharebutton {
+      font-size: 64px;
+      cursor: pointer;
+      margin-left: 125px;
+    }
+    #share_avatars {
+      width: 300px;
+    }
+  </style>
+  <template>
+    <div id="sharebutton" on-click="sharebuttonClicked" class="glyphicon glyphicon-share-alt"></div>
+    <div id="share_avatars"></div>
+  </template>
+  <script src="sharing-button.js"></script>
+</dom-module>
