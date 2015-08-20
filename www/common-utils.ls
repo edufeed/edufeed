@@ -65,6 +65,30 @@ export setCouchURL = (couchserver, callback) ->
       couchserver = couchserver + ':5984'
   getLocalStorage().set 'couchserver', couchserver, callback
 
+export memoizeSingleAsync = (func) ->
+  cached_val = null
+  return (callback) ->
+    if cached_val?
+      callback(cached_val)
+      return
+    func (result) ->
+      cached_val := result
+      callback result
+
+export getClasses = memoizeSingleAsync (callback) ->
+  $.get '/classes.yaml', (yamltxt) ->
+    data = jsyaml.safeLoad(yamltxt)
+    callback data
+
+export getClassmates = (username, callback) ->
+  classes <- getClasses()
+  for classname,classinfo of classes
+    {users} = classinfo
+    if users.indexOf(username) != -1
+      callback users
+      return
+  callback []
+
 # filesystem related
 
 /*

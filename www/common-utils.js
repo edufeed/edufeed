@@ -1,5 +1,5 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, getClasses, getClassmates, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
@@ -86,6 +86,41 @@
       }
     }
     return getLocalStorage().set('couchserver', couchserver, callback);
+  };
+  out$.memoizeSingleAsync = memoizeSingleAsync = function(func){
+    var cached_val;
+    cached_val = null;
+    return function(callback){
+      if (cached_val != null) {
+        callback(cached_val);
+        return;
+      }
+      return func(function(result){
+        cached_val = result;
+        return callback(result);
+      });
+    };
+  };
+  out$.getClasses = getClasses = memoizeSingleAsync(function(callback){
+    return $.get('/classes.yaml', function(yamltxt){
+      var data;
+      data = jsyaml.safeLoad(yamltxt);
+      return callback(data);
+    });
+  });
+  out$.getClassmates = getClassmates = function(username, callback){
+    return getClasses(function(classes){
+      var classname, classinfo, users;
+      for (classname in classes) {
+        classinfo = classes[classname];
+        users = classinfo.users;
+        if (users.indexOf(username) !== -1) {
+          callback(users);
+          return;
+        }
+      }
+      return callback([]);
+    });
   };
   /*
   localinfo = {}

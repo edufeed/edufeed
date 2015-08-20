@@ -1,52 +1,24 @@
 (function(){
-  var custom_images, get_image_paths, get_profilepic_paths, get_speechsynth_paths, getClasses, out$ = typeof exports != 'undefined' && exports || this;
-  custom_images = {};
-  out$.get_image_paths = get_image_paths = function(callback){
-    if (custom_images.image_paths != null) {
-      callback(custom_images.image_paths);
-      return;
-    }
+  var get_image_paths, get_profilepic_paths, get_speechsynth_paths, out$ = typeof exports != 'undefined' && exports || this;
+  out$.get_image_paths = get_image_paths = memoizeSingleAsync(function(callback){
     return $.get('/image_paths.yaml', function(yamltxt){
       var data;
       data = jsyaml.safeLoad(yamltxt);
-      custom_images.image_paths = data;
       return callback(data);
     });
-  };
-  out$.get_profilepic_paths = get_profilepic_paths = function(callback){
-    if (custom_images.profilepic_paths != null) {
-      callback(custom_images.profilepic_paths);
-      return;
-    }
+  });
+  out$.get_profilepic_paths = get_profilepic_paths = memoizeSingleAsync(function(callback){
     return $.get('/profilepic_paths.yaml', function(yamltxt){
       var data;
       data = jsyaml.safeLoad(yamltxt);
-      custom_images.profilepic_paths = data;
       return callback(data);
     });
-  };
-  out$.get_speechsynth_paths = get_speechsynth_paths = function(callback){
-    if (custom_images.speechsynth_paths != null) {
-      callback(custom_images.speechsynth_paths);
-      return;
-    }
+  });
+  out$.get_speechsynth_paths = get_speechsynth_paths = memoizeSingleAsync(function(callback){
     return $.get('/speechsynth_en_paths.yaml', function(yamltxt){
       var data;
       data = jsyaml.safeLoad(yamltxt);
-      custom_images.speechsynth_paths = data;
       return callback(data);
     });
-  };
-  out$.getClasses = getClasses = function(callback){
-    if (custom_images.classes != null) {
-      callback(custom_images.classes);
-      return;
-    }
-    return $.get('/classes.yaml', function(yamltxt){
-      var data;
-      data = jsyaml.safeLoad(yamltxt);
-      custom_images.classes = data;
-      return callback(data);
-    });
-  };
+  });
 }).call(this);
