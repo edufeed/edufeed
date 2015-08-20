@@ -13,7 +13,15 @@
       }
       return getUsername(function(username){
         return getClassmates(username, function(classmates){
-          var i$, len$, results$ = [];
+          var res$, i$, len$, x, results$ = [];
+          res$ = [];
+          for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
+            x = classmates[i$];
+            if (x !== username) {
+              res$.push(x);
+            }
+          }
+          classmates = res$;
           for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
             results$.push((fn$.call(this, i$, classmates[i$])));
           }

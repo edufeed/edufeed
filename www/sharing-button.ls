@@ -9,6 +9,7 @@ Polymer {
       return
     username <- getUsername()
     classmates <- getClassmates(username)
+    classmates = [x for x in classmates when x != username]
     for let classmate,idx in classmates
       if idx % 3 == 0
         $(self).find('#share_avatars').append $('<div>')

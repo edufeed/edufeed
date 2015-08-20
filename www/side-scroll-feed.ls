@@ -15,6 +15,7 @@ Polymer {
     this.S('#activity').html('')
     this.S('#thumbnails').show()
     this.S('#activitybuttons').hide()
+    this.$$('#sharingbutton').closeShareWidget()
   itemFinished: (item) ->
     for x in $('social-thumbnail')
       tag = $(x).find('#thumbnail')

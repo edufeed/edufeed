@@ -17,7 +17,8 @@
     closeActivity: function(){
       this.S('#activity').html('');
       this.S('#thumbnails').show();
-      return this.S('#activitybuttons').hide();
+      this.S('#activitybuttons').hide();
+      return this.$$('#sharingbutton').closeShareWidget();
     },
     itemFinished: function(item){
       var i$, ref$, len$, x, tag;
