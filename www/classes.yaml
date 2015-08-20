@@ -1,12 +1,16 @@
 class1:
   users:
+    - avery
+    - kelsey
     - guestuser
+class2:
+  users:
     - ksobel
     - mouse
     - pattern
     - dog
     - cat
-class2:
+class3:
   users:
     - zebra
     - elephant
