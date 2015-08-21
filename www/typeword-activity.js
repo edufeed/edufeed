@@ -56,7 +56,7 @@
       }
       if (letter === next_letter) {
         if (this.partialword + letter === this.word) {
-          if (this.difficulty < 3) {
+          if (this.difficulty < 2) {
             this.difficulty += 1;
           } else {
             setTimeout(function(){

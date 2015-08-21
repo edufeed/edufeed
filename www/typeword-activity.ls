@@ -45,7 +45,7 @@ RegisterActivity {
       #keyboard.shownkeys = newkeys
     if letter == next_letter # typed correctly
       if this.partialword + letter == this.word # is last letter in word
-        if this.difficulty < 3
+        if this.difficulty < 2
           this.difficulty += 1
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
