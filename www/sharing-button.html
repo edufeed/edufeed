@@ -3,6 +3,7 @@
 <dom-module id="sharing-button">
   <style>
     :host {
+      pointer-events: none;
     }
     #sharebutton {
       font-size: px;
@@ -12,14 +13,17 @@
       line-height: 100px;
       width: 100px;
       height: 100px;
+      pointer-events: auto;
       /*border-radius: 50%;
       background-color: yellow;*/
     }
     #share_avatars {
+      pointer-events: auto;
     }
     #share_section {
       width: 100vw;
       float: left;
+      z-index: -1000;
     }
   </style>
   <template>
