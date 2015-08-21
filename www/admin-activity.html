@@ -10,7 +10,8 @@
     }
   </style>
   <template>
-    <div>This is the admin console. Use setParam("noadmin", true) to hide it from the feed.</div>
+    <div>This is the admin activity. Use setParam("noadmin", true) to hide it permanently from the feed. Or to temporarily hide it (until the next time the app is opened), click the button below:</div>
+    <button class="btn btn-lg btn-primary" on-click="hideAdminActivity">Temporarily Hide Admin Activity</button>
     <!--<div>Application Cache status: <span>{{appcacheStatus()}}</span></div>-->
     <!-- <button class="btn btn-lg btn-primary" on-click="makeFullScreen">Make Fullscreen</button><br> -->
     <div>CouchDB Server:</div>
@@ -21,8 +22,8 @@
     <input id="passwordinput" type="password"></input><br>
     <button class="btn btn-lg btn-primary" on-click="setUsername">Login</button>
     <br><br>
-    <button class="btn btn-lg btn-primary" on-click="clearItems">Clear all feed items</button><br>
-    <button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>
+    <div>Fast Login:</div>
+    <div id="fastlogin_buttons"></div>
     <br><br>
     <div>Add custom item:</div>
     <div>itemtype:</div>
@@ -35,10 +36,29 @@
     <textarea id="targetinput"></textarea>
     <br>
     <button class="btn btn-lg btn-primary" on-click="addCustomItem">Add custom feed item</button>
+    <br><br>
+    <div>Add sample feed items:</div>
+    <template is="dom-repeat" items="{{getSampleFeedItemCategories()}}">
+      <button class="btn btn-lg btn-primary" data-item="{{item}}" on-click="addSampleItems">{{item}}</button>
+    </template>
+    <!--<button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>-->
+    <br><br>
+    <button class="btn btn-lg btn-primary" on-click="clearItems">Clear all feed items for user (local and remote)</button><br>
     <br>
+    <button class="btn btn-lg btn-primary" on-click="clearLogs">Clear Logs for user (local and remote)</button>
+    <br><br>
+    <button class="btn btn-lg btn-primary" on-click="deleteLocalFeedItemsDb">Delete Local Feed Items Database for this user</button><br>
+    <button class="btn btn-lg btn-primary" on-click="deleteLocalLogsDb">Delete Local Logs Database for this user</button><br>
+    <button class="btn btn-lg btn-primary" on-click="deleteLocalFeedItemsDbAllUsers">Delete Local Feed Items Database for all users</button><br>
+    <button class="btn btn-lg btn-primary" on-click="deleteLocalLogsDbAllUsers">Delete Local Logs Database for all users</button><br>
+    <br><br>
     <!--<button class="btn btn-lg btn-primary" on-click="downloadLogs" download="logs.json">Download Logs</button>-->
+    <button class="btn btn-lg btn-primary" on-click="displayErrors">Display Errors</button>
+    <pre id="errordisplay"></pre>
+    <button class="btn btn-lg btn-primary" on-click="downloadLogs">Download Logs</button><br>
     <button class="btn btn-lg btn-primary" on-click="displayLogs">Display Logs</button>
     <pre id="logdisplay"></pre>
   </template>
+  <script src="sample_feed_items.js"></script>
   <script src="admin-activity.js"></script>  
 </dom-module>

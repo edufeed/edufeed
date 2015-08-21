@@ -58,6 +58,8 @@ Polymer {
       docs = []
     #admin <- getBoolParam 'admin'
     noadmin <- getBoolParam 'noadmin'
+    if self.hide_admin_console? and self.hide_admin_console
+      noadmin = true
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
     self.items = docs
@@ -85,6 +87,9 @@ Polymer {
     }
   ready: ->
     self = this
+    $(this).on 'hide-admin-activity', ->
+      self.hide_admin_console = true
+      self.updateItems()
     this.updateItems(true)
     getUsername (username) ->
       setSyncHandler "feeditems_#{username}", (change) ->

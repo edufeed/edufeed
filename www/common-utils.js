@@ -1,5 +1,5 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, getClasses, getClassmates, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
@@ -108,6 +108,17 @@
       return callback(data);
     });
   });
+  out$.getAllUsers = getAllUsers = function(callback){
+    return getClasses(function(classes){
+      var all_users, classname, classinfo;
+      all_users = [];
+      for (classname in classes) {
+        classinfo = classes[classname];
+        all_users = all_users.concat(classinfo.users);
+      }
+      return callback(all_users);
+    });
+  };
   out$.getClassmates = getClassmates = function(username, callback){
     return getClasses(function(classes){
       var classname, classinfo, users;
@@ -121,6 +132,22 @@
       }
       return callback([]);
     });
+  };
+  errorlog = [];
+  out$.adderror = adderror = function(postdata){
+    console.log(postdata);
+    return errorlog.push(postdata);
+  };
+  out$.geterrors = geterrors = function(callback){
+    var x;
+    return callback((function(){
+      var i$, ref$, len$, results$ = [];
+      for (i$ = 0, len$ = (ref$ = errorlog).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        results$.push(x);
+      }
+      return results$;
+    }()));
   };
   /*
   localinfo = {}

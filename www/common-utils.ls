@@ -80,6 +80,13 @@ export getClasses = memoizeSingleAsync (callback) ->
     data = jsyaml.safeLoad(yamltxt)
     callback data
 
+export getAllUsers = (callback) ->
+  classes <- getClasses()
+  all_users = []
+  for classname,classinfo of classes
+    all_users = all_users.concat classinfo.users
+  callback all_users
+
 export getClassmates = (username, callback) ->
   classes <- getClasses()
   for classname,classinfo of classes
@@ -88,6 +95,16 @@ export getClassmates = (username, callback) ->
       callback users
       return
   callback []
+
+# error logging
+
+errorlog = []
+export adderror = (postdata) ->
+  console.log postdata
+  errorlog.push postdata
+
+export geterrors = (callback) ->
+  callback [x for x in errorlog]
 
 # filesystem related
 

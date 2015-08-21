@@ -4,16 +4,25 @@ RegisterActivity {
     return $(this.$$(pattern))
   ready: ->
     self = this
-    getUsername (username) ->
-      getPassword (password) ->
-        getCouchURL (couchserver) ->
-          self.S('#usernameinput').val(username)
-          self.S('#passwordinput').val(password)
-          self.S('#couchserverinput').val(couchserver)
-          self.S('#itemtypeinput').val 'typeword'
-          self.S('#datainput').val jsyaml.safeDump({word: 'cat'}).trim()
-          self.S('#socialinput').val jsyaml.safeDump({poster: username}).trim()
-          self.S('#targetinput').val username.trim()
+    username <- getUsername()
+    password <- getPassword()
+    couchserver <- getCouchURL()
+    self.S('#usernameinput').val(username)
+    self.S('#passwordinput').val(password)
+    self.S('#couchserverinput').val(couchserver)
+    self.S('#itemtypeinput').val 'typeword'
+    self.S('#datainput').val jsyaml.safeDump({word: 'cat'}).trim()
+    self.S('#socialinput').val jsyaml.safeDump({poster: username}).trim()
+    self.S('#targetinput').val username.trim()
+    all_users <- getAllUsers()
+    fastlogin_buttons = $(self).find('#fastlogin_buttons')
+    for let current_user in all_users
+      new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click ->
+        self.S('#usernameinput').val(current_user)
+        self.S('#passwordinput').val(current_user)
+        self.setUsername()
+      new_fastlogin_button.appendTo fastlogin_buttons
+      fastlogin_buttons.append(' ')
   appcacheStatus: ->
     return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
   reallySetUsername: (username, password, couchserver) ->
@@ -21,6 +30,41 @@ RegisterActivity {
       setPassword password, ->
         setCouchURL couchserver, ->
           window.location.reload()
+  deleteLocalFeedItemsDb: ->
+    self = this
+    username <- getUsername()
+    deleteLocalDb "feeditems_#{username}", ->
+      self.fire 'task-finished'
+  deleteLocalLogsDb: ->
+    self = this
+    username <- getUsername()
+    deleteLocalDb "logs_#{username}", ->
+      self.fire 'task-finished'
+  deleteLocalFeedItemsDbAllUsers: ->
+    self = this
+    all_users <- getAllUsers()
+    async.eachSeries all_users, (username, callback) ->
+      deleteLocalDb "feeditems_#{username}", ->
+        callback(null, null)
+    , ->
+      self.fire 'task-finished'
+  deleteLocalLogsDbAllUsers: ->
+    self = this
+    all_users <- getAllUsers()
+    async.eachSeries all_users, (username, callback) ->
+      deleteLocalDb "logs_#{username}", ->
+        callback(null, null)
+    , ->
+      self.fire 'task-finished'
+  clearLogs: ->
+    self = this
+    username <- getUsername()
+    clearDb "logs_#{username}", ->
+      self.fire 'task-finished'
+  hideAdminActivity: ->
+    console.log 'hideAdminActivity'
+    this.fire 'hide-admin-activity'
+    this.fire 'task-finished'
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()
@@ -51,20 +95,16 @@ RegisterActivity {
     username <- getUsername()
     clearDb "feeditems_#{username}", ->
       self.fire 'task-finished', self
-  addSampleItems: ->
+  getSampleFeedItemCategories: ->
+    return [k for k,v of getSampleFeedItems()]
+  addSampleItems: (obj) ->
     self = this
-    username <- getUsername()
-    wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear']
-    items = (
-      [
-        {itemtype: 'admin', social: {poster: 'horse'}}
-        {itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}
-      ] ++
-      [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]] ++
-      [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]] ++
-      [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist] ++
-      [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
-    )
+    itemtype = 'defaults'
+    if obj? and obj.srcElement? and obj.srcElement.dataItem?
+      itemtype = obj.srcElement.dataItem
+    #username <- getUsername()
+    username = self.S('#targetinput').val().trim()
+    items = getSampleFeedItems()[itemtype]
     async.each items, (item, callback) ->
       postItem "feeditems_#{username}", item, callback
     , (results) ->
@@ -89,6 +129,9 @@ RegisterActivity {
   displayLogs: ->
     getlogs (logs) ~>
       this.S('#logdisplay').text JSON.stringify(logs, null, 2)
+  displayErrors: ->
+    geterrors (errors) ~>
+      this.S('#errordisplay').text JSON.stringify(errors, null, 2)
   downloadLogs: ->
     getlogs (logs) ~>
       document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2))

@@ -20,7 +20,25 @@
             self.S('#socialinput').val(jsyaml.safeDump({
               poster: username
             }).trim());
-            return self.S('#targetinput').val(username.trim());
+            self.S('#targetinput').val(username.trim());
+            return getAllUsers(function(all_users){
+              var fastlogin_buttons, i$, len$, results$ = [];
+              fastlogin_buttons = $(self).find('#fastlogin_buttons');
+              for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                results$.push((fn$.call(this, all_users[i$])));
+              }
+              return results$;
+              function fn$(current_user){
+                var new_fastlogin_button;
+                new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                  self.S('#usernameinput').val(current_user);
+                  self.S('#passwordinput').val(current_user);
+                  return self.setUsername();
+                });
+                new_fastlogin_button.appendTo(fastlogin_buttons);
+                return fastlogin_buttons.append(' ');
+              }
+            });
           });
         });
       });
@@ -36,6 +54,64 @@
           });
         });
       });
+    },
+    deleteLocalFeedItemsDb: function(){
+      var self;
+      self = this;
+      return getUsername(function(username){
+        return deleteLocalDb("feeditems_" + username, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    deleteLocalLogsDb: function(){
+      var self;
+      self = this;
+      return getUsername(function(username){
+        return deleteLocalDb("logs_" + username, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    deleteLocalFeedItemsDbAllUsers: function(){
+      var self;
+      self = this;
+      return getAllUsers(function(all_users){
+        return async.eachSeries(all_users, function(username, callback){
+          return deleteLocalDb("feeditems_" + username, function(){
+            return callback(null, null);
+          });
+        }, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    deleteLocalLogsDbAllUsers: function(){
+      var self;
+      self = this;
+      return getAllUsers(function(all_users){
+        return async.eachSeries(all_users, function(username, callback){
+          return deleteLocalDb("logs_" + username, function(){
+            return callback(null, null);
+          });
+        }, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    clearLogs: function(){
+      var self;
+      self = this;
+      return getUsername(function(username){
+        return clearDb("logs_" + username, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    hideAdminActivity: function(){
+      console.log('hideAdminActivity');
+      this.fire('hide-admin-activity');
+      return this.fire('task-finished');
     },
     setUsername: function(){
       var self, username, password, couchserver;
@@ -82,112 +158,30 @@
         });
       });
     },
-    addSampleItems: function(){
-      var self;
+    getSampleFeedItemCategories: function(){
+      var k, v;
+      return (function(){
+        var ref$, results$ = [];
+        for (k in ref$ = getSampleFeedItems()) {
+          v = ref$[k];
+          results$.push(k);
+        }
+        return results$;
+      }());
+    },
+    addSampleItems: function(obj){
+      var self, itemtype, username, items;
       self = this;
-      return getUsername(function(username){
-        var wordlist, items, levelnum, data, word;
-        wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
-        items = [
-          {
-            itemtype: 'admin',
-            social: {
-              poster: 'horse'
-            }
-          }, {
-            itemtype: 'example',
-            data: {
-              foo: 'somefooval',
-              bar: 'somebarval'
-            },
-            social: {
-              poster: 'mouse',
-              finishedby: ['elephant']
-            }
-          }
-        ].concat((function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
-            levelnum = ref$[i$];
-            results$.push({
-              itemtype: 'bars',
-              data: {
-                level: levelnum
-              },
-              social: {
-                poster: 'dog'
-              }
-            });
-          }
-          return results$;
-        }()), (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = [
-            {
-              numdots: 7,
-              targetformula: '_x_=_'
-            }, {
-              numdots: 4,
-              targetformula: '3x4=_'
-            }, {
-              numdots: 6,
-              targetformula: '_x6=18'
-            }, {
-              numdots: 5,
-              targetformula: '3x_=15'
-            }, {
-              numdots: 8,
-              targetformula: '_x_=24'
-            }
-          ]).length; i$ < len$; ++i$) {
-            data = ref$[i$];
-            results$.push({
-              itemtype: 'dots',
-              data: data,
-              social: {
-                poster: 'mouse'
-              }
-            });
-          }
-          return results$;
-        }()), (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
-            word = ref$[i$];
-            results$.push({
-              itemtype: 'typeletter',
-              data: {
-                word: word
-              },
-              social: {
-                poster: 'dog',
-                finishedby: ['zebra']
-              }
-            });
-          }
-          return results$;
-        }()), (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = wordlist).length; i$ < len$; ++i$) {
-            word = ref$[i$];
-            results$.push({
-              itemtype: 'typeword',
-              data: {
-                word: word
-              },
-              social: {
-                poster: 'dog',
-                finishedby: ['zebra']
-              }
-            });
-          }
-          return results$;
-        }()));
-        return async.each(items, function(item, callback){
-          return postItem("feeditems_" + username, item, callback);
-        }, function(results){
-          return self.fire('task-finished', self);
-        });
+      itemtype = 'defaults';
+      if (obj != null && obj.srcElement != null && obj.srcElement.dataItem != null) {
+        itemtype = obj.srcElement.dataItem;
+      }
+      username = self.S('#targetinput').val().trim();
+      items = getSampleFeedItems()[itemtype];
+      return async.each(items, function(item, callback){
+        return postItem("feeditems_" + username, item, callback);
+      }, function(results){
+        return self.fire('task-finished', self);
       });
     },
     addCustomItem: function(){
@@ -219,6 +213,12 @@
       var this$ = this;
       return getlogs(function(logs){
         return this$.S('#logdisplay').text(JSON.stringify(logs, null, 2));
+      });
+    },
+    displayErrors: function(){
+      var this$ = this;
+      return geterrors(function(errors){
+        return this$.S('#errordisplay').text(JSON.stringify(errors, null, 2));
       });
     },
     downloadLogs: function(){

@@ -1,5 +1,5 @@
 (function(){
-  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, out$ = typeof exports != 'undefined' && exports || this;
+  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
       var pouchOpts, use_https, db, ajaxOpts;
@@ -90,13 +90,13 @@
           remote_db = remote_db_cache[dbname] = new PouchDB(remote_db_url_string);
           if (sync) {
             return db.sync(remote_db, couch_options).on('error', function(err){
-              console.log('sync error');
-              return console.log(err);
+              adderror('sync error');
+              return adderror(err);
             });
           } else if (replicatetoremote) {
             return db.replicate.to(remote_db, couch_options).on('error', function(err){
-              console.log('replicatetoremote error');
-              return console.log(err);
+              adderror('replicatetoremote error');
+              return adderror(err);
             });
           }
         });
@@ -122,6 +122,17 @@
         }
         return results$;
       }()));
+    });
+  };
+  out$.deleteLocalDb = deleteLocalDb = function(dbname, callback){
+    var db;
+    db = getDb(dbname);
+    return db.destroy().then(function(){
+      delete db_cache[dbname];
+      delete remote_db_cache[dbname];
+      if (callback != null) {
+        return callback();
+      }
     });
   };
   out$.clearDb = clearDb = function(dbname, callback){
@@ -163,9 +174,6 @@
   };
   out$.postItem = postItem = function(dbname, item, callback){
     var db, new_item;
-    console.log('postItem called: ');
-    console.log(dbname);
-    console.log(item);
     db = getDb(dbname);
     new_item = import$({}, item);
     if (new_item._id == null) {
@@ -178,7 +186,6 @@
     });
   };
   out$.postItemToTarget = postItemToTarget = function(target, item, callback){
-    console.log('postItemToTarget before getClasses');
     return getClasses(function(classes){
       var users;
       console.log('postItemToTarget');

@@ -66,14 +66,14 @@ export getDb = (dbname, options) ->
           if db_sync_handlers[dbname]?
             db_sync_handlers[dbname](change)
         )*/.on('error', (err) ->
-          console.log 'sync error'
-          console.log err
+          adderror 'sync error'
+          adderror err
         )
       else if replicatetoremote
         db.replicate.to(remote_db, couch_options)
         .on('error', (err) ->
-          console.log 'replicatetoremote error'
-          console.log err
+          adderror 'replicatetoremote error'
+          adderror err
         )
   return db
 
@@ -85,6 +85,14 @@ export getItems = (dbname, callback) ->
   db.allDocs({include_docs: true}).then (data) ->
     #callback [x.doc for x in data.rows when not x.doc._deleted]
     callback [x.doc for x in data.rows]
+
+export deleteLocalDb = (dbname, callback) ->
+  db = getDb(dbname)
+  db.destroy().then ->
+    delete db_cache[dbname]
+    delete remote_db_cache[dbname]
+    if callback?
+      callback()
 
 export clearDb = (dbname, callback) ->
   db = getDb(dbname)
@@ -112,9 +120,9 @@ export makeUUID = ->
   return padWithZeros(prevUUID.time, 13) ++ padWithZeros(prevUUID.idx, 7)
 
 export postItem = (dbname, item, callback) ->
-  console.log 'postItem called: '
-  console.log dbname
-  console.log item
+  #console.log 'postItem called: '
+  #console.log dbname
+  #console.log item
   db = getDb(dbname)
   new_item = {} <<< item
   if not new_item._id?
@@ -124,7 +132,7 @@ export postItem = (dbname, item, callback) ->
       callback(err, res)
 
 export postItemToTarget = (target, item, callback) ->
-  console.log 'postItemToTarget before getClasses'
+  #console.log 'postItemToTarget before getClasses'
   getClasses (classes) ->
     console.log 'postItemToTarget'
     console.log target

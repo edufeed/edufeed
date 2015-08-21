@@ -91,6 +91,9 @@
             docs = [];
           }
           return getBoolParam('noadmin', function(noadmin){
+            if (self.hide_admin_console != null && self.hide_admin_console) {
+              noadmin = true;
+            }
             if (docs.length === 0 || (!noadmin && docs.map(function(it){
               return it.itemtype;
             }).indexOf('admin') === -1)) {
@@ -140,6 +143,10 @@
     ready: function(){
       var self;
       self = this;
+      $(this).on('hide-admin-activity', function(){
+        self.hide_admin_console = true;
+        return self.updateItems();
+      });
       this.updateItems(true);
       return getUsername(function(username){
         return setSyncHandler("feeditems_" + username, function(change){
