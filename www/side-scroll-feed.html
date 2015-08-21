@@ -11,8 +11,9 @@
     #exitbutton {
       font-size: 64px;
       position: fixed;
-      top: 0px;
       right: 0px;
+      bottom: 0px;
+      margin-bottom: -10px;
       color: red;
       cursor: pointer;
     }
@@ -23,7 +24,7 @@
     }
     #sharingbutton {
       position: fixed;
-      top: 0px;
+      bottom: 80px;
       right: 0px;
       cursor: pointer;
     }
@@ -36,7 +37,7 @@
   <div id="activity" on-click="closeShareWidget"></div>
   <div id="activitybuttons">
     <sharing-button id="sharingbutton" on-share-activity="shareActivity"></sharing-button>
-    <div id="exitbutton" on-click="closeActivity" class="glyphicon glyphicon-remove-sign"></div>
+    <div id="exitbutton" on-click="closeActivity"><span class="glyphicon glyphicon-remove-sign"></span></div>
   </div>
   </template>
   <script src="feed-items.js"></script>

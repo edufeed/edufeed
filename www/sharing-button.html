@@ -3,20 +3,23 @@
 <dom-module id="sharing-button">
   <style>
     :host {
-      width: 300px;
     }
     #sharebutton {
       font-size: 64px;
       cursor: pointer;
-      margin-left: 125px;
+      float: right;
+      margin-left: 10px;
+      line-height: 100px;
     }
     #share_avatars {
-      width: 300px;
+    }
+    #share_section {
+      width: 100vw;
+      float: left;
     }
   </style>
   <template>
-    <div id="sharebutton" on-click="sharebuttonClicked" class="glyphicon glyphicon-share-alt"></div>
-    <div id="share_avatars"></div>
+    <div id="share_section"><div id="sharebutton" on-click="sharebuttonClicked" class="glyphicon glyphicon-share-alt"></div><div id="share_avatars"></div></div>
   </template>
   <script src="sharing-button.js"></script>
 </dom-module>

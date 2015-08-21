@@ -23,15 +23,14 @@
           }
           classmates = res$;
           for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
-            results$.push((fn$.call(this, i$, classmates[i$])));
+            results$.push((fn$.call(this, classmates[i$])));
           }
           return results$;
-          function fn$(idx, classmate){
+          function fn$(classmate){
             var avatar;
-            if (idx % 3 === 0) {
-              $(self).find('#share_avatars').append($('<div>'));
-            }
-            avatar = $("<user-avatar username='" + classmate + "'>");
+            avatar = $("<user-avatar username='" + classmate + "'>").css({
+              float: 'right'
+            });
             avatar.click(function(){
               avatar.prop('checked', true);
               return self.fire('share-activity', {

@@ -10,10 +10,8 @@ Polymer {
     username <- getUsername()
     classmates <- getClassmates(username)
     classmates = [x for x in classmates when x != username]
-    for let classmate,idx in classmates
-      if idx % 3 == 0
-        $(self).find('#share_avatars').append $('<div>')
-      avatar = $("<user-avatar username='#{classmate}'>")
+    for let classmate in classmates
+      avatar = $("<user-avatar username='#{classmate}'>").css({float: 'right'})
       avatar.click ->
         avatar.prop('checked', true)
         self.fire 'share-activity', {username: classmate}
