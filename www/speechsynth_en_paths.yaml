@@ -100,6 +100,7 @@
 '99': speechsynth_en/99.mp3
 '100': speechsynth_en/100.mp3
 apple: speechsynth_en/apple.mp3
+avery: speechsynth_en/avery.mp3
 banana: speechsynth_en/banana.mp3
 bee: speechsynth_en/bee.mp3
 bird: speechsynth_en/bird.mp3
@@ -110,13 +111,19 @@ cherry: speechsynth_en/cherry.mp3
 city: speechsynth_en/city.mp3
 dog: speechsynth_en/dog.mp3
 fish: speechsynth_en/fish.mp3
+geza: speechsynth_en/geza.mp3
 house: speechsynth_en/house.mp3
+kelsey: speechsynth_en/kelsey.mp3
 lion: speechsynth_en/lion.mp3
 orange: speechsynth_en/orange.mp3
 pear: speechsynth_en/pear.mp3
 red: speechsynth_en/red.mp3
 river: speechsynth_en/river.mp3
 roof: speechsynth_en/roof.mp3
+shared with avery: speechsynth_en/shared with avery.mp3
+shared with geza: speechsynth_en/shared with geza.mp3
+shared with kelsey: speechsynth_en/shared with kelsey.mp3
 tiger: speechsynth_en/tiger.mp3
 tree: speechsynth_en/tree.mp3
 white: speechsynth_en/white.mp3
+who would you like to share this with: speechsynth_en/who would you like to share this with.mp3

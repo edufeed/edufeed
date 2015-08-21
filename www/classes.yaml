@@ -2,7 +2,7 @@ class1:
   users:
     - avery
     - kelsey
-    - guestuser
+    - geza
 class2:
   users:
     - ksobel
@@ -12,5 +12,6 @@ class2:
     - cat
 class3:
   users:
+    - guestuser
     - zebra
     - elephant

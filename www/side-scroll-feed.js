@@ -14,6 +14,13 @@
     closeShareWidget: function(){
       return this.$$('#sharingbutton').closeShareWidget();
     },
+    closeButtonClicked: function(){
+      if (this.$$('#sharingbutton').isShareWidgetOpen()) {
+        return this.closeShareWidget();
+      } else {
+        return this.closeActivity();
+      }
+    },
     closeActivity: function(){
       this.S('#activity').html('');
       this.S('#thumbnails').show();

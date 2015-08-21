@@ -12,6 +12,8 @@
       line-height: 100px;
       width: 100px;
       height: 100px;
+      /*border-radius: 50%;
+      background-color: yellow;*/
     }
     #share_avatars {
     }
@@ -21,7 +23,7 @@
     }
   </style>
   <template>
-    <div id="share_section"><img id="sharebutton" on-click="sharebuttonClicked" src="share-icon.svg"><div id="share_avatars"></div></div>
+    <div id="share_section"><div id="share_avatars"></div><img id="sharebutton" on-click="sharebuttonClicked" src="share-icon.svg"></div>
   </template>
   <script src="sharing-button.js"></script>
 </dom-module>

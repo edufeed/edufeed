@@ -11,6 +11,11 @@ Polymer {
     $(this.$$(pattern))
   closeShareWidget: ->
     this.$$('#sharingbutton').closeShareWidget()
+  closeButtonClicked: ->
+    if this.$$('#sharingbutton').isShareWidgetOpen()
+      this.closeShareWidget()
+    else
+      this.closeActivity()
   closeActivity: ->
     this.S('#activity').html('')
     this.S('#thumbnails').show()
