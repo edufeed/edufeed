@@ -49,12 +49,12 @@
   };
   out$.getPassword = getPassword = function(callback){
     return getLocalStorage().get('password', function(password){
-      return callback(password != null ? password : 'guestpassword');
+      return callback(password != null ? password : 'guestuser');
     });
   };
   out$.getCouchURL = getCouchURL = function(callback){
     var default_couch_server;
-    default_couch_server = 'edufeed.cloudant.com';
+    default_couch_server = '127.0.0.1:5984';
     return getLocalStorage().get('couchserver', function(couchserver){
       if (couchserver != null && couchserver.length > 0) {
         callback(couchserver);

@@ -34,10 +34,10 @@ export getUsername = (callback) ->
 
 export getPassword = (callback) ->
   getLocalStorage().get 'password', (password) ->
-    callback(password ? 'guestpassword')
+    callback(password ? 'guestuser')
 
 export getCouchURL = (callback) ->
-  default_couch_server = 'edufeed.cloudant.com'
+  default_couch_server = '127.0.0.1:5984'
   getLocalStorage().get 'couchserver', (couchserver) ->
     if couchserver? and couchserver.length > 0
       callback couchserver
