@@ -30,6 +30,18 @@
       async: true
     });
   };
+  once_couchdb_running(function(callback){
+    return is_couchdb_running(function(running){
+      if (running) {
+        return callback();
+      } else {
+        console.log('waiting for couchdb to start running');
+        return setTimeout(function(){
+          return once_couchdb_running(callback);
+        }, 1000);
+      }
+    });
+  });
   is_couchdb_running(function(running){
     if (running) {
       console.log('using already-running couchdb instance at ' + couchdb_server);
@@ -39,17 +51,15 @@
     exec('pouchdb-server', {
       async: true
     });
-    return setTimeout(function(){
+    return once_couchdb_running(function(){
       console.log('=====================================================');
       exec('node scripts/getip');
       console.log('=====================================================');
-      return is_couchdb_running(function(running){
-        if (running) {
-          return couchserver_started();
-        } else {
-          console.log('failed to start pouchdb-server');
-        }
-      });
-    }, 2000);
+      if (running) {
+        return couchserver_started();
+      } else {
+        console.log('failed to start pouchdb-server');
+      }
+    });
   });
 }).call(this);

@@ -28,20 +28,28 @@ couchserver_started = ->
   exec 'node scripts/create_users'
   exec 'node-dev app.ls', {async: true}
 
+once_couchdb_running (callback) ->
+  is_couchdb_running (running) ->
+    if running
+      callback()
+    else
+      console.log 'waiting for couchdb to start running'
+      setTimeout ->
+        once_couchdb_running(callback)
+      , 1000
+
 is_couchdb_running (running) ->
   if running
     console.log 'using already-running couchdb instance at ' + couchdb_server
     couchserver_started()
     return
   exec 'pouchdb-server', {async: true}
-  setTimeout ->
+  once_couchdb_running ->
     console.log '====================================================='
     exec 'node scripts/getip'
     console.log '====================================================='
-    is_couchdb_running (running) ->
-      if running
-        couchserver_started()
-      else
-        console.log 'failed to start pouchdb-server'
-        return
-  , 2000
+    if running
+      couchserver_started()
+    else
+      console.log 'failed to start pouchdb-server'
+      return
