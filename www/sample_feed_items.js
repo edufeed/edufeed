@@ -1,7 +1,7 @@
 (function(){
   var getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, admin, example, lettervideos, defaults;
+    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, admin, example, lettervideos, videoid, defaults;
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
@@ -93,15 +93,20 @@
         finishedby: ['elephant']
       }
     }];
-    lettervideos = [{
-      itemtype: 'video',
-      data: {
-        videoid: 'y8pZ3F8KB_Y'
-      },
-      social: {
-        poster: 'mouse'
-      }
-    }];
+    res$ = [];
+    for (i$ = 0, len$ = (ref$ = ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']).length; i$ < len$; ++i$) {
+      videoid = ref$[i$];
+      res$.push({
+        itemtype: 'video',
+        data: {
+          videoid: videoid
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    lettervideos = res$;
     defaults = dots.concat(typeletter, typeword);
     return {
       defaults: defaults,
