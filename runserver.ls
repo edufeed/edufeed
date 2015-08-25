@@ -28,7 +28,7 @@ couchserver_started = ->
   exec 'node scripts/create_users'
   exec 'node-dev app.ls', {async: true}
 
-once_couchdb_running (callback) ->
+once_couchdb_running = (callback) ->
   is_couchdb_running (running) ->
     if running
       callback()

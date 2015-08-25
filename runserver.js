@@ -1,5 +1,5 @@
 (function(){
-  var fs, async, ref$, exec, which, is_couchdb_running, does_user_exist, couchdb_server, i$, len$, command, couchserver_started;
+  var fs, async, ref$, exec, which, is_couchdb_running, does_user_exist, couchdb_server, i$, len$, command, couchserver_started, once_couchdb_running;
   fs = require('fs');
   async = require('async');
   ref$ = require('shelljs'), exec = ref$.exec, which = ref$.which;
@@ -30,7 +30,7 @@
       async: true
     });
   };
-  once_couchdb_running(function(callback){
+  once_couchdb_running = function(callback){
     return is_couchdb_running(function(running){
       if (running) {
         return callback();
@@ -41,7 +41,7 @@
         }, 1000);
       }
     });
-  });
+  };
   is_couchdb_running(function(running){
     if (running) {
       console.log('using already-running couchdb instance at ' + couchdb_server);
