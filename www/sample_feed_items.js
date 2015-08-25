@@ -1,7 +1,7 @@
 (function(){
   var getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, admin, example, defaults;
+    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, admin, example, lettervideos, defaults;
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
@@ -93,6 +93,15 @@
         finishedby: ['elephant']
       }
     }];
+    lettervideos = [{
+      itemtype: 'video',
+      data: {
+        videoid: 'y8pZ3F8KB_Y'
+      },
+      social: {
+        poster: 'mouse'
+      }
+    }];
     defaults = dots.concat(typeletter, typeword);
     return {
       defaults: defaults,
@@ -101,6 +110,7 @@
       bars: bars,
       dots: dots,
       typeletter: typeletter,
+      lettervideos: lettervideos,
       typeword: typeword
     };
   };

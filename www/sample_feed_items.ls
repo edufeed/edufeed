@@ -40,6 +40,9 @@ export getSampleFeedItems = ->
   example = (
     [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}]
   )
+  lettervideos = (
+    [{itemtype: 'video', data: {videoid: 'y8pZ3F8KB_Y'}, social: {poster: 'mouse'}}]
+  )
   defaults = (
     dots ++ typeletter ++ typeword
   )
@@ -50,5 +53,6 @@ export getSampleFeedItems = ->
     bars
     dots
     typeletter
+    lettervideos
     typeword
   }
