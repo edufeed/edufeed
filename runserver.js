@@ -55,11 +55,7 @@
       console.log('=====================================================');
       exec('node scripts/getip');
       console.log('=====================================================');
-      if (running) {
-        return couchserver_started();
-      } else {
-        console.log('failed to start pouchdb-server');
-      }
+      return couchserver_started();
     });
   });
 }).call(this);

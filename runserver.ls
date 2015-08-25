@@ -48,8 +48,4 @@ is_couchdb_running (running) ->
     console.log '====================================================='
     exec 'node scripts/getip'
     console.log '====================================================='
-    if running
-      couchserver_started()
-    else
-      console.log 'failed to start pouchdb-server'
-      return
+    couchserver_started()
