@@ -49,7 +49,7 @@ export getDb = (dbname, options) ->
     if db_sync_handlers[dbname]?
       db_sync_handlers[dbname](change)
   params = getUrlParameters()
-  sync = options.sync? or params.sync? or dbname.indexOf('feeditems_' + local_username) == 0
+  sync = options.sync? or params.sync? or dbname.indexOf('feeditems_' + local_username) == 0 or dbname.indexOf('finisheditems_') == 0
   replicatetoremote = options.replicatetoremote? or params.replicatetoremote? or dbname.indexOf('logs_') == 0 or (dbname.indexOf('feeditems_') == 0 and !sync)
   if sync or replicatetoremote
     get_couchdb_login (couchdb_login) ->
@@ -83,6 +83,9 @@ export setSyncHandler = (dbname, callback) ->
 export getItems = (dbname, callback) ->
   db = getDb(dbname)
   db.allDocs({include_docs: true}).then (data) ->
+    if not data?
+      callback []
+      return
     #callback [x.doc for x in data.rows when not x.doc._deleted]
     callback [x.doc for x in data.rows]
 
@@ -146,3 +149,59 @@ export postItemToTarget = (target, item, callback) ->
     , ->
       if callback?
         callback()
+
+export postFinishedItem = (item, callback) ->
+  username <- getUsername()
+  dbname = "finisheditems_#{username}"
+  db = getDb(dbname)
+  alldocs <- db.allDocs({include_docs: true}).then()
+  allitems = [x.doc for x in alldocs.rows]
+  matches = [x for x in allitems when itemtype_and_data_matches(item, x)]
+  if matches.length > 0
+    if callback?
+      callback(null, null)
+    return
+  postItem dbname, item, callback
+
+/*
+export getFinishedItems = (callback) ->
+  # outputs a list of finished items, with the item.social.finishedby populated.
+  # note: this version only gets the items finished by the current user. might want to change it to list everybody in the class.
+  username <- getUsername()
+  finished_items <- getItems "finisheditems_#{username}"
+  for item in finished_items
+    if not item.social?
+      item.social = {}
+    if not item.social.finishedby?
+      item.social.finishedby = []
+    item.social.finishedby.push username
+  callback finished_items
+*/
+
+export getFinishedItems = (callback) ->
+  # outputs a list of finished items, with the item.social.finishedby populated.
+  username <- getUsername()
+  classmates <- getClassmates(username)
+  classmate_to_items = {}
+  async.each classmates, (classmate, ncallback) ->
+    getItems "finisheditems_#{classmate}", (finished_items) ->
+      classmate_to_items[classmate] = finished_items
+      ncallback(null, null)
+  , ->
+    output = []
+    for classmate in classmates
+      items_finished_by_classmate = classmate_to_items[classmate]
+      for item in items_finished_by_classmate
+        matching_items = [x for x in output when itemtype_and_data_matches(item, x)]
+        if matching_items.length > 0
+          item = matching_items[0]
+        else
+          output.push item
+        if not item.social?
+          item.social = {}
+        if not item.social.finishedby?
+          item.social.finishedby = []
+        if item.social.finishedby.indexOf(classmate) == -1
+          item.social.finishedby.push classmate
+    console.log output
+    callback output

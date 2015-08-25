@@ -22,6 +22,10 @@ Polymer {
     this.S('#activitybuttons').hide()
     this.$$('#sharingbutton').closeShareWidget()
   itemFinished: (item) ->
+    self = this
+    postFinishedItem item, ->
+      self.updateItems()
+    /*
     for x in $('social-thumbnail')
       tag = $(x).find('#thumbnail')
       if not tag?
@@ -33,6 +37,7 @@ Polymer {
         username <- getUsername()
         if x.finishedby.indexOf(username) == -1
           x.finishedby = x.finishedby ++ [username]
+    */
   openItem: (item) ->
     this.S('#thumbnails').hide()
     this.S('#activitybuttons').show()
@@ -67,6 +72,13 @@ Polymer {
       noadmin = true
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
+    finished_items <- getFinishedItems()
+    for doc in docs
+      matching_finished_items = [x for x in finished_items when itemtype_and_data_matches(doc, x)]
+      if matching_finished_items.length > 0
+        if not doc.social?
+          doc.social = {}
+        doc.social.finishedby = matching_finished_items[0].social.finishedby
     self.items = docs
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
@@ -99,4 +111,8 @@ Polymer {
     getUsername (username) ->
       setSyncHandler "feeditems_#{username}", (change) ->
         self.updateItems()
+      classmates <- getClassmates(username)
+      for let classmate in classmates
+        setSyncHandler "finisheditems_#{classmate}", (change) ->
+          self.updateItems()
 }

@@ -35,6 +35,11 @@ RegisterActivity {
     username <- getUsername()
     deleteLocalDb "feeditems_#{username}", ->
       self.fire 'task-finished'
+  deleteLocalFinishedItemsDb: ->
+    self = this
+    username <- getUsername()
+    deleteLocalDb "finisheditems_#{username}", ->
+      self.fire 'task-finished'
   deleteLocalLogsDb: ->
     self = this
     username <- getUsername()
@@ -45,6 +50,14 @@ RegisterActivity {
     all_users <- getAllUsers()
     async.eachSeries all_users, (username, callback) ->
       deleteLocalDb "feeditems_#{username}", ->
+        callback(null, null)
+    , ->
+      self.fire 'task-finished'
+  deleteLocalFinishedItemsDbAllUsers: ->
+    self = this
+    all_users <- getAllUsers()
+    async.eachSeries all_users, (username, callback) ->
+      deleteLocalDb "finisheditems_#{username}", ->
         callback(null, null)
     , ->
       self.fire 'task-finished'
@@ -94,6 +107,11 @@ RegisterActivity {
     self = this
     username <- getUsername()
     clearDb "feeditems_#{username}", ->
+      self.fire 'task-finished', self
+  clearFinishedItems: ->
+    self = this
+    username <- getUsername()
+    clearDb "finisheditems_#{username}", ->
       self.fire 'task-finished', self
   getSampleFeedItemCategories: ->
     return [k for k,v of getSampleFeedItems()]

@@ -98,9 +98,24 @@
               if (err5 != null) {
                 console.log(err5);
               }
-              if (callback != null) {
-                return callback();
-              }
+              return nano.db.create("finisheditems_" + username, function(err6){
+                if (err6 != null) {
+                  console.log(err6);
+                }
+                return couch_put("finisheditems_" + username + "/_security", {
+                  members: {
+                    names: [username],
+                    roles: ["finisheditems_" + username, "allusers"]
+                  }
+                }, function(err7){
+                  if (err7 != null) {
+                    console.log(err7);
+                  }
+                  if (callback != null) {
+                    return callback();
+                  }
+                });
+              });
             });
           });
         });
@@ -118,7 +133,7 @@
       _id: "org.couchdb.user:" + username,
       name: username,
       type: 'user',
-      roles: ["logs_" + username, "feeditems_" + username, "allusers"],
+      roles: ["logs_" + username, "feeditems_" + username, "finisheditems_" + username, "allusers"],
       password_sha: password_sha,
       salt: salt
     }, function(err1){
@@ -153,9 +168,25 @@
               if (err5 != null) {
                 console.log(err5);
               }
-              if (callback != null) {
-                return callback();
-              }
+              return nano.db.create("finisheditems_" + username, function(err6){
+                if (err6 != null) {
+                  console.log(err6);
+                }
+                return couch_put("finisheditems_" + username + "/_security", {
+                  couchdb_auth_only: true,
+                  members: {
+                    names: [username],
+                    roles: ["finisheditems_" + username, "allusers"]
+                  }
+                }, function(err7){
+                  if (err7 != null) {
+                    console.log(err7);
+                  }
+                  if (callback != null) {
+                    return callback();
+                  }
+                });
+              });
             });
           });
         });

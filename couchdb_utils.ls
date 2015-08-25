@@ -83,6 +83,17 @@ signup_couchdb = (username, password, callback) ->
   }
   if err5?
     console.log err5
+  (err6) <- nano.db.create("finisheditems_#{username}")
+  if err6?
+    console.log err6
+  (err7) <- couch_put "finisheditems_#{username}/_security", {
+    members: {
+      names: [username]
+      roles: ["finisheditems_#{username}", "allusers"]
+    }
+  }
+  if err7?
+    console.log err7
   if callback?
     callback()
 
@@ -96,7 +107,7 @@ signup_cloudant = (username, password, callback) ->
     _id: "org.couchdb.user:#{username}"
     name: username
     type: 'user'
-    roles: ["logs_#{username}", "feeditems_#{username}", "allusers"]
+    roles: ["logs_#{username}", "feeditems_#{username}", "finisheditems_#{username}", "allusers"]
     password_sha: password_sha
     salt: salt
   }
@@ -126,5 +137,17 @@ signup_cloudant = (username, password, callback) ->
   }
   if err5?
     console.log err5
+  (err6) <- nano.db.create("finisheditems_#{username}")
+  if err6?
+    console.log err6
+  (err7) <- couch_put "finisheditems_#{username}/_security", {
+    couchdb_auth_only: true
+    members: {
+      names: [username]
+      roles: ["finisheditems_#{username}", "allusers"]
+    }
+  }
+  if err7?
+    console.log err7
   if callback?
     callback()

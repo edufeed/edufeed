@@ -1,5 +1,5 @@
 (function(){
-  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, out$ = typeof exports != 'undefined' && exports || this;
+  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, postFinishedItem, getFinishedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
       var pouchOpts, use_https, db, ajaxOpts;
@@ -74,7 +74,7 @@
         }
       });
       params = getUrlParameters();
-      sync = options.sync != null || params.sync != null || dbname.indexOf('feeditems_' + local_username) === 0;
+      sync = options.sync != null || params.sync != null || dbname.indexOf('feeditems_' + local_username) === 0 || dbname.indexOf('finisheditems_') === 0;
       replicatetoremote = options.replicatetoremote != null || params.replicatetoremote != null || dbname.indexOf('logs_') === 0 || (dbname.indexOf('feeditems_') === 0 && !sync);
       if (sync || replicatetoremote) {
         get_couchdb_login(function(couchdb_login){
@@ -114,6 +114,10 @@
       include_docs: true
     }).then(function(data){
       var x;
+      if (data == null) {
+        callback([]);
+        return;
+      }
       return callback((function(){
         var i$, ref$, len$, results$ = [];
         for (i$ = 0, len$ = (ref$ = data.rows).length; i$ < len$; ++i$) {
@@ -201,6 +205,101 @@
         if (callback != null) {
           return callback();
         }
+      });
+    });
+  };
+  out$.postFinishedItem = postFinishedItem = function(item, callback){
+    return getUsername(function(username){
+      var dbname, db;
+      dbname = "finisheditems_" + username;
+      db = getDb(dbname);
+      return db.allDocs({
+        include_docs: true
+      }).then(function(alldocs){
+        var allitems, res$, i$, ref$, len$, x, matches;
+        res$ = [];
+        for (i$ = 0, len$ = (ref$ = alldocs.rows).length; i$ < len$; ++i$) {
+          x = ref$[i$];
+          res$.push(x.doc);
+        }
+        allitems = res$;
+        res$ = [];
+        for (i$ = 0, len$ = allitems.length; i$ < len$; ++i$) {
+          x = allitems[i$];
+          if (itemtype_and_data_matches(item, x)) {
+            res$.push(x);
+          }
+        }
+        matches = res$;
+        if (matches.length > 0) {
+          if (callback != null) {
+            callback(null, null);
+          }
+          return;
+        }
+        return postItem(dbname, item, callback);
+      });
+    });
+  };
+  /*
+  export getFinishedItems = (callback) ->
+    # outputs a list of finished items, with the item.social.finishedby populated.
+    # note: this version only gets the items finished by the current user. might want to change it to list everybody in the class.
+    username <- getUsername()
+    finished_items <- getItems "finisheditems_#{username}"
+    for item in finished_items
+      if not item.social?
+        item.social = {}
+      if not item.social.finishedby?
+        item.social.finishedby = []
+      item.social.finishedby.push username
+    callback finished_items
+  */
+  out$.getFinishedItems = getFinishedItems = function(callback){
+    return getUsername(function(username){
+      return getClassmates(username, function(classmates){
+        var classmate_to_items;
+        classmate_to_items = {};
+        return async.each(classmates, function(classmate, ncallback){
+          return getItems("finisheditems_" + classmate, function(finished_items){
+            classmate_to_items[classmate] = finished_items;
+            return ncallback(null, null);
+          });
+        }, function(){
+          var output, i$, ref$, len$, classmate, items_finished_by_classmate, j$, len1$, item, matching_items, res$, k$, len2$, x;
+          output = [];
+          for (i$ = 0, len$ = (ref$ = classmates).length; i$ < len$; ++i$) {
+            classmate = ref$[i$];
+            items_finished_by_classmate = classmate_to_items[classmate];
+            for (j$ = 0, len1$ = items_finished_by_classmate.length; j$ < len1$; ++j$) {
+              item = items_finished_by_classmate[j$];
+              res$ = [];
+              for (k$ = 0, len2$ = output.length; k$ < len2$; ++k$) {
+                x = output[k$];
+                if (itemtype_and_data_matches(item, x)) {
+                  res$.push(x);
+                }
+              }
+              matching_items = res$;
+              if (matching_items.length > 0) {
+                item = matching_items[0];
+              } else {
+                output.push(item);
+              }
+              if (item.social == null) {
+                item.social = {};
+              }
+              if (item.social.finishedby == null) {
+                item.social.finishedby = [];
+              }
+              if (item.social.finishedby.indexOf(classmate) === -1) {
+                item.social.finishedby.push(classmate);
+              }
+            }
+          }
+          console.log(output);
+          return callback(output);
+        });
       });
     });
   };

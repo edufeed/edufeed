@@ -106,6 +106,14 @@ export adderror = (postdata) ->
 export geterrors = (callback) ->
   callback [x for x in errorlog]
 
+export itemtype_and_data_matches = (item1, item2) ->
+  # returns true if all keys and values in item1 are present in item2
+  if item1.itemtype != item2.itemtype
+    return false
+  if item1.data === item2.data
+    return true
+  return false
+
 # filesystem related
 
 /*

@@ -64,6 +64,15 @@
         });
       });
     },
+    deleteLocalFinishedItemsDb: function(){
+      var self;
+      self = this;
+      return getUsername(function(username){
+        return deleteLocalDb("finisheditems_" + username, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
     deleteLocalLogsDb: function(){
       var self;
       self = this;
@@ -79,6 +88,19 @@
       return getAllUsers(function(all_users){
         return async.eachSeries(all_users, function(username, callback){
           return deleteLocalDb("feeditems_" + username, function(){
+            return callback(null, null);
+          });
+        }, function(){
+          return self.fire('task-finished');
+        });
+      });
+    },
+    deleteLocalFinishedItemsDbAllUsers: function(){
+      var self;
+      self = this;
+      return getAllUsers(function(all_users){
+        return async.eachSeries(all_users, function(username, callback){
+          return deleteLocalDb("finisheditems_" + username, function(){
             return callback(null, null);
           });
         }, function(){
@@ -154,6 +176,15 @@
       self = this;
       return getUsername(function(username){
         return clearDb("feeditems_" + username, function(){
+          return self.fire('task-finished', self);
+        });
+      });
+    },
+    clearFinishedItems: function(){
+      var self;
+      self = this;
+      return getUsername(function(username){
+        return clearDb("finisheditems_" + username, function(){
           return self.fire('task-finished', self);
         });
       });

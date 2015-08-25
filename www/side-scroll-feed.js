@@ -28,26 +28,11 @@
       return this.$$('#sharingbutton').closeShareWidget();
     },
     itemFinished: function(item){
-      var i$, ref$, len$, x, tag;
-      for (i$ = 0, len$ = (ref$ = $('social-thumbnail')).length; i$ < len$; ++i$) {
-        x = ref$[i$];
-        tag = $(x).find('#thumbnail');
-        if (tag == null) {
-          return;
-        }
-        tag = tag[0];
-        if (tag == null) {
-          return;
-        }
-        if (tagMatchesItem(tag, item)) {
-          getUsername(fn$);
-        }
-      }
-      function fn$(username){
-        if (x.finishedby.indexOf(username) === -1) {
-          return x.finishedby = x.finishedby.concat([username]);
-        }
-      }
+      var self;
+      self = this;
+      return postFinishedItem(item, function(){
+        return self.updateItems();
+      });
     },
     openItem: function(item){
       var activity, this$ = this;
@@ -111,12 +96,32 @@
                 }
               }].concat(docs);
             }
-            self.items = docs;
-            if (firstvisit != null && firstvisit) {
-              return addlog({
-                event: 'visitfeed'
-              });
-            }
+            return getFinishedItems(function(finished_items){
+              var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x;
+              for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
+                doc = ref$[i$];
+                res$ = [];
+                for (j$ = 0, len1$ = finished_items.length; j$ < len1$; ++j$) {
+                  x = finished_items[j$];
+                  if (itemtype_and_data_matches(doc, x)) {
+                    res$.push(x);
+                  }
+                }
+                matching_finished_items = res$;
+                if (matching_finished_items.length > 0) {
+                  if (doc.social == null) {
+                    doc.social = {};
+                  }
+                  doc.social.finishedby = matching_finished_items[0].social.finishedby;
+                }
+              }
+              self.items = docs;
+              if (firstvisit != null && firstvisit) {
+                return addlog({
+                  event: 'visitfeed'
+                });
+              }
+            });
           });
         });
       });
@@ -156,8 +161,20 @@
       });
       this.updateItems(true);
       return getUsername(function(username){
-        return setSyncHandler("feeditems_" + username, function(change){
+        setSyncHandler("feeditems_" + username, function(change){
           return self.updateItems();
+        });
+        return getClassmates(username, function(classmates){
+          var i$, len$, results$ = [];
+          for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
+            results$.push((fn$.call(this, classmates[i$])));
+          }
+          return results$;
+          function fn$(classmate){
+            return setSyncHandler("finisheditems_" + classmate, function(change){
+              return self.updateItems();
+            });
+          }
         });
       });
     }
