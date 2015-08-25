@@ -15,6 +15,7 @@ Polymer {
     if this.$$('#sharingbutton').isShareWidgetOpen()
       this.closeShareWidget()
     else
+      addlog {event: 'task-closed', item: this.current_item}
       this.closeActivity()
   closeActivity: ->
     this.S('#activity').html('')
@@ -42,6 +43,7 @@ Polymer {
     this.S('#thumbnails').hide()
     this.S('#activitybuttons').show()
     this.S('#activity').html('')
+    this.current_item = item
     activity = makeActivity(item) # feed-items.ls
     activity.on 'task-finished', ~>
       addlog {event: 'task-finished', item: item}
@@ -49,7 +51,6 @@ Polymer {
       this.closeActivity()
     activity.on 'task-left', ~>
       addlog {event: 'task-left', item: item}
-      this.itemFinished item
       this.closeActivity()
     activity.appendTo this.S('#activity')
   addItemToFeed: (item) ->

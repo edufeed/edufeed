@@ -328,7 +328,6 @@
               }
             }
           }
-          console.log(output);
           return callback(output);
         });
       });

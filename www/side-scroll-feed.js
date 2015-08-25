@@ -18,6 +18,10 @@
       if (this.$$('#sharingbutton').isShareWidgetOpen()) {
         return this.closeShareWidget();
       } else {
+        addlog({
+          event: 'task-closed',
+          item: this.current_item
+        });
         return this.closeActivity();
       }
     },
@@ -39,6 +43,7 @@
       this.S('#thumbnails').hide();
       this.S('#activitybuttons').show();
       this.S('#activity').html('');
+      this.current_item = item;
       activity = makeActivity(item);
       activity.on('task-finished', function(){
         addlog({
@@ -53,7 +58,6 @@
           event: 'task-left',
           item: item
         });
-        this$.itemFinished(item);
         return this$.closeActivity();
       });
       return activity.appendTo(this.S('#activity'));

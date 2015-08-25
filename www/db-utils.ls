@@ -234,5 +234,4 @@ export getFinishedItems = (callback) ->
           item.social.finishedby = []
         if item.social.finishedby.indexOf(classmate) == -1
           item.social.finishedby.push classmate
-    console.log output
     callback output
