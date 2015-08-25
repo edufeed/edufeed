@@ -139,15 +139,30 @@
       }
     });
   };
+  /*
+  export clearDb = (dbname, callback) ->
+    db = getDb(dbname)
+    db.allDocs({include_docs: true}).then (data) ->
+      async.each data.rows, (x, ncallback) ->
+        x.doc._deleted = true
+        db.put x.doc, ncallback
+      , (results) ->
+        if callback?
+          callback(null, results)
+  */
   out$.clearDb = clearDb = function(dbname, callback){
     var db;
     db = getDb(dbname);
     return db.allDocs({
       include_docs: true
     }).then(function(data){
-      return async.each(data.rows, function(x, callback){
-        x.doc._deleted = true;
-        return db.put(x.doc, callback);
+      return async.each(data.rows, function(x, ncallback){
+        return db.upsert(x.doc._id, function(doc){
+          doc._deleted = true;
+          return doc;
+        }).then(function(){
+          return ncallback(null, null);
+        });
       }, function(results){
         if (callback != null) {
           return callback(null, results);
@@ -174,18 +189,34 @@
       prevUUID.time = curtime;
       prevUUID.idx = 0;
     }
-    return padWithZeros(prevUUID.time, 13).concat(padWithZeros(prevUUID.idx, 7));
+    return padWithZeros(prevUUID.time, 13).concat(padWithZeros(prevUUID.idx, 7), padWithZeros(Math.floor(Math.random() * 9999999999), 10));
   };
+  /*
+  export postItem = (dbname, item, callback) ->
+    #console.log 'postItem called: '
+    #console.log dbname
+    #console.log item
+    db = getDb(dbname)
+    new_item = {} <<< item
+    if not new_item._id?
+      new_item._id = makeUUID()
+    db.put new_item, (err, res) ->
+      if callback?
+        callback(err, res)
+  */
   out$.postItem = postItem = function(dbname, item, callback){
-    var db, new_item;
+    var db;
     db = getDb(dbname);
-    new_item = import$({}, item);
-    if (new_item._id == null) {
-      new_item._id = makeUUID();
-    }
-    return db.put(new_item, function(err, res){
+    return db.upsert(makeUUID(), function(doc){
+      var k, ref$, v;
+      for (k in ref$ = item) {
+        v = ref$[k];
+        doc[k] = v;
+      }
+      return doc;
+    }).then(function(){
       if (callback != null) {
-        return callback(err, res);
+        return callback(null, null);
       }
     });
   };
@@ -306,10 +337,5 @@
   function repeatString$(str, n){
     for (var r = ''; n > 0; (n >>= 1) && (str += str)) if (n & 1) r += str;
     return r;
-  }
-  function import$(obj, src){
-    var own = {}.hasOwnProperty;
-    for (var key in src) if (own.call(src, key)) obj[key] = src[key];
-    return obj;
   }
 }).call(this);

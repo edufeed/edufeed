@@ -60,7 +60,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("feeditems_" + username, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -69,7 +69,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("finisheditems_" + username, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -78,7 +78,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("logs_" + username, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -91,7 +91,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -104,7 +104,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -117,7 +117,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
@@ -126,14 +126,14 @@
       self = this;
       return getUsername(function(username){
         return clearDb("logs_" + username, function(){
-          return self.fire('task-finished');
+          return self.fire('task-left');
         });
       });
     },
     hideAdminActivity: function(){
       console.log('hideAdminActivity');
       this.fire('hide-admin-activity');
-      return this.fire('task-finished');
+      return this.fire('task-left');
     },
     setUsername: function(){
       var self, username, password, couchserver;
@@ -176,7 +176,7 @@
       self = this;
       return getUsername(function(username){
         return clearDb("feeditems_" + username, function(){
-          return self.fire('task-finished', self);
+          return self.fire('task-left', self);
         });
       });
     },
@@ -185,7 +185,7 @@
       self = this;
       return getUsername(function(username){
         return clearDb("finisheditems_" + username, function(){
-          return self.fire('task-finished', self);
+          return self.fire('task-left', self);
         });
       });
     },
@@ -212,7 +212,7 @@
       return async.each(items, function(item, callback){
         return postItem("feeditems_" + username, item, callback);
       }, function(results){
-        return self.fire('task-finished', self);
+        return self.fire('task-left', self);
       });
     },
     addCustomItem: function(){
@@ -236,7 +236,7 @@
           data: data,
           social: social
         }, function(){
-          return self.fire('task-finished', self);
+          return self.fire('task-left', self);
         });
       });
     },

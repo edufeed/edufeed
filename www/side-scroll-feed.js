@@ -48,6 +48,14 @@
         this$.itemFinished(item);
         return this$.closeActivity();
       });
+      activity.on('task-left', function(){
+        addlog({
+          event: 'task-left',
+          item: item
+        });
+        this$.itemFinished(item);
+        return this$.closeActivity();
+      });
       return activity.appendTo(this.S('#activity'));
     },
     addItemToFeed: function(item){

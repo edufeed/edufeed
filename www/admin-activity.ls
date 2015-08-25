@@ -34,17 +34,17 @@ RegisterActivity {
     self = this
     username <- getUsername()
     deleteLocalDb "feeditems_#{username}", ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   deleteLocalFinishedItemsDb: ->
     self = this
     username <- getUsername()
     deleteLocalDb "finisheditems_#{username}", ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   deleteLocalLogsDb: ->
     self = this
     username <- getUsername()
     deleteLocalDb "logs_#{username}", ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   deleteLocalFeedItemsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -52,7 +52,7 @@ RegisterActivity {
       deleteLocalDb "feeditems_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   deleteLocalFinishedItemsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -60,7 +60,7 @@ RegisterActivity {
       deleteLocalDb "finisheditems_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   deleteLocalLogsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -68,16 +68,16 @@ RegisterActivity {
       deleteLocalDb "logs_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   clearLogs: ->
     self = this
     username <- getUsername()
     clearDb "logs_#{username}", ->
-      self.fire 'task-finished'
+      self.fire 'task-left'
   hideAdminActivity: ->
     console.log 'hideAdminActivity'
     this.fire 'hide-admin-activity'
-    this.fire 'task-finished'
+    this.fire 'task-left'
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()
@@ -107,12 +107,12 @@ RegisterActivity {
     self = this
     username <- getUsername()
     clearDb "feeditems_#{username}", ->
-      self.fire 'task-finished', self
+      self.fire 'task-left', self
   clearFinishedItems: ->
     self = this
     username <- getUsername()
     clearDb "finisheditems_#{username}", ->
-      self.fire 'task-finished', self
+      self.fire 'task-left', self
   getSampleFeedItemCategories: ->
     return [k for k,v of getSampleFeedItems()]
   addSampleItems: (obj) ->
@@ -126,7 +126,7 @@ RegisterActivity {
     async.each items, (item, callback) ->
       postItem "feeditems_#{username}", item, callback
     , (results) ->
-      self.fire 'task-finished', self
+      self.fire 'task-left', self
   addCustomItem: ->
     console.log 'addCustomItem called'
     self = this
@@ -141,9 +141,9 @@ RegisterActivity {
       social = jsyaml.safeLoad social_text
       target = self.S('#targetinput').val().trim()
       postItemToTarget target, {itemtype, data, social}, ->
-        self.fire 'task-finished', self
+        self.fire 'task-left', self
       #postItem "feeditems_#{username}", {itemtype, data, social}, ->
-      #  self.fire 'task-finished', self
+      #  self.fire 'task-left', self
   displayLogs: ->
     getlogs (logs) ~>
       this.S('#logdisplay').text JSON.stringify(logs, null, 2)

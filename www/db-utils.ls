@@ -97,15 +97,31 @@ export deleteLocalDb = (dbname, callback) ->
     if callback?
       callback()
 
+/*
 export clearDb = (dbname, callback) ->
   db = getDb(dbname)
   db.allDocs({include_docs: true}).then (data) ->
-    async.each data.rows, (x, callback) ->
+    async.each data.rows, (x, ncallback) ->
       x.doc._deleted = true
-      db.put x.doc, callback
+      db.put x.doc, ncallback
     , (results) ->
       if callback?
         callback(null, results)
+*/
+
+export clearDb = (dbname, callback) ->
+  db = getDb(dbname)
+  db.allDocs({include_docs: true}).then (data) ->
+    async.each data.rows, (x, ncallback) ->
+      db.upsert(x.doc._id, (doc) ->
+        doc._deleted = true
+        return doc
+      ).then ->
+        ncallback(null, null)
+    , (results) ->
+      if callback?
+        callback(null, results)
+
 
 padWithZeros = (num, target_length) ->
   current = num.toString()
@@ -120,8 +136,9 @@ export makeUUID = ->
   else
     prevUUID.time = curtime
     prevUUID.idx = 0
-  return padWithZeros(prevUUID.time, 13) ++ padWithZeros(prevUUID.idx, 7)
+  return padWithZeros(prevUUID.time, 13) ++ padWithZeros(prevUUID.idx, 7) ++ padWithZeros(Math.floor(Math.random() * 9999999999), 10)
 
+/*
 export postItem = (dbname, item, callback) ->
   #console.log 'postItem called: '
   #console.log dbname
@@ -133,6 +150,20 @@ export postItem = (dbname, item, callback) ->
   db.put new_item, (err, res) ->
     if callback?
       callback(err, res)
+*/
+
+export postItem = (dbname, item, callback) ->
+  #console.log 'postItem called: '
+  #console.log dbname
+  #console.log item
+  db = getDb(dbname)
+  db.upsert(makeUUID(), (doc) ->
+    for k,v of item
+      doc[k] = v
+    return doc
+  ).then ->
+    if callback?
+      callback(null, null)
 
 export postItemToTarget = (target, item, callback) ->
   #console.log 'postItemToTarget before getClasses'

@@ -47,6 +47,10 @@ Polymer {
       addlog {event: 'task-finished', item: item}
       this.itemFinished item
       this.closeActivity()
+    activity.on 'task-left', ~>
+      addlog {event: 'task-left', item: item}
+      this.itemFinished item
+      this.closeActivity()
     activity.appendTo this.S('#activity')
   addItemToFeed: (item) ->
     thumbnail = makeSocialThumbnail item
