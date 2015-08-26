@@ -1,0 +1,21 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="readaloud-activity">
+  <style>
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+  </style>
+  <template>
+    <template is="dom-repeat" items="{{sentences_split}}" as="wordlist" index-as="sentenceidx">
+      <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
+        <span on-click="wordClicked" wordidx="{{wordidx}}" sentenceidx="{{sentenceidx}}">{{word}}</span>
+      </template>
+      <br>
+    </template>
+  </template>
+  <script src="readaloud-activity.js"></script>  
+</dom-module>
