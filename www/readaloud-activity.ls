@@ -34,7 +34,8 @@ RegisterActivity {
   wordClicked: (obj, evt) ->
     {wordidx, sentenceidx} = obj.target
     console.log this.sentences_split[sentenceidx][wordidx]
-    
+    word = this.sentences_split[sentenceidx][wordidx]
+    synthesize_word word
   #computevideoid: (videosrc) ->
   #  return videosrc.split('http://www.youtube.com/embed/').join('')
   /*

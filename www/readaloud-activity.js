@@ -46,9 +46,11 @@
       }.call(this));
     },
     wordClicked: function(obj, evt){
-      var ref$, wordidx, sentenceidx;
+      var ref$, wordidx, sentenceidx, word;
       ref$ = obj.target, wordidx = ref$.wordidx, sentenceidx = ref$.sentenceidx;
-      return console.log(this.sentences_split[sentenceidx][wordidx]);
+      console.log(this.sentences_split[sentenceidx][wordidx]);
+      word = this.sentences_split[sentenceidx][wordidx];
+      return synthesize_word(word);
     }
     /*
     S: (pattern) ->

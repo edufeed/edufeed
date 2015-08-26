@@ -1,0 +1,25 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="iframe-activity">
+  <style>
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #contentframe {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      margin: none;
+      padding: none;
+      border: none;
+    }
+  </style>
+  <template>
+    <iframe id="contentframe" src="{{srcurl}}"></iframe>
+  </template>
+  <script src="iframe-activity.js"></script>
+</dom-module>

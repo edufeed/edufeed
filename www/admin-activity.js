@@ -60,7 +60,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("feeditems_" + username, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -69,7 +69,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("finisheditems_" + username, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -78,7 +78,7 @@
       self = this;
       return getUsername(function(username){
         return deleteLocalDb("logs_" + username, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -91,7 +91,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -104,7 +104,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -117,7 +117,7 @@
             return callback(null, null);
           });
         }, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
@@ -126,14 +126,14 @@
       self = this;
       return getUsername(function(username){
         return clearDb("logs_" + username, function(){
-          return self.fire('task-left');
+          return self.fire('task-left', self);
         });
       });
     },
     hideAdminActivity: function(){
       console.log('hideAdminActivity');
-      this.fire('hide-admin-activity');
-      return this.fire('task-left');
+      this.fire('hide-admin-activity', this);
+      return this.fire('task-left', this);
     },
     setUsername: function(){
       var self, username, password, couchserver;

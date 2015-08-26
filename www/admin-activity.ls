@@ -34,17 +34,17 @@ RegisterActivity {
     self = this
     username <- getUsername()
     deleteLocalDb "feeditems_#{username}", ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   deleteLocalFinishedItemsDb: ->
     self = this
     username <- getUsername()
     deleteLocalDb "finisheditems_#{username}", ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   deleteLocalLogsDb: ->
     self = this
     username <- getUsername()
     deleteLocalDb "logs_#{username}", ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   deleteLocalFeedItemsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -52,7 +52,7 @@ RegisterActivity {
       deleteLocalDb "feeditems_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   deleteLocalFinishedItemsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -60,7 +60,7 @@ RegisterActivity {
       deleteLocalDb "finisheditems_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   deleteLocalLogsDbAllUsers: ->
     self = this
     all_users <- getAllUsers()
@@ -68,16 +68,16 @@ RegisterActivity {
       deleteLocalDb "logs_#{username}", ->
         callback(null, null)
     , ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   clearLogs: ->
     self = this
     username <- getUsername()
     clearDb "logs_#{username}", ->
-      self.fire 'task-left'
+      self.fire 'task-left', self
   hideAdminActivity: ->
     console.log 'hideAdminActivity'
-    this.fire 'hide-admin-activity'
-    this.fire 'task-left'
+    this.fire 'hide-admin-activity', this
+    this.fire 'task-left', this
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()
