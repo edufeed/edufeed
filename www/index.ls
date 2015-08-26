@@ -14,6 +14,7 @@ startPage = ->
   for k,v of params
     if k == 'tag'
       continue
+    v = jsyaml.safeLoad(v)
     tag.prop k, v
   tag.appendTo '#contents'
   /*

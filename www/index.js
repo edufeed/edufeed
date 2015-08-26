@@ -21,6 +21,7 @@
       if (k === 'tag') {
         continue;
       }
+      v = jsyaml.safeLoad(v);
       tag.prop(k, v);
     }
     return tag.appendTo('#contents');
