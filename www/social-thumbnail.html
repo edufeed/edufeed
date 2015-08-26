@@ -25,10 +25,12 @@
     </div>
     <img width="370px" height="400px" src="callout-bubble.svg"></img>
     <div>
-      <user-avatar username="{{poster}}"></user-avatar>
+      <user-avatar style="float: left" username="{{poster}}"></user-avatar>
+      <div style="float: left; width: 270px">
       <template is="dom-repeat" items="{{finishedby}}" as="user">
         <user-avatar username="{{user}}" size="s" style="vertical-align: top"></user-avatar>
       </template>
+      </div>
     </div>
   </template>
   <script src="social-thumbnail.js"></script>
