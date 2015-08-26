@@ -22,34 +22,39 @@ export getSampleFeedItems = ->
     'orange'
     'pear'
   ]
-  bars = (
+
+  bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
-  )
-  dots = (
+
+  dots =
     [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
-  )
-  typeletter = (
+
+  typeletter =
     [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
-  )
-  typeword = (
+
+  typeword =
     [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
-  )
-  admin = (
+
+  admin =
     [{itemtype: 'admin', social: {poster: 'horse'}}]
-  )
-  example = (
+
+  example =
     [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}]
-  )
-  lettervideos = (
+
+  iframe =
+    [{itemtype: 'iframe', data: {framepage: 'iframe-example.html', foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}]
+
+  lettervideos =
     [{itemtype: 'video', data: {videoid: videoid}, social: {poster: 'mouse'}} for videoid in ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']]
-  )
-  defaults = (
+
+  defaults =
     dots ++ typeletter ++ typeword
-  )
+
   return {
     defaults
     admin
     example
+    iframe
     bars
     dots
     typeletter

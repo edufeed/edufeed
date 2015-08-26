@@ -5,6 +5,10 @@ RegisterThumbnail {
       type: String
       value: 'iframe-example.html'
     }
+    srcurl: {
+      type: String
+      computed: 'compute_srcurl(framepage, foo, bar)'
+    }
     foo: {
       type: String
       value: 'hello'
@@ -14,4 +18,9 @@ RegisterThumbnail {
       value: 'world'
     }
   }
+  compute_srcurl: (framepage, foo, bar) ->
+    return framepage + '?' + $.param {
+      foo
+      bar
+    }
 }

@@ -9,9 +9,25 @@
       height: 350px;
       background-color: #DDFFFF;
     }
+    .wordwrap {
+      /* wrap long text and urls */
+      white-space: pre; /* CSS 2.0 */
+      white-space: pre-wrap; /* CSS 2.1 */
+      white-space: pre-line; /* CSS 3.0 */
+      white-space: -pre-wrap; /* Opera 4-6 */
+      white-space: -o-pre-wrap; /* Opera 7 */
+      white-space: -moz-pre-wrap; /* Mozilla */
+      word-wrap: break-word; /* IE 5+ */
+    }
   </style>
   <template>
-    <div>This is the thumbnail for an iframe activity.<br>framepage: <span>{{framepage}}</span><br>foo: <span>{{foo}}</span><br>bar: <span>{{bar}}</span></div>
+    <div>
+      This is the thumbnail for an iframe activity.<br>
+      framepage: <span>{{framepage}}</span><br>
+      <span class="wordwrap">srcurl: <a href="{{srcurl}}">{{srcurl}}</a></span><br>
+      foo: <span>{{foo}}</span><br>
+      bar: <span>{{bar}}</span>
+    </div>
   </template>
   <script src="iframe-thumbnail.js"></script>  
 </dom-module>
