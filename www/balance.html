@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Balance</title>
+    <style type="text/css">
+
+        .coin1 {
+            fill:url(#coin1pattern);
+        }
+        .coin10 {
+            fill:url(#coin10pattern);
+        }
+        .coin100 {
+            fill:url(#coin100pattern);
+        }
+
+        .collector{
+            stroke:forestgreen;
+            stroke-width:1;
+            fill:transparent;
+        }
+        .sum{
+            stroke:forestgreen;
+            stroke-width:1;
+            fill:transparent;
+        }
+        .number{
+            font-family:Verdana;
+            font-size:30px;
+            stroke:black;
+            stroke-width:1;
+            fill:forestgreen;
+        }
+        /*.temp{
+            stroke:yellow;
+            stroke-width:1;
+            fill:transparent;
+        }*/
+
+    </style>
+</head>
+
+
+<body>
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+
+    <div id="dummy" style="height:15px; width:100%; clear:both;"></div>
+
+    <div class="pane" id="balance">
+        <svg xmlns="http://www.w3.org/2000/svg" id="pane" width="600" height="600">
+            <g>
+                <text id="correct" style="fill:blue; stroke:darkblue; stroke-width:1;" font-size="40px" x="100" y="60" visibility="hidden">Correct!</text>
+                <polygon points="174,197 184,207, 164,207" style="fill:black;stroke:black;stroke-width:1;" />
+            </g>
+            <g id="balacebeam">
+            </g>
+            <!--<rect class="temp" x="000" y="200" width="90" height="90" />
+            <rect class="temp" x="100" y="200" width="90" height="90" />
+            <rect class="temp" x="200" y="200" width="90" height="90" />
+            <rect class="temp" x="400" y="200" width="180" height="90" />
+            <line stroke="yellow" stroke-width="1" x1="0" y1="303" x2="600" y2="303" />-->
+            <circle stroke="yellow" r="2" cx="174" cy="197" />
+        </svg>
+    </div>
+
+    <audio id="boink" src="Audio\boink.mp3"></audio>
+    <audio id="tada" src="Audio\tada.mp3"></audio>
+    <script src="balance.js"></script>
+    <script src="balance_init.js"></script>
+</body>
+
+</html>
