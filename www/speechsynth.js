@@ -51,14 +51,55 @@
       }
     });
   };
-  out$.synthesize_multiple_words = synthesize_multiple_words = function(wordlist, callback){
-    return async.eachSeries(wordlist, function(word, ncallback){
-      return synthesize_word(word, function(){
-        return ncallback(null, null);
-      });
+  out$.synthesize_multiple_words = synthesize_multiple_words = function(wordlist, callbacks){
+    var done, startword, endword, word_idx;
+    if (callbacks == null) {
+      callbacks = {};
+    }
+    if (typeof callbacks === 'function') {
+      callbacks = {
+        done: callbacks
+      };
+    }
+    done = callbacks.done, startword = callbacks.startword, endword = callbacks.endword;
+    word_idx = 0;
+    return async.eachSeries(wordlist, function(info, ncallback){
+      if (typeof info === 'string') {
+        info = {
+          word: info
+        };
+      } else if (typeof info === 'function') {
+        info = {
+          callback: info
+        };
+      }
+      if (info.word != null) {
+        word_idx = word_idx + 1;
+        if (startword != null) {
+          startword(word_idx, info.word);
+        }
+        return synthesize_word(info.word, function(){
+          if (endword != null) {
+            endword(word_idx, info.word);
+          }
+          return ncallback(null, null);
+        });
+      } else if (info.pause != null) {
+        return setTimeout(function(){
+          return ncallback(null, null);
+        }, info.pause);
+      } else if (info.file != null) {
+        return synthesize_word_cached(info.file, function(){
+          return ncallback(null, null);
+        });
+      } else if (info.callback != null) {
+        return info.callback(word_idx, prev_word, function(){
+          return ncallback(null, null);
+        });
+      }
     }, function(){
-      if (callback != null) {
-        return callback();
+      if (done != null) {
+        return done();
       }
     });
   };

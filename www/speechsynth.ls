@@ -35,13 +35,41 @@ export synthesize_word = (word, callback) ->
     else
       synthesize_word_uncached word, synth_lang, callback
 
-export synthesize_multiple_words = (wordlist, callback) ->
-  async.eachSeries wordlist, (word, ncallback) ->
-    synthesize_word word, ->
-      ncallback(null, null)
+export synthesize_multiple_words = (wordlist, callbacks) ->
+  if not callbacks?
+    callbacks = {}
+  if typeof callbacks == 'function'
+    callbacks = {done: callbacks}
+  {done, startword, endword} = callbacks
+  # startword: called when we start synthesizing a word. passed in (word_idx, word) as input
+  # endword: called when we start synthesizing a word. passed in (word_idx, word) as input
+  word_idx = 0
+  async.eachSeries wordlist, (info, ncallback) ->
+    if typeof(info) == 'string'
+      info = {word: info}
+    else if typeof(info) == 'function'
+      info = {callback: info}
+    if info.word? # synthesize the given word
+      word_idx := word_idx + 1
+      if startword?
+        startword(word_idx, info.word)
+      synthesize_word info.word, ->
+        if endword?
+          endword(word_idx, info.word)
+        ncallback(null, null)
+    else if info.pause? # pause for given milliseconds
+      setTimeout ->
+        ncallback(null, null)
+      , info.pause
+    else if info.file? # play the given file
+      synthesize_word_cached info.file, ->
+        ncallback(null, null)
+    else if info.callback? # call the given callback
+      info.callback word_idx, prev_word, ->
+        ncallback(null, null)
   , ->
-    if callback?
-      callback()
+    if done?
+      done()
 
 export play_wrong_sound = (callback) ->
   synthesize_word_cached 'wrong.mp3', callback
