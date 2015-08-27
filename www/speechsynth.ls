@@ -31,4 +31,5 @@ export play_wrong_sound = ->
     video_tag[0].play()
   video_tag[0].removeEventListener('canplaythrough', play_audio)
   video_tag[0].addEventListener('canplaythrough', play_audio)
-  video_tag.attr 'src', '/wrong.mp3'
+  fetchAsDataURL '/wrong.mp3', (dataurl) ->
+    video_tag.attr 'src', dataurl

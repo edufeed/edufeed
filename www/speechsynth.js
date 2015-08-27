@@ -46,6 +46,8 @@
     };
     video_tag[0].removeEventListener('canplaythrough', play_audio);
     video_tag[0].addEventListener('canplaythrough', play_audio);
-    return video_tag.attr('src', '/wrong.mp3');
+    return fetchAsDataURL('/wrong.mp3', function(dataurl){
+      return video_tag.attr('src', dataurl);
+    });
   };
 }).call(this);
