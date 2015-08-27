@@ -1,7 +1,7 @@
 (function(){
   var getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, admin, example, iframe, lettervideos, videoid, defaults;
+    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideos, videoid, defaults;
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
@@ -76,6 +76,24 @@
       });
     }
     typeword = res$;
+    res$ = [];
+    for (i$ = 0, len$ = (ref$ = [1, 3, 50, 300]).length; i$ < len$; ++i$) {
+      number = ref$[i$];
+      res$.push({
+        itemtype: 'iframe',
+        data: {
+          activitypage: 'balance.html',
+          thumbnailpage: 'iframe-thumbnail-example.html',
+          params: {
+            number: number
+          }
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    balance = res$;
     admin = [{
       itemtype: 'admin',
       social: {
@@ -132,7 +150,8 @@
       dots: dots,
       typeletter: typeletter,
       lettervideos: lettervideos,
-      typeword: typeword
+      typeword: typeword,
+      balance: balance
     };
   };
 }).call(this);

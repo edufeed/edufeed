@@ -1,6 +1,6 @@
 (function(){
   var synthesize_word_cached, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, out$ = typeof exports != 'undefined' && exports || this;
-  synthesize_word_cached = function(wordpath, callback){
+  out$.synthesize_word_cached = synthesize_word_cached = function(wordpath, callback){
     var video_tag, play_audio, tag_finished_playing;
     video_tag = $('#synthesizeword');
     if (video_tag.length === 0) {

@@ -1,4 +1,4 @@
-synthesize_word_cached = (wordpath, callback) ->
+export synthesize_word_cached = (wordpath, callback) ->
   video_tag = $('#synthesizeword')
   if video_tag.length == 0
     video_tag = $('<audio>').prop('id', 'synthesizeword').css({display: 'none'})
