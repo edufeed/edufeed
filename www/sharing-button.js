@@ -39,7 +39,7 @@
               float: 'right'
             });
             avatar.click(function(){
-              synthesize_word("shared with " + classmate);
+              synthesize_multiple_words(['shared with', classmate]);
               avatar.prop('checked', true);
               return self.fire('share-activity', {
                 username: classmate

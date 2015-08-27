@@ -18,7 +18,7 @@ Polymer {
     for let classmate in classmates
       avatar = $("<user-avatar username='#{classmate}'>").css({float: 'right'})
       avatar.click ->
-        synthesize_word "shared with #{classmate}"
+        synthesize_multiple_words ['shared with', classmate]
         avatar.prop('checked', true)
         self.fire 'share-activity', {username: classmate}
       $(self).find('#share_avatars').append avatar
