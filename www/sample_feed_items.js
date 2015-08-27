@@ -96,9 +96,11 @@
     iframe = [{
       itemtype: 'iframe',
       data: {
-        framepage: 'iframe-example.html',
-        foo: 'somefooval',
-        bar: 'somebarval'
+        activitypage: 'iframe-example.html',
+        params: {
+          foo: 'somefooval',
+          bar: 'somebarval'
+        }
       },
       social: {
         poster: 'mouse',

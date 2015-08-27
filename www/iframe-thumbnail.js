@@ -2,28 +2,32 @@
   RegisterThumbnail({
     is: 'iframe-thumbnail',
     properties: {
-      framepage: {
+      activitypage: {
         type: String,
         value: 'iframe-example.html'
       },
-      srcurl: {
+      activityurl: {
         type: String,
-        computed: 'compute_srcurl(framepage, foo, bar)'
+        computed: 'compute_activityurl(activitypage, params)'
       },
-      foo: {
-        type: String,
-        value: 'hello'
-      },
-      bar: {
-        type: String,
-        value: 'world'
+      params: {
+        type: Object,
+        value: {
+          foo: 'hello',
+          bar: 'world'
+        }
       }
     },
-    compute_srcurl: function(framepage, foo, bar){
-      return framepage + '?' + $.param({
-        foo: foo,
-        bar: bar
-      });
+    compute_activityurl: function(activitypage, params){
+      var separator;
+      separator = '?';
+      if (activitypage.indexOf('?') !== -1) {
+        separator = '&';
+      }
+      return activitypage + separator + $.param(params);
+    },
+    printParams: function(params){
+      return JSON.stringify(params, null, 2);
     }
   });
 }).call(this);

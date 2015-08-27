@@ -1,28 +1,29 @@
 RegisterActivity {
   is: 'iframe-activity'
   properties: {
-    framepage: {
+    activitypage: {
       type: String
       value: 'iframe-example.html'
     }
-    srcurl: {
+    activityurl: {
       type: String
-      computed: 'compute_srcurl(framepage, foo, bar)'
+      computed: 'compute_activityurl(activitypage, params)'
     }
-    foo: {
-      type: String
-      value: 'hello'
-    }
-    bar: {
-      type: String
-      value: 'world'
+    params: {
+      type: Object
+      value: {
+        foo: 'hello'
+        bar: 'world'
+      }
     }
   }
-  compute_srcurl: (framepage, foo, bar) ->
-    return framepage + '?' + $.param {
-      foo
-      bar
-    }
+  #activityurl_changed: (newurl, oldurl) ->
+  #  this.$$('#contentframe').src = newurl
+  compute_activityurl: (activitypage, params) ->
+    separator = '?'
+    if activitypage.indexOf('?') != -1
+      separator = '&'
+    return activitypage + separator + $.param(params)
   ready: ->
     self = this
     window.addEventListener 'message', (obj) ->
