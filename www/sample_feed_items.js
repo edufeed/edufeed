@@ -96,7 +96,8 @@
     iframe = [{
       itemtype: 'iframe',
       data: {
-        activitypage: 'iframe-example.html',
+        activitypage: 'iframe-activity-example.html',
+        thumbnailpage: 'iframe-thumbnail-example.html',
         params: {
           foo: 'somefooval',
           bar: 'somebarval'

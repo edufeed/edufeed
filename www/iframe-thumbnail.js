@@ -4,11 +4,19 @@
     properties: {
       activitypage: {
         type: String,
-        value: 'iframe-example.html'
+        value: 'iframe-activity-example.html'
       },
       activityurl: {
         type: String,
         computed: 'compute_activityurl(activitypage, params)'
+      },
+      thumbnailpage: {
+        type: String,
+        value: 'iframe-thumbnail-example.html'
+      },
+      thumbnailurl: {
+        type: String,
+        computed: 'compute_thumbnailurl(thumbnailpage, params)'
       },
       params: {
         type: Object,
@@ -25,6 +33,14 @@
         separator = '&';
       }
       return activitypage + separator + $.param(params);
+    },
+    compute_thumbnailurl: function(thumbnailpage, params){
+      var separator;
+      separator = '?';
+      if (thumbnailpage.indexOf('?') !== -1) {
+        separator = '&';
+      }
+      return thumbnailpage + separator + $.param(params);
     },
     printParams: function(params){
       return JSON.stringify(params, null, 2);

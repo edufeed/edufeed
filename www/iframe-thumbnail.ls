@@ -3,11 +3,19 @@ RegisterThumbnail {
   properties: {
     activitypage: {
       type: String
-      value: 'iframe-example.html'
+      value: 'iframe-activity-example.html'
     }
     activityurl: {
       type: String
       computed: 'compute_activityurl(activitypage, params)'
+    }
+    thumbnailpage: {
+      type: String
+      value: 'iframe-thumbnail-example.html'
+    }
+    thumbnailurl: {
+      type: String
+      computed: 'compute_thumbnailurl(thumbnailpage, params)'
     }
     params: {
       type: Object
@@ -22,6 +30,11 @@ RegisterThumbnail {
     if activitypage.indexOf('?') != -1
       separator = '&'
     return activitypage + separator + $.param(params)
+  compute_thumbnailurl: (thumbnailpage, params) ->
+    separator = '?'
+    if thumbnailpage.indexOf('?') != -1
+      separator = '&'
+    return thumbnailpage + separator + $.param(params)
   printParams: (params) ->
     return JSON.stringify(params, null, 2)
 }
