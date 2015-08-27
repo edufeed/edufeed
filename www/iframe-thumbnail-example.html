@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="height=device-height, width=device-width, user-scalable=no" />
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+<style>
+  body {
+    display: inline-block;
+    vertical-align: top;
+    width: 350px;
+    height: 350px;
+    background-color: #DDFFFF;
+  }
+  .wordwrap {
+    /* wrap long text and urls */
+    white-space: pre; /* CSS 2.0 */
+    white-space: pre-wrap; /* CSS 2.1 */
+    white-space: pre-line; /* CSS 3.0 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: -moz-pre-wrap; /* Mozilla */
+    word-wrap: break-word; /* IE 5+ */
+  }
+</style>
+</head>
+
+<body>
+
+  <div>
+    This is the thumbnail for an iframe activity.<br>
+    activitypage: <span id="activitypage"></span><br>
+    <span class="wordwrap">activityurl: <a id="activityurl"></a></span><br>
+    <span class="wordwrap">params: <span id="paramsdisplay"></span></span><br>
+  </div>
+
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="iframe-thumbnail-example.js"></script>
+</body>
+</html>
