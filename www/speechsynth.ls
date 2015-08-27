@@ -1,4 +1,4 @@
-export synthesize_word_cached = (wordpath, callback) ->
+export play_sound = (wordpath, callback) ->
   video_tag = $('#synthesizeword')
   if video_tag.length == 0
     video_tag = $('<audio>').prop('id', 'synthesizeword').css({display: 'none'})
@@ -31,7 +31,7 @@ export synthesize_word = (word, callback) ->
   synth_lang = 'en'
   get_speechsynth_paths (speechsynth_paths) ->
     if speechsynth_paths[word]?
-      synthesize_word_cached speechsynth_paths[word], callback
+      play_sound speechsynth_paths[word], callback
     else
       synthesize_word_uncached word, synth_lang, callback
 
@@ -62,7 +62,7 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
         ncallback(null, null)
       , info.pause
     else if info.file? # play the given file
-      synthesize_word_cached info.file, ->
+      play_sound info.file, ->
         ncallback(null, null)
     else if info.callback? # call the given callback
       info.callback word_idx, prev_word, ->
@@ -72,4 +72,4 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
       done()
 
 export play_wrong_sound = (callback) ->
-  synthesize_word_cached 'wrong.mp3', callback
+  play_sound 'wrong.mp3', callback

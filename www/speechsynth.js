@@ -1,6 +1,6 @@
 (function(){
-  var synthesize_word_cached, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, out$ = typeof exports != 'undefined' && exports || this;
-  out$.synthesize_word_cached = synthesize_word_cached = function(wordpath, callback){
+  var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, out$ = typeof exports != 'undefined' && exports || this;
+  out$.play_sound = play_sound = function(wordpath, callback){
     var video_tag, play_audio, tag_finished_playing;
     video_tag = $('#synthesizeword');
     if (video_tag.length === 0) {
@@ -45,7 +45,7 @@
     synth_lang = 'en';
     return get_speechsynth_paths(function(speechsynth_paths){
       if (speechsynth_paths[word] != null) {
-        return synthesize_word_cached(speechsynth_paths[word], callback);
+        return play_sound(speechsynth_paths[word], callback);
       } else {
         return synthesize_word_uncached(word, synth_lang, callback);
       }
@@ -89,7 +89,7 @@
           return ncallback(null, null);
         }, info.pause);
       } else if (info.file != null) {
-        return synthesize_word_cached(info.file, function(){
+        return play_sound(info.file, function(){
           return ncallback(null, null);
         });
       } else if (info.callback != null) {
@@ -104,6 +104,6 @@
     });
   };
   out$.play_wrong_sound = play_wrong_sound = function(callback){
-    return synthesize_word_cached('wrong.mp3', callback);
+    return play_sound('wrong.mp3', callback);
   };
 }).call(this);

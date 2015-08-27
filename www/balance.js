@@ -355,13 +355,6 @@ function SnapCoinToPosition(x, y, c) {
     return [xx, yy];
 }
 
-function sendmessage(messagetype, data) {
-  parent.postMessage({
-    messagetype: messagetype,
-    data: data
-  }, '*');
-}
-
 function RotateBeam()
 {
     var curVal = hundred * 100 + ten * 10 + one;
@@ -394,8 +387,8 @@ function RotateBeam()
     if (diff == 0) {
         correct.attributes["visibility"].value = "visible";
         //document.getElementById("tada").play();
-        synthesize_word_cached('audio/tada.mp3', function() {
-            sendmessage('task-finished');
+        play_sound('audio/tada.mp3', function() {
+            finishActivity();
         });
     }
     else
@@ -453,8 +446,8 @@ function AddToTen() {
 function AddToHundred() {
     if (hundred >= 9) {
         //document.getElementById("boink").play();
-        synthesize_word_cached('audio/tada.mp3', function() {
-            sendmessage('task-finished');
+        play_sound('audio/boink.mp3', function() {
+            finishActivity();
         });
         //ClearAll();
     }
