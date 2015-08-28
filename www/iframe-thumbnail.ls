@@ -40,6 +40,4 @@ RegisterThumbnail {
       isthumbnail: true
     } <<< params
     return thumbnailpage + separator + $.param(nparams)
-  ready: ->
-    console.log 'iframe thumbnail'
 }

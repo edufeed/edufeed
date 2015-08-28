@@ -46,9 +46,6 @@
         isthumbnail: true
       }, params);
       return thumbnailpage + separator + $.param(nparams);
-    },
-    ready: function(){
-      return console.log('iframe thumbnail');
     }
   });
   function import$(obj, src){
