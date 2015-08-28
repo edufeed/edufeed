@@ -13,7 +13,7 @@
   <bing-image style="cursor: pointer" query="{{word}}" width="200" height="200" on-click="playword"></bing-image>
   <div style="margin-bottom: 20px"><span class="glyphicon glyphicon-volume-up" style="font-size: 60px; margin-left: 5px; margin-right: 20px; cursor: pointer" on-click="playword"></span><!--<span id="topword" style="font-size: 48px" on-click="playword">{{word}}</span>--><colored-span style="cursor: pointer" id="wordspan" on-click="playword" word="{{word}}"></colored-span>
   </div>
-    <learner-keyboard on-key-typed="keyTyped" id="keyboard" hidebackspace="true" style="position: absolute; top: 0px; left: 250px"></learner-keyboard>
+    <learner-keyboard on-key-typed="keyTyped" id="keyboard" hidebackspace="true" silent="true" style="position: absolute; top: 0px; left: 250px"></learner-keyboard>
   </template>
   <script src="speechsynth.js"></script>
   <script src="typeletter-activity.js"></script>  

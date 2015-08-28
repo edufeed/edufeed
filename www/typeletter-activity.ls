@@ -22,7 +22,7 @@ RegisterActivity {
     #synthesize_word this.word
     playlist = [
       'type the letter'
-      {file: "lettersound/#{this.letter}.mp3"}
+      {letter: this.letter}
       'in'
       this.word
     ]
@@ -54,22 +54,18 @@ RegisterActivity {
     if letter == next_letter # typed correctly
       if this.difficulty < 2
         this.difficulty += 1
-        setTimeout ~>
+        play_letter_sound letter, ~>
           this.playword(true)
-        , 500
       else
-        setTimeout ~>
-          play_multiple_sounds [
-            {sound: 'success'}
-            'you typed the letter'
-            {letter: this.letter}
-            'in'
-            this.word
-          ]
-        , 500
-        setTimeout ~>
+        play_multiple_sounds [
+          {letter: letter}
+          {sound: 'success'}
+          'you typed the letter'
+          {letter: this.letter}
+          'in'
+          this.word
+        ], ~>
           this.fire 'task-finished', this
-        , 1000
   shownKeysChanged: ->
     this.incorrect = 0
     keyboard = this.$$('#keyboard')

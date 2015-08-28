@@ -24,7 +24,7 @@
       }
       playlist = [
         'type the letter', {
-          file: "lettersound/" + this.letter + ".mp3"
+          letter: this.letter
         }, 'in', this.word
       ];
       if (success != null && success === true) {
@@ -75,22 +75,21 @@
       if (letter === next_letter) {
         if (this.difficulty < 2) {
           this.difficulty += 1;
-          return setTimeout(function(){
+          return play_letter_sound(letter, function(){
             return this$.playword(true);
-          }, 500);
+          });
         } else {
-          setTimeout(function(){
-            return play_multiple_sounds([
-              {
-                sound: 'success'
-              }, 'you typed the letter', {
-                letter: this$.letter
-              }, 'in', this$.word
-            ]);
-          }, 500);
-          return setTimeout(function(){
+          return play_multiple_sounds([
+            {
+              letter: letter
+            }, {
+              sound: 'success'
+            }, 'you typed the letter', {
+              letter: this.letter
+            }, 'in', this.word
+          ], function(){
             return this$.fire('task-finished', this$);
-          }, 1000);
+          });
         }
       }
     },
