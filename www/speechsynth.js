@@ -1,13 +1,19 @@
 (function(){
   var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_multiple_sounds, play_wrong_sound, play_success_sound, play_letter_sound, out$ = typeof exports != 'undefined' && exports || this;
   out$.play_sound = play_sound = function(wordpath, callback){
-    var video_tag, play_audio, tag_finished_playing;
+    var soundtags, video_tag, play_audio, tag_finished_playing;
+    soundtags = $('#soundtags');
+    if (soundtags.length === 0) {
+      soundtags = $('<div>');
+      $('body').append(soundtags);
+    }
+    soundtags.html('');
     video_tag = $('#synthesizeword');
     if (video_tag.length === 0) {
       video_tag = $('<audio>').prop('id', 'synthesizeword').css({
         display: 'none'
       });
-      $('body').append(video_tag);
+      soundtags.append(video_tag);
     }
     play_audio = function(){
       video_tag[0].removeEventListener('canplaythrough', play_audio);
