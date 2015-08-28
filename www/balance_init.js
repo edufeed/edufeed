@@ -1,6 +1,12 @@
         params = getUrlParameters();
-        if (params.isthumbnail) {
-            $('body').css('overflow', 'hidden');
+        var scale = 1;
+        if (!params.isthumbnail) {
+            scale = 0.5;
+            $('html').css({
+                'transform': 'scale(2,2)',
+                'transform-origin': 'top left'
+            });
+            //$('html').css('zoom', '2');
         }
 
         var svg_dummy = d3.select("body").append("svg");
