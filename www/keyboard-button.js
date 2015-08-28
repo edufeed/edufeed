@@ -117,7 +117,6 @@
     },
     handleClick: function(){
       var keysynth, sound;
-      console.log('clicked: ' + this.keytext);
       keysynth = this.$$('#keysynth');
       keysynth.pause();
       sound = this.sound;

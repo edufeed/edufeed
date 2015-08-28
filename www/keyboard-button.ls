@@ -104,7 +104,6 @@ Polymer {
     else
       this.style.visibility = 'visible'
   handleClick: ->
-    console.log('clicked: ' + this.keytext)
     keysynth = this.$$('#keysynth')
     keysynth.pause()
     sound = this.sound

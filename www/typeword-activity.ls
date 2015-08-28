@@ -22,7 +22,7 @@ RegisterActivity {
       return
     #synthesize_word this.word
     playlist = ['type the word', this.word]
-    if success? and success
+    if success? and success == true
       playlist.unshift {file: 'success.mp3'}
     play_multiple_sounds playlist
   #ready: ->
@@ -49,30 +49,23 @@ RegisterActivity {
         {letter: next_letter}
       ]
       newkeys = [x for x in keyboard.shownkeys.split('') when x != letter].join('')
-      console.log 'new keys shown are:'
-      console.log newkeys
       keyboard.highlightkey = next_letter
       #keyboard.shownkeys = newkeys
     if letter == next_letter # typed correctly
-      play_letter_sound letter
       if this.partialword + letter == this.word # is last letter in word
         if this.difficulty < 2
           this.difficulty += 1
-          setTimeout ~>
+          play_letter_sound letter, ~>
             this.playword(true)
-          , 500
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
-          setTimeout ~>
-            play_multiple_sounds [
-              {sound: 'success'}
-              'you typed the word'
-              this.word
-            ]
-          , 500
-          setTimeout ~>
+          play_multiple_sounds [
+            {letter: letter}
+            {sound: 'success'}
+            'you typed the word'
+            this.word
+          ], ~>
             this.fire 'task-finished', this
-          , 1000
         this.partialword = ''
       else
         play_letter_sound letter
@@ -85,9 +78,7 @@ RegisterActivity {
     this.incorrect = 0
     keyboard = this.$$('#keyboard')
     next_letter = this.nextLetter()
-    console.log 'next_letter is:' + next_letter
     if this.partialword?
-      console.log this.partialword.length
       this.$$('#wordspan').highlightidx = this.partialword.length
     keyboard.highlightkey = ''
     if this.difficulty == 0

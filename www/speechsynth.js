@@ -1,14 +1,15 @@
 (function(){
   var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_multiple_sounds, play_wrong_sound, play_success_sound, play_letter_sound, out$ = typeof exports != 'undefined' && exports || this;
   out$.play_sound = play_sound = function(wordpath, callback){
-    var soundtags, video_tag, play_audio, tag_finished_playing;
+    var soundtags, video_id, video_tag, play_audio, tag_finished_playing;
+    console.log('playing sound ' + wordpath);
     soundtags = $('#soundtags');
     if (soundtags.length === 0) {
       soundtags = $('<div>');
       $('body').append(soundtags);
     }
-    soundtags.html('');
-    video_tag = $('#synthesizeword');
+    video_id = 'videotag_' + Math.floor(Math.random() * 9999999999);
+    video_tag = $('#synthesizeword').attr('id', video_id);
     if (video_tag.length === 0) {
       video_tag = $('<audio>').prop('id', 'synthesizeword').css({
         display: 'none'
@@ -22,6 +23,7 @@
     };
     tag_finished_playing = function(){
       video_tag[0].removeEventListener('ended', tag_finished_playing);
+      $(video_tag).remove();
       if (callback != null) {
         return callback();
       }
@@ -34,6 +36,7 @@
   };
   synthesize_word_uncached = function(word, synth_lang, callback){
     var msg, speechsynth_finished_playing;
+    console.log('word is not cached: ' + word);
     msg = new SpeechSynthesisUtterance();
     msg.text = word;
     msg.lang = 'en-US';

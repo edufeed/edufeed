@@ -24,7 +24,7 @@
         return;
       }
       playlist = ['type the word', this.word];
-      if (success != null && success) {
+      if (success != null && success === true) {
         playlist.unshift({
           file: 'success.mp3'
         });
@@ -65,29 +65,25 @@
           }
           return results$;
         }()).join('');
-        console.log('new keys shown are:');
-        console.log(newkeys);
         keyboard.highlightkey = next_letter;
       }
       if (letter === next_letter) {
-        play_letter_sound(letter);
         if (this.partialword + letter === this.word) {
           if (this.difficulty < 2) {
             this.difficulty += 1;
-            setTimeout(function(){
+            play_letter_sound(letter, function(){
               return this$.playword(true);
-            }, 500);
+            });
           } else {
-            setTimeout(function(){
-              return play_multiple_sounds([
-                {
-                  sound: 'success'
-                }, 'you typed the word', this$.word
-              ]);
-            }, 500);
-            setTimeout(function(){
+            play_multiple_sounds([
+              {
+                letter: letter
+              }, {
+                sound: 'success'
+              }, 'you typed the word', this.word
+            ], function(){
               return this$.fire('task-finished', this$);
-            }, 1000);
+            });
           }
           return this.partialword = '';
         } else {
@@ -107,9 +103,7 @@
       this.incorrect = 0;
       keyboard = this.$$('#keyboard');
       next_letter = this.nextLetter();
-      console.log('next_letter is:' + next_letter);
       if (this.partialword != null) {
-        console.log(this.partialword.length);
         this.$$('#wordspan').highlightidx = this.partialword.length;
       }
       keyboard.highlightkey = '';

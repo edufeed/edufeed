@@ -26,8 +26,8 @@ RegisterActivity {
       'in'
       this.word
     ]
-    if success? and success
-      playlist.unshift {file: 'success.mp3'}
+    if success? and success == true
+      playlist.unshift {sound: 'success'}
     play_multiple_sounds playlist
   getFirstLetter: (word) ->
     return word[0]
@@ -60,7 +60,7 @@ RegisterActivity {
       else
         setTimeout ~>
           play_multiple_sounds [
-            {file: 'success.mp3'}
+            {sound: 'success'}
             'you typed the letter'
             {letter: this.letter}
             'in'

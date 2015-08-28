@@ -1,10 +1,12 @@
 export play_sound = (wordpath, callback) ->
+  console.log 'playing sound ' + wordpath
   soundtags = $('#soundtags')
   if soundtags.length == 0
     soundtags = $('<div>')
     $('body').append soundtags
-  soundtags.html('')
-  video_tag = $('#synthesizeword')
+  #soundtags.html('')
+  video_id = 'videotag_' + Math.floor(Math.random() * 9999999999)
+  video_tag = $('#synthesizeword').attr('id', video_id)
   if video_tag.length == 0
     video_tag = $('<audio>').prop('id', 'synthesizeword').css({display: 'none'})
     soundtags.append video_tag
@@ -14,6 +16,8 @@ export play_sound = (wordpath, callback) ->
     video_tag[0].play()
   tag_finished_playing = ->
     video_tag[0].removeEventListener('ended', tag_finished_playing)
+    #soundtags.html('')
+    $(video_tag).remove()
     if callback?
       callback()
   video_tag[0].addEventListener('canplaythrough', play_audio)
@@ -22,6 +26,7 @@ export play_sound = (wordpath, callback) ->
     video_tag.attr 'src', dataurl
 
 synthesize_word_uncached = (word, synth_lang, callback) ->
+  console.log 'word is not cached: ' + word
   msg = new SpeechSynthesisUtterance()
   msg.text = word
   msg.lang = 'en-US'

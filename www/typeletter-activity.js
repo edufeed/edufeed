@@ -27,9 +27,9 @@
           file: "lettersound/" + this.letter + ".mp3"
         }, 'in', this.word
       ];
-      if (success != null && success) {
+      if (success != null && success === true) {
         playlist.unshift({
-          file: 'success.mp3'
+          sound: 'success'
         });
       }
       return play_multiple_sounds(playlist);
@@ -82,7 +82,7 @@
           setTimeout(function(){
             return play_multiple_sounds([
               {
-                file: 'success.mp3'
+                sound: 'success'
               }, 'you typed the letter', {
                 letter: this$.letter
               }, 'in', this$.word
