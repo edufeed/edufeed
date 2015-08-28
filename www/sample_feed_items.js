@@ -80,13 +80,9 @@
     for (i$ = 0, len$ = (ref$ = [1, 3, 50, 300]).length; i$ < len$; ++i$) {
       number = ref$[i$];
       res$.push({
-        itemtype: 'iframe',
+        itemtype: 'balance',
         data: {
-          activitypage: 'balance.html',
-          thumbnailpage: 'balance.html',
-          params: {
-            number: number
-          }
+          number: number
         },
         social: {
           poster: 'mouse'

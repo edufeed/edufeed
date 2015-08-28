@@ -35,8 +35,11 @@ export getSampleFeedItems = ->
   typeword =
     [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
 
+  #balance =
+  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
+
   balance =
-    [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
 
   admin =
     [{itemtype: 'admin', social: {poster: 'horse'}}]
