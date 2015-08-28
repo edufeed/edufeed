@@ -83,7 +83,7 @@
         itemtype: 'iframe',
         data: {
           activitypage: 'balance.html',
-          thumbnailpage: 'iframe-thumbnail-example.html',
+          thumbnailpage: 'balance.html',
           params: {
             number: number
           }

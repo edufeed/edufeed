@@ -35,15 +35,25 @@
       return activitypage + separator + $.param(params);
     },
     compute_thumbnailurl: function(thumbnailpage, params){
-      var separator;
+      var separator, nparams;
       separator = '?';
       if (thumbnailpage.indexOf('?') !== -1) {
         separator = '&';
       }
-      return thumbnailpage + separator + $.param(params);
+      nparams = import$({
+        activitypage: this.activitypage,
+        activityurl: this.activityurl,
+        isthumbnail: true
+      }, params);
+      return thumbnailpage + separator + $.param(nparams);
     },
-    printParams: function(params){
-      return JSON.stringify(params, null, 2);
+    ready: function(){
+      return console.log('iframe thumbnail');
     }
   });
+  function import$(obj, src){
+    var own = {}.hasOwnProperty;
+    for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+    return obj;
+  }
 }).call(this);

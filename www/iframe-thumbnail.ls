@@ -34,7 +34,12 @@ RegisterThumbnail {
     separator = '?'
     if thumbnailpage.indexOf('?') != -1
       separator = '&'
-    return thumbnailpage + separator + $.param(params)
-  printParams: (params) ->
-    return JSON.stringify(params, null, 2)
+    nparams = {
+      activitypage: this.activitypage
+      activityurl: this.activityurl
+      isthumbnail: true
+    } <<< params
+    return thumbnailpage + separator + $.param(nparams)
+  ready: ->
+    console.log 'iframe thumbnail'
 }
