@@ -1,5 +1,5 @@
 (function(){
-  var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, out$ = typeof exports != 'undefined' && exports || this;
+  var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, play_success_sound, out$ = typeof exports != 'undefined' && exports || this;
   out$.play_sound = play_sound = function(wordpath, callback){
     var video_tag, play_audio, tag_finished_playing;
     video_tag = $('#synthesizeword');
@@ -105,5 +105,8 @@
   };
   out$.play_wrong_sound = play_wrong_sound = function(callback){
     return play_sound('wrong.mp3', callback);
+  };
+  out$.play_success_sound = play_success_sound = function(callback){
+    return play_sound('success.mp3', callback);
   };
 }).call(this);

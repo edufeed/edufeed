@@ -55,13 +55,13 @@ export getSampleFeedItems = ->
 
   return {
     defaults
+    bars
+    dots
+    typeword
+    typeletter
+    balance
+    lettervideos
     admin
     example
     iframe
-    bars
-    dots
-    typeletter
-    lettervideos
-    typeword
-    balance
   }

@@ -143,15 +143,15 @@
     defaults = dots.concat(typeletter, typeword);
     return {
       defaults: defaults,
-      admin: admin,
-      example: example,
-      iframe: iframe,
       bars: bars,
       dots: dots,
-      typeletter: typeletter,
-      lettervideos: lettervideos,
       typeword: typeword,
-      balance: balance
+      typeletter: typeletter,
+      balance: balance,
+      lettervideos: lettervideos,
+      admin: admin,
+      example: example,
+      iframe: iframe
     };
   };
 }).call(this);

@@ -57,6 +57,11 @@ Polymer {
       value: [\a to \z].join('')
       observer: 'hiddenKeysChanged'
     }
+    hiddensounds: {
+      type: Array
+      value: []
+      observer: 'hiddenKeysChanged'
+    }
     highlightkey: {
       type: String
       value: ''
@@ -139,7 +144,7 @@ Polymer {
     return 'key' + key
   hiddenKeysChanged: (newvalue, oldvalue) ->
     for x in $(this).find('keyboard-button')
-      x.ishidden = this.isKeyHidden(x.keytext)
+      x.ishidden = this.isKeyHidden(x.keytext, x.sound)
     #for x in (newvalue + oldvalue).split('')
     #  curkey = this.$$('#key' + x)
     #  if curkey?
@@ -159,8 +164,11 @@ Polymer {
   highlightkeyChanged: (newvalue, oldvalue) ->
     for x in $(this).find('keyboard-button')
       x.opacity = this.getKeyOpacity(x.keytext)
-  isKeyHidden: (key) ->
+  isKeyHidden: (key, sound) ->
     key = this.getKeyText key
+    if sound?
+      if this.hiddensounds.indexOf(sound) != -1
+        return true
     if key == '←'
       return this.hidebackspace
     return this.shownkeys.indexOf(key) == -1

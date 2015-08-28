@@ -17,11 +17,22 @@
         observer: 'shownKeysChanged'
       }
     },
-    playword: function(){
+    playword: function(success){
+      var playlist;
       if (this.word == null || this.word.length === 0) {
         return;
       }
-      return synthesize_word(this.word);
+      playlist = [
+        'type the letter', {
+          file: "lettersound/" + this.letter + ".mp3"
+        }, 'in', this.word
+      ];
+      if (success != null && success) {
+        playlist.unshift({
+          file: 'success.mp3'
+        });
+      }
+      return synthesize_multiple_words(playlist);
     },
     getFirstLetter: function(word){
       return word[0];
@@ -56,14 +67,23 @@
       if (letter === next_letter) {
         if (this.difficulty < 2) {
           this.difficulty += 1;
+          return setTimeout(function(){
+            return this$.playword(true);
+          }, 500);
         } else {
           setTimeout(function(){
+            return synthesize_multiple_words([
+              {
+                file: 'success.mp3'
+              }, 'you typed the letter', {
+                file: "lettersound/" + this$.letter + ".mp3"
+              }, 'in', this$.word
+            ]);
+          }, 500);
+          return setTimeout(function(){
             return this$.fire('task-finished', this$);
           }, 1000);
         }
-        return setTimeout(function(){
-          return this$.playword();
-        }, 500);
       }
     },
     shownKeysChanged: function(){
@@ -73,11 +93,21 @@
       next_letter = this.nextLetter();
       this.$$('#wordspan').highlightidx = 0;
       keyboard.highlightkey = '';
+      if (keyboard.hiddensounds.length > 0) {
+        keyboard.hiddensounds = [];
+      }
       if (this.difficulty === 0) {
         keyboard.shownkeys = next_letter;
       }
       if (this.difficulty === 1) {
         keyboard.shownkeys = keyboard.getKeysInSameSection(next_letter);
+        if (['c', 'g'].indexOf(next_letter) === -1 && keyboard.shownkeys.indexOf('c') !== -1) {
+          if (keyboard.shownkeys.indexOf('g') !== -1) {
+            keyboard.hiddensounds = ['c_soft', 'g_soft'];
+          } else {
+            keyboard.hiddensounds = ['c_hard', 'g_hard'];
+          }
+        }
       }
       if (this.difficulty === 2) {
         keyboard.shownkeys = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join('');

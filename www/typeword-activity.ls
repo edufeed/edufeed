@@ -17,10 +17,14 @@ RegisterActivity {
       observer: 'partialwordChanged'
     }
   }
-  playword: ->
+  playword: (success) ->
     if not this.word? or this.word.length == 0
       return
-    synthesize_word this.word
+    #synthesize_word this.word
+    playlist = ['type the word', this.word]
+    if success? and success
+      playlist.unshift {file: 'success.mp3'}
+    synthesize_multiple_words playlist
   #ready: ->
   #  console.log 'practice word ready'
   #  this.playword()
@@ -47,15 +51,22 @@ RegisterActivity {
       if this.partialword + letter == this.word # is last letter in word
         if this.difficulty < 2
           this.difficulty += 1
+          setTimeout ~>
+            this.playword(true)
+          , 500
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
+          setTimeout ~>
+            synthesize_multiple_words [
+              {file: 'success.mp3'}
+              'you typed the word'
+              this.word
+            ]
+          , 500
           setTimeout ~>
             this.fire 'task-finished', this
           , 1000
         this.partialword = ''
-        setTimeout ~>
-          this.playword()
-        , 500
       else
         this.partialword = this.partialword + letter
   nextLetter: ->

@@ -18,11 +18,18 @@
         observer: 'partialwordChanged'
       }
     },
-    playword: function(){
+    playword: function(success){
+      var playlist;
       if (this.word == null || this.word.length === 0) {
         return;
       }
-      return synthesize_word(this.word);
+      playlist = ['type the word', this.word];
+      if (success != null && success) {
+        playlist.unshift({
+          file: 'success.mp3'
+        });
+      }
+      return synthesize_multiple_words(playlist);
     },
     wordChanged: function(){
       this.playword();
@@ -58,15 +65,22 @@
         if (this.partialword + letter === this.word) {
           if (this.difficulty < 2) {
             this.difficulty += 1;
+            setTimeout(function(){
+              return this$.playword(true);
+            }, 500);
           } else {
+            setTimeout(function(){
+              return synthesize_multiple_words([
+                {
+                  file: 'success.mp3'
+                }, 'you typed the word', this$.word
+              ]);
+            }, 500);
             setTimeout(function(){
               return this$.fire('task-finished', this$);
             }, 1000);
           }
-          this.partialword = '';
-          return setTimeout(function(){
-            return this$.playword();
-          }, 500);
+          return this.partialword = '';
         } else {
           return this.partialword = this.partialword + letter;
         }

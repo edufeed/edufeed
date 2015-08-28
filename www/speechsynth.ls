@@ -73,3 +73,6 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
 
 export play_wrong_sound = (callback) ->
   play_sound 'wrong.mp3', callback
+
+export play_success_sound = (callback) ->
+  play_sound 'success.mp3', callback

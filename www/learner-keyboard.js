@@ -80,6 +80,11 @@
         value: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"].join(''),
         observer: 'hiddenKeysChanged'
       },
+      hiddensounds: {
+        type: Array,
+        value: [],
+        observer: 'hiddenKeysChanged'
+      },
       highlightkey: {
         type: String,
         value: '',
@@ -175,7 +180,7 @@
       var i$, ref$, len$, x, results$ = [];
       for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {
         x = ref$[i$];
-        results$.push(x.ishidden = this.isKeyHidden(x.keytext));
+        results$.push(x.ishidden = this.isKeyHidden(x.keytext, x.sound));
       }
       return results$;
     },
@@ -197,8 +202,13 @@
       }
       return results$;
     },
-    isKeyHidden: function(key){
+    isKeyHidden: function(key, sound){
       key = this.getKeyText(key);
+      if (sound != null) {
+        if (this.hiddensounds.indexOf(sound) !== -1) {
+          return true;
+        }
+      }
       if (key === '←') {
         return this.hidebackspace;
       }

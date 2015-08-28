@@ -113,6 +113,7 @@ dog: speechsynth_en/dog.mp3
 fish: speechsynth_en/fish.mp3
 geza: speechsynth_en/geza.mp3
 house: speechsynth_en/house.mp3
+in: speechsynth_en/in.mp3
 kelsey: speechsynth_en/kelsey.mp3
 lion: speechsynth_en/lion.mp3
 orange: speechsynth_en/orange.mp3
@@ -123,5 +124,9 @@ roof: speechsynth_en/roof.mp3
 shared with: speechsynth_en/shared with.mp3
 tiger: speechsynth_en/tiger.mp3
 tree: speechsynth_en/tree.mp3
+type the letter: speechsynth_en/type the letter.mp3
+type the word: speechsynth_en/type the word.mp3
 white: speechsynth_en/white.mp3
 who would you like to share this with: speechsynth_en/who would you like to share this with.mp3
+you typed the letter: speechsynth_en/you typed the letter.mp3
+you typed the word: speechsynth_en/you typed the word.mp3
