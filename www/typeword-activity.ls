@@ -24,7 +24,7 @@ RegisterActivity {
     playlist = ['type the word', this.word]
     if success? and success
       playlist.unshift {file: 'success.mp3'}
-    synthesize_multiple_words playlist
+    play_multiple_sounds playlist
   #ready: ->
   #  console.log 'practice word ready'
   #  this.playword()
@@ -41,13 +41,20 @@ RegisterActivity {
     if letter != next_letter
       #keyboard.shownkeys = next_letter
       this.incorrect += 1
-      play_wrong_sound()
+      play_multiple_sounds [
+        {sound: 'wrong'}
+        'you typed the letter'
+        {letter: letter}
+        'instead type the letter'
+        {letter: next_letter}
+      ]
       newkeys = [x for x in keyboard.shownkeys.split('') when x != letter].join('')
       console.log 'new keys shown are:'
       console.log newkeys
       keyboard.highlightkey = next_letter
       #keyboard.shownkeys = newkeys
     if letter == next_letter # typed correctly
+      play_letter_sound letter
       if this.partialword + letter == this.word # is last letter in word
         if this.difficulty < 2
           this.difficulty += 1
@@ -57,8 +64,8 @@ RegisterActivity {
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
           setTimeout ~>
-            synthesize_multiple_words [
-              {file: 'success.mp3'}
+            play_multiple_sounds [
+              {sound: 'success'}
               'you typed the word'
               this.word
             ]
@@ -68,6 +75,7 @@ RegisterActivity {
           , 1000
         this.partialword = ''
       else
+        play_letter_sound letter
         this.partialword = this.partialword + letter
   nextLetter: ->
     if this.word == this.partialword or not this.word? or not this.partialword?

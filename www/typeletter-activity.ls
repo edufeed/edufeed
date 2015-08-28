@@ -28,7 +28,7 @@ RegisterActivity {
     ]
     if success? and success
       playlist.unshift {file: 'success.mp3'}
-    synthesize_multiple_words playlist
+    play_multiple_sounds playlist
   getFirstLetter: (word) ->
     return word[0]
   wordChanged: ->
@@ -42,7 +42,13 @@ RegisterActivity {
     next_letter = this.letter
     if letter != next_letter
       this.incorrect += 1
-      play_wrong_sound()
+      play_multiple_sounds [
+        {sound: 'wrong'}
+        'you typed the letter'
+        {letter: letter}
+        'instead type the letter'
+        {letter: next_letter}
+      ]
       newkeys = [x for x in keyboard.shownkeys.split('') when x != letter].join('')
       keyboard.highlightkey = next_letter
     if letter == next_letter # typed correctly
@@ -53,10 +59,10 @@ RegisterActivity {
         , 500
       else
         setTimeout ~>
-          synthesize_multiple_words [
+          play_multiple_sounds [
             {file: 'success.mp3'}
             'you typed the letter'
-            {file: "lettersound/#{this.letter}.mp3"}
+            {letter: this.letter}
             'in'
             this.word
           ]

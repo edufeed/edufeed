@@ -1,5 +1,5 @@
 (function(){
-  var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_wrong_sound, play_success_sound, out$ = typeof exports != 'undefined' && exports || this;
+  var play_sound, synthesize_word_uncached, synthesize_word, synthesize_multiple_words, play_multiple_sounds, play_wrong_sound, play_success_sound, play_letter_sound, out$ = typeof exports != 'undefined' && exports || this;
   out$.play_sound = play_sound = function(wordpath, callback){
     var video_tag, play_audio, tag_finished_playing;
     video_tag = $('#synthesizeword');
@@ -73,6 +73,13 @@
           callback: info
         };
       }
+      if (info.sound != null) {
+        if (info.sound.indexOf('.mp3') === -1) {
+          info.file = info.sound + '.mp3';
+        } else {
+          info.file = info.sound;
+        }
+      }
       if (info.word != null) {
         word_idx = word_idx + 1;
         if (startword != null) {
@@ -92,6 +99,10 @@
         return play_sound(info.file, function(){
           return ncallback(null, null);
         });
+      } else if (info.letter != null) {
+        return play_letter_sound(info.letter, function(){
+          return ncallback(null, null);
+        });
       } else if (info.callback != null) {
         return info.callback(word_idx, prev_word, function(){
           return ncallback(null, null);
@@ -103,10 +114,14 @@
       }
     });
   };
+  out$.play_multiple_sounds = play_multiple_sounds = synthesize_multiple_words;
   out$.play_wrong_sound = play_wrong_sound = function(callback){
     return play_sound('wrong.mp3', callback);
   };
   out$.play_success_sound = play_success_sound = function(callback){
     return play_sound('success.mp3', callback);
+  };
+  out$.play_letter_sound = play_letter_sound = function(letter, callback){
+    return play_sound("lettersound/" + letter + ".mp3", callback);
   };
 }).call(this);

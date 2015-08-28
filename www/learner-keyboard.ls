@@ -67,6 +67,10 @@ Polymer {
       value: ''
       observer: 'highlightkeyChanged'
     }
+    silent: {
+      type: Boolean
+      value: false
+    }
     #hiddenkeys: {
     #  type: String
     #  value: '' #[\a to \z].join('')

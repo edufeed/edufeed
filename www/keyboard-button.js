@@ -124,16 +124,9 @@
       if (sound == null || sound.length === 0) {
         sound = this.keytext;
       }
-      fetchAsDataURL('/lettersound/' + sound + '.mp3', function(dataurl){
-        var play_audio;
-        play_audio = function(){
-          keysynth.currentTime = 0;
-          return keysynth.play();
-        };
-        keysynth.removeEventListener('canplaythrough', play_audio);
-        keysynth.addEventListener('canplaythrough', play_audio);
-        return keysynth.src = dataurl;
-      });
+      if (!this.silent) {
+        play_letter_sound(sound);
+      }
       return this.fire('key-typed', this);
     }
   });

@@ -89,6 +89,10 @@
         type: String,
         value: '',
         observer: 'highlightkeyChanged'
+      },
+      silent: {
+        type: Boolean,
+        value: false
       }
     },
     getKeysInSameSection: function(key){

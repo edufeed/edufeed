@@ -49,6 +49,11 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
       info = {word: info}
     else if typeof(info) == 'function'
       info = {callback: info}
+    if info.sound?
+      if info.sound.indexOf('.mp3') == -1
+        info.file = info.sound + '.mp3'
+      else
+        info.file = info.sound
     if info.word? # synthesize the given word
       word_idx := word_idx + 1
       if startword?
@@ -64,6 +69,9 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
     else if info.file? # play the given file
       play_sound info.file, ->
         ncallback(null, null)
+    else if info.letter? # play the given letter sound
+      play_letter_sound info.letter, ->
+        ncallback(null, null)
     else if info.callback? # call the given callback
       info.callback word_idx, prev_word, ->
         ncallback(null, null)
@@ -71,8 +79,13 @@ export synthesize_multiple_words = (wordlist, callbacks) ->
     if done?
       done()
 
+export play_multiple_sounds = synthesize_multiple_words
+
 export play_wrong_sound = (callback) ->
   play_sound 'wrong.mp3', callback
 
 export play_success_sound = (callback) ->
   play_sound 'success.mp3', callback
+
+export play_letter_sound = (letter, callback) ->
+  play_sound "lettersound/#{letter}.mp3", callback

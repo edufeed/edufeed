@@ -32,7 +32,7 @@
           file: 'success.mp3'
         });
       }
-      return synthesize_multiple_words(playlist);
+      return play_multiple_sounds(playlist);
     },
     getFirstLetter: function(word){
       return word[0];
@@ -51,7 +51,15 @@
       next_letter = this.letter;
       if (letter !== next_letter) {
         this.incorrect += 1;
-        play_wrong_sound();
+        play_multiple_sounds([
+          {
+            sound: 'wrong'
+          }, 'you typed the letter', {
+            letter: letter
+          }, 'instead type the letter', {
+            letter: next_letter
+          }
+        ]);
         newkeys = (function(){
           var i$, ref$, len$, results$ = [];
           for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
@@ -72,11 +80,11 @@
           }, 500);
         } else {
           setTimeout(function(){
-            return synthesize_multiple_words([
+            return play_multiple_sounds([
               {
                 file: 'success.mp3'
               }, 'you typed the letter', {
-                file: "lettersound/" + this$.letter + ".mp3"
+                letter: this$.letter
               }, 'in', this$.word
             ]);
           }, 500);
