@@ -26,6 +26,12 @@ export getSampleFeedItems = ->
     'orange'
     'pear'
   ]
+  readinglist = [
+    ['Why do elephants never forget?', 'Because nobody ever tells them anything!']
+    ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!']
+    ['What is the strongest animal?', 'A snail. He carries his house on his back!']
+    ['What has six eyes but cannot see?', 'Three blind mice!']
+  ]
 
   bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
@@ -57,6 +63,9 @@ export getSampleFeedItems = ->
   lettervideos =
     [{itemtype: 'video', data: {videoid: videoid}, social: {poster: 'mouse'}} for videoid in ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']]
 
+  readaloud =
+    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
+
   defaults =
     dots ++ typeletter ++ typeword
 
@@ -66,11 +75,12 @@ export getSampleFeedItems = ->
     dots
     typeword
     typeletter
+    readaloud
     balance
     lettervideos
     admin
     example
     iframe
   }
-  
+
   return feed_items_cache

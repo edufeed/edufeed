@@ -7,7 +7,8 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      font-size: 48px;
+      font-size: 44px;
+      white-space: normal;
     }
     .saysentence {
       cursor: pointer;
@@ -21,10 +22,12 @@
   </style>
   <template>
     <template is="dom-repeat" items="{{sentences_split}}" as="wordlist" index-as="sentenceidx">
-      <span class="glyphicon glyphicon-volume-up saysentence" sentenceidx="{{sentenceidx}}" on-click="sentenceClicked"></span>
-      <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
-        <span on-click="wordClicked" wordidx="{{wordidx}}" sentenceidx="{{sentenceidx}}" id="{{getWordId(sentenceidx, wordidx)}}" class="sayword">{{word}}</span>
-      </template>
+      <span style="float: left" class="glyphicon glyphicon-volume-up saysentence" sentenceidx="{{sentenceidx}}" on-click="sentenceClicked"></span>
+      <div style="margin-left: 70px">
+        <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
+          <span on-click="wordClicked" wordidx="{{wordidx}}" sentenceidx="{{sentenceidx}}" id="{{getWordId(sentenceidx, wordidx)}}" class="sayword">{{word}}</span>
+        </template>
+      </div>
       <br>
     </template>
   </template>

@@ -2,11 +2,12 @@
   var feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideos, videoid, defaults;
+    var wordlist, readinglist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideos, videoid, readaloud, sentences, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
     wordlist = ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
+    readinglist = [['Why do elephants never forget?', 'Because nobody ever tells them anything!'], ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!'], ['What is the strongest animal?', 'A snail. He carries his house on his back!'], ['What has six eyes but cannot see?', 'Three blind mice!']];
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
       levelnum = ref$[i$];
@@ -140,6 +141,20 @@
       });
     }
     lettervideos = res$;
+    res$ = [];
+    for (i$ = 0, len$ = readinglist.length; i$ < len$; ++i$) {
+      sentences = readinglist[i$];
+      res$.push({
+        itemtype: 'readaloud',
+        data: {
+          sentences: sentences
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    readaloud = res$;
     defaults = dots.concat(typeletter, typeword);
     feed_items_cache = {
       defaults: defaults,
@@ -147,6 +162,7 @@
       dots: dots,
       typeword: typeword,
       typeletter: typeletter,
+      readaloud: readaloud,
       balance: balance,
       lettervideos: lettervideos,
       admin: admin,
