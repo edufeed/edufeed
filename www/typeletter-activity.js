@@ -13,12 +13,21 @@
       },
       difficulty: {
         type: Number,
-        value: 0,
-        observer: 'shownKeysChanged'
+        value: 0
       }
     },
-    playword: function(success){
-      var playlist;
+    picturePressed: function(){
+      return this.playword(false);
+    },
+    get_instruction_playlist: function(){
+      return [
+        'type the letter', {
+          letter: this.letter
+        }, 'in', this.word
+      ];
+    },
+    playword: function(success, callback){
+      var playlist, this$ = this;
       if (this.word == null || this.word.length === 0) {
         return;
       }
@@ -32,25 +41,44 @@
           sound: 'success'
         });
       }
-      return play_multiple_sounds(playlist);
+      return play_multiple_sounds(playlist, function(){
+        if (callback != null) {
+          return callback();
+        }
+      });
     },
     getFirstLetter: function(word){
       return word[0];
     },
     wordChanged: function(){
-      this.playword();
-      return this.shownKeysChanged();
+      var this$ = this;
+      console.log('wordChanged');
+      this.shownKeysChanged();
+      this.disableKeyboard();
+      return this.playword(false, function(){
+        return this$.enableKeyboard();
+      });
     },
     nextLetter: function(){
       return this.word[0];
     },
+    disableKeyboard: function(){
+      this.$$('#keyboard').highlightkey = '';
+      this.$$('#keyboard').style.opacity = 0.2;
+      return this.style['pointer-events'] = 'none';
+    },
+    enableKeyboard: function(){
+      this.$$('#keyboard').style.opacity = 1.0;
+      return this.style['pointer-events'] = 'all';
+    },
     keyTyped: function(evt, key){
-      var keyboard, letter, next_letter, newkeys, x, this$ = this;
+      var keyboard, letter, next_letter, this$ = this;
       keyboard = this.$$('#keyboard');
       letter = key.keytext;
       next_letter = this.letter;
       if (letter !== next_letter) {
         this.incorrect += 1;
+        this.disableKeyboard();
         play_multiple_sounds([
           {
             sound: 'wrong'
@@ -59,26 +87,27 @@
           }, 'instead type the letter', {
             letter: next_letter
           }
-        ]);
-        newkeys = (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
-            x = ref$[i$];
-            if (x !== letter) {
-              results$.push(x);
-            }
-          }
-          return results$;
-        }()).join('');
-        keyboard.highlightkey = next_letter;
+        ], function(){
+          this$.enableKeyboard();
+          return keyboard.highlightkey = next_letter;
+        });
       }
       if (letter === next_letter) {
         if (this.difficulty < 2) {
           this.difficulty += 1;
-          return play_letter_sound(letter, function(){
-            return this$.playword(true);
+          this.shownKeysChanged();
+          this.disableKeyboard();
+          return play_multiple_sounds([
+            {
+              letter: letter
+            }, {
+              sound: 'success'
+            }
+          ].concat(this.get_instruction_playlist()), function(){
+            return this$.enableKeyboard();
           });
         } else {
+          this.disableKeyboard();
           return play_multiple_sounds([
             {
               letter: letter
@@ -88,6 +117,7 @@
               letter: this.letter
             }, 'in', this.word
           ], function(){
+            this$.enableKeyboard();
             return this$.fire('task-finished', this$);
           });
         }
@@ -95,6 +125,7 @@
     },
     shownKeysChanged: function(){
       var keyboard, next_letter;
+      console.log('shownKeysChanged');
       this.incorrect = 0;
       keyboard = this.$$('#keyboard');
       next_letter = this.nextLetter();

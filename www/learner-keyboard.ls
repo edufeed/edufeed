@@ -165,6 +165,12 @@ Polymer {
     if this.highlightkey == key
       return 1.0
     return 0.2
+  brightenAllKeys: ->
+    for x in $(this).find('keyboard-button')
+      x.opacity = 1.0
+  darkenAllKeys: ->
+    for x in $(this).find('keyboard-button')
+      x.opacity = 0.2
   highlightkeyChanged: (newvalue, oldvalue) ->
     for x in $(this).find('keyboard-button')
       x.opacity = this.getKeyOpacity(x.keytext)

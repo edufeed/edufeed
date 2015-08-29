@@ -1,5 +1,5 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
@@ -100,6 +100,15 @@
         return callback(result);
       });
     };
+  };
+  out$.onceTrue = onceTrue = function(condition, callback){
+    if (condition()) {
+      return callback();
+    } else {
+      return setTimeout(function(){
+        return onceTrue(condition, callback);
+      }, 100);
+    }
   };
   out$.getClasses = getClasses = memoizeSingleAsync(function(callback){
     return $.get('/classes.yaml', function(yamltxt){

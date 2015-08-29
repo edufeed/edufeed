@@ -4,8 +4,8 @@ RegisterActivity {
     sentences: {
       type: Array
       value: [
-        'Hello world'
-        'World hellos you'
+        'Why do elephants never forget?'
+        'Because nobody ever tells them anything!'
       ]
     }
     sentences_split: {
@@ -13,6 +13,8 @@ RegisterActivity {
       computed: 'splitWordsInSentences(sentences)'
     }
   }
+  S: (pattern) ->
+    return $(this.$$(pattern))
   splitWordsInSentence: (sentence) ->
     output = []
     curword = []
@@ -22,7 +24,7 @@ RegisterActivity {
       output.push curword.join('')
       curword := []
     for c in sentence
-      if c == ' '
+      if [' ', '?', '.', '!'].indexOf(c) != -1
         end_curword()
         output.push c
       else
@@ -31,11 +33,31 @@ RegisterActivity {
     return output
   splitWordsInSentences: (sentences) ->
     return [this.splitWordsInSentence(sentence) for sentence in sentences]
+  getWordId: (sentenceidx, wordidx) ->
+    return "sentence_#{sentenceidx}_word_#{wordidx}"
+  sentenceClicked: (obj, evt) ->
+    {sentenceidx} = obj.target
+    self = this
+    wordlist = this.sentences_split[sentenceidx]
+    playlist = [word.toLowerCase() for word in wordlist]
+    play_multiple_sounds playlist, {
+      startword: (wordidx, word) ->
+        self.S('.highlighted').removeClass('highlighted')
+        wordspan = self.S('#' + self.getWordId(sentenceidx, wordidx))
+        wordspan.addClass('highlighted')
+      done: ->
+        self.S('.highlighted').removeClass('highlighted')
+    }
   wordClicked: (obj, evt) ->
     {wordidx, sentenceidx} = obj.target
     console.log this.sentences_split[sentenceidx][wordidx]
+    self = this
     word = this.sentences_split[sentenceidx][wordidx]
-    synthesize_word word
+    self.S('.highlighted').removeClass('highlighted')
+    wordspan = self.S('#' + self.getWordId(sentenceidx, wordidx))
+    wordspan.addClass('highlighted')
+    synthesize_word word, ->
+      self.S('.highlighted').removeClass('highlighted')
   #computevideoid: (videosrc) ->
   #  return videosrc.split('http://www.youtube.com/embed/').join('')
   /*

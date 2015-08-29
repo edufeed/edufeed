@@ -198,6 +198,22 @@
       }
       return 0.2;
     },
+    brightenAllKeys: function(){
+      var i$, ref$, len$, x, results$ = [];
+      for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        results$.push(x.opacity = 1.0);
+      }
+      return results$;
+    },
+    darkenAllKeys: function(){
+      var i$, ref$, len$, x, results$ = [];
+      for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        results$.push(x.opacity = 0.2);
+      }
+      return results$;
+    },
     highlightkeyChanged: function(newvalue, oldvalue){
       var i$, ref$, len$, x, results$ = [];
       for (i$ = 0, len$ = (ref$ = $(this).find('keyboard-button')).length; i$ < len$; ++i$) {

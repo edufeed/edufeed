@@ -1,4 +1,8 @@
+feed_items_cache = null
+
 export getSampleFeedItems = ->
+  if feed_items_cache?
+    return feed_items_cache
   wordlist = [
     'cat'
     'dog'
@@ -56,7 +60,7 @@ export getSampleFeedItems = ->
   defaults =
     dots ++ typeletter ++ typeword
 
-  return {
+  feed_items_cache := {
     defaults
     bars
     dots
@@ -68,3 +72,5 @@ export getSampleFeedItems = ->
     example
     iframe
   }
+  
+  return feed_items_cache
