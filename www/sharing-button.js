@@ -36,7 +36,7 @@
           function fn$(classmate){
             var avatar;
             avatar = $("<user-avatar username='" + classmate + "'>").css({
-              float: 'right'
+              display: 'inline-block'
             });
             avatar.click(function(){
               synthesize_multiple_words(['shared with', classmate]);

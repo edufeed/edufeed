@@ -25,6 +25,52 @@
         return this.closeActivity();
       }
     },
+    helpButtonClicked: function(){
+      var itemtype;
+      itemtype = this.current_item.itemtype;
+      return this.openTutorial(itemtype);
+    },
+    openTutorial: function(itemtype){
+      var self, videofile, tutorialvideo_jq, tutorialvideo, tutorialvideo_alttext, play_tutorial_video, tutorial_video_ended;
+      self = this;
+      videofile = "videos/" + itemtype + "-tutorial.mp4";
+      this.S('#activity').hide();
+      this.S('#activitybuttons').hide();
+      this.S('#tutorial').show();
+      tutorialvideo_jq = $('<video>').css({
+        width: '100%',
+        height: 'auto',
+        'pointer-events': 'none'
+      }).prop({
+        src: videofile,
+        id: 'tutorialvideo'
+      });
+      tutorialvideo = tutorialvideo_jq[0];
+      tutorialvideo_alttext = this.$$('#tutorialvideo_alttext');
+      play_tutorial_video = function(){
+        tutorialvideo.removeEventListener('canplaythrough', play_tutorial_video);
+        tutorialvideo_alttext.innerText = '';
+        tutorialvideo.currentTime = 0;
+        tutorialvideo.style.display = 'inline';
+        return tutorialvideo.play();
+      };
+      tutorial_video_ended = function(){
+        tutorialvideo.removeEventListener('ended', tutorial_video_ended);
+        return self.closeTutorial();
+      };
+      tutorialvideo.addEventListener('canplaythrough', play_tutorial_video);
+      tutorialvideo.addEventListener('ended', tutorial_video_ended);
+      tutorialvideo.style.display = 'none';
+      tutorialvideo_alttext.innerText = 'loading ' + videofile + ' - if this message persists, check that the file exists';
+      tutorialvideo.src = videofile;
+      return tutorialvideo_jq.appendTo(this.S('#tutorial'));
+    },
+    closeTutorial: function(){
+      this.S('#tutorial').hide();
+      this.S('#tutorial').find('#tutorialvideo').remove();
+      this.S('#activity').show();
+      return this.S('#activitybuttons').show();
+    },
     closeActivity: function(){
       this.S('#activity').html('');
       this.S('#thumbnails').show();

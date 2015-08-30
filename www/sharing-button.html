@@ -3,14 +3,16 @@
 <dom-module id="sharing-button">
   <style>
     :host {
+      display: inline-block;
       pointer-events: none;
     }
     #sharebutton {
-      font-size: px;
+      /*font-size: 100px;*/
       cursor: pointer;
-      float: right;
+      display: inline-block;
+      /*float: right;*/
       margin-left: 10px;
-      line-height: 100px;
+      /*line-height: 100px;*/
       width: 100px;
       height: 100px;
       pointer-events: auto;
@@ -18,16 +20,19 @@
       background-color: yellow;*/
     }
     #share_avatars {
+      display: inline-block;
       pointer-events: auto;
     }
     #share_section {
-      width: 100vw;
-      float: left;
-      z-index: -1000;
+      /*width: calc(100vw - 220px);*/
+      /*float: left;*/
+      height: 100px;
+      white-space: nowrap;
+      pointer-events: none;
     }
   </style>
   <template>
-    <div id="share_section"><div id="share_avatars"></div><img id="sharebutton" on-click="sharebuttonClicked" src="share-icon.svg"></div>
+    <div id="share_section"><img id="sharebutton" on-click="sharebuttonClicked" src="share-icon.svg"><div id="share_avatars"></div></div>
   </template>
   <script src="sharing-button.js"></script>
 </dom-module>

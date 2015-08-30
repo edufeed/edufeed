@@ -6,37 +6,71 @@
   <style>
     :host {
       display: block;
-      white-space: nowrap;
     }
     #exitbutton {
-      position: fixed;
       width: 100px;
       height: 100px;
-      right: 0px;
+      margin-left: 5px;
+    }
+    #exitvideobutton {
+      width: 100px;
+      height: 100px;
+      position: fixed;
       bottom: 0px;
-      cursor: pointer;
+      right: 0px;
+    }
+    #helpbutton {
+      width: 100px;
+      height: 100px;
+      margin-left: 5px;
     }
     #thumbnails {
       width: 100vl;
       height: 100vh;
       overflow: auto;
-    }
-    #sharingbutton {
-      position: fixed;
-      bottom: 0px;
-      right: 110px;
-      cursor: pointer;
+      white-space: nowrap;
     }
     #activitybuttons {
       display: none;
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      height: 100px;
+      pointer-events: none;
+    }
+    #activity {
+      width: 100vl;
+      height: 100vh;
+    }
+    .controlbutton {
+      cursor: pointer;
+      float: right;
+      pointer-events: auto;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    #tutorial {
+      display: none;
+      width: 100vl;
+      height: 100vh;
+      overflow: hidden;
     }
   </style>
   <template>
   <div id="thumbnails"></div>
   <div id="activity" on-click="closeShareWidget"></div>
+  <div id="tutorial">
+    <div id="tutorialvideo_alttext"></div>
+    <img id="exitvideobutton" src="close-icon.svg" on-click="closeTutorial" class="controlbutton">
+  </div>
   <div id="activitybuttons">
-    <sharing-button id="sharingbutton" on-share-activity="shareActivity"></sharing-button>
-    <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked">
+    <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked" class="controlbutton">
+    <img id="helpbutton" src="help-icon.svg" on-click="helpButtonClicked" class="controlbutton">
+    <sharing-button id="sharingbutton" on-share-activity="shareActivity" class="controlbutton"></sharing-button>
   </div>
   </template>
   <script src="feed-items.js"></script>
