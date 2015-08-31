@@ -98,14 +98,20 @@
       this.current_item = item;
       activity = makeActivity(item);
       activity[0].addEventListener('task-finished', function(){
-        return this$.openTaskFinished(item);
+        if (!activity[0].alreadyleft) {
+          activity[0].alreadyleft = true;
+          return this$.openTaskFinished(item);
+        }
       });
       activity[0].addEventListener('task-left', function(){
-        addlog({
-          event: 'task-left',
-          item: item
-        });
-        return this$.closeActivity();
+        if (!activity[0].alreadyleft) {
+          activity[0].alreadyleft = true;
+          addlog({
+            event: 'task-left',
+            item: item
+          });
+          return this$.closeActivity();
+        }
       });
       return activity.appendTo(this.S('#activity'));
     },
@@ -192,12 +198,10 @@
       username = evt.detail.username;
       return getUsername(function(local_username){
         var ref$, itemtype, data, social;
-        console.log('sharing with: ' + username);
         if (username == null) {
           console.log('no username');
           return;
         }
-        console.log('current activity info is: ');
         ref$ = self.S('#activity').children()[0].getalldata(), itemtype = ref$.itemtype, data = ref$.data, social = ref$.social;
         if (itemtype == null) {
           console.log('do not have itemtype');
@@ -220,7 +224,6 @@
         return self.updateItems();
       });
       this.addEventListener('task-freeplay', function(){
-        console.log('received task-freeplay');
         self.S('#exitbutton').hide();
         return self.S('#donebutton').show();
       });

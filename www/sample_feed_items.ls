@@ -103,7 +103,7 @@ export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_
     return
   items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
   new_available_items = available_items.filter (item) ->
-    itemNotInList(item, all_finished_items) and itemNotInList(item, current_feed_items)
+    itemNotInList(item, items_finished_by_user) and itemNotInList(item, current_feed_items)
   if new_available_items.length == 0
     if callback?
       callback()

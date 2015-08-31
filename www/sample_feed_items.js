@@ -206,7 +206,7 @@
       }
       items_finished_by_user = getItemsFinishedByUser(username, all_finished_items);
       new_available_items = available_items.filter(function(item){
-        return itemNotInList(item, all_finished_items) && itemNotInList(item, current_feed_items);
+        return itemNotInList(item, items_finished_by_user) && itemNotInList(item, current_feed_items);
       });
       if (new_available_items.length === 0) {
         if (callback != null) {

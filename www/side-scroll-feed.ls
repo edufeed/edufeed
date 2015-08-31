@@ -82,10 +82,14 @@ Polymer {
     this.current_item = item
     activity = makeActivity(item) # feed-items.ls
     activity[0].addEventListener 'task-finished', ~>
-      this.openTaskFinished(item)
+      if not activity[0].alreadyleft
+        activity[0].alreadyleft = true
+        this.openTaskFinished(item)
     activity[0].addEventListener 'task-left', ~>
-      addlog {event: 'task-left', item: item}
-      this.closeActivity()
+      if not activity[0].alreadyleft
+        activity[0].alreadyleft = true
+        addlog {event: 'task-left', item: item}
+        this.closeActivity()
     activity.appendTo this.S('#activity')
   addItemToFeed: (item) ->
     thumbnail = makeSocialThumbnail item
@@ -126,11 +130,9 @@ Polymer {
     self = this
     {username} = evt.detail
     local_username <- getUsername()
-    console.log 'sharing with: ' + username
     if not username?
       console.log 'no username'
       return
-    console.log 'current activity info is: '
     {itemtype, data, social} = self.S('#activity').children()[0].getalldata()
     if not itemtype?
       console.log 'do not have itemtype'
@@ -148,7 +150,6 @@ Polymer {
       self.hide_admin_console = true
       self.updateItems()
     this.addEventListener 'task-freeplay', ->
-      console.log 'received task-freeplay'
       self.S('#exitbutton').hide()
       self.S('#donebutton').show()
     this.addEventListener 'task-notfreeplay', ->
