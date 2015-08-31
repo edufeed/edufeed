@@ -3,6 +3,7 @@
 <link rel="import" href="sharing-button.html">
 <link rel="import" href="readaloud-text.html">
 <link rel="import" href="tutorial-display.html">
+<link rel="import" href="taskfinished-display.html">
 
 <dom-module id="side-scroll-feed">
   <style>
@@ -31,16 +32,11 @@
       white-space: nowrap;
     }
     #activitybuttons {
-      display: none;
       position: fixed;
       bottom: 0px;
       right: 0px;
       height: 100px;
       pointer-events: none;
-    }
-    #activity {
-      width: 100vl;
-      height: 100vh;
     }
     .controlbutton {
       cursor: pointer;
@@ -53,22 +49,28 @@
       -ms-user-select: none;
       user-select: none;
     }
-    #tutorial {
+    .mainscreen {
       display: none;
       width: 100vl;
       height: 100vh;
+    }
+    #tutorial {
+      display: none;
       overflow: hidden;
     }
   </style>
   <template>
-  <div id="thumbnails"></div>
-  <div id="activity" on-click="closeShareWidget"></div>
-  <div id="tutorial"></div>
-  <div id="activitybuttons">
-    <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked" class="controlbutton">
-    <img id="donebutton" src="done-icon.svg" on-click="doneButtonClicked" class="controlbutton">
-    <img id="helpbutton" src="help-icon.svg" on-click="helpButtonClicked" class="controlbutton">
-    <sharing-button id="sharingbutton" on-share-activity="shareActivity" class="controlbutton"></sharing-button>
+  <div id="thumbnails" class="mainscreen" style="display: inline"></div>
+  <div id="tutorial" class="mainscreen"></div>
+  <div id="taskfinished" class="mainscreen"></div>
+  <div id="activityscreen" class="mainscreen">
+    <div id="activity" on-click="closeShareWidget"></div>
+    <div id="activitybuttons">
+      <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked" class="controlbutton">
+      <img id="donebutton" src="done-icon.svg" on-click="doneButtonClicked" class="controlbutton">
+      <img id="helpbutton" src="help-icon.svg" on-click="helpButtonClicked" class="controlbutton">
+      <sharing-button id="sharingbutton" class="controlbutton"></sharing-button>
+    </div>
   </div>
   </template>
   <script src="feed-items.js"></script>

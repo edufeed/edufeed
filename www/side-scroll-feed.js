@@ -11,6 +11,9 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
+    SM: function(pattern){
+      return $(this.querySelectorAll(pattern));
+    },
     closeShareWidget: function(){
       return this.$$('#sharingbutton').closeShareWidget();
     },
@@ -29,12 +32,7 @@
       if (this.$$('#sharingbutton').isShareWidgetOpen()) {
         return this.closeShareWidget();
       } else {
-        addlog({
-          event: 'task-finished',
-          item: this.current_item
-        });
-        this.itemFinished(this.current_item);
-        return this.closeActivity();
+        return this.openTaskFinished(this.current_item);
       }
     },
     helpButtonClicked: function(){
@@ -43,24 +41,42 @@
       return this.openTutorial(itemtype);
     },
     openTutorial: function(itemtype){
-      var tutorial;
-      this.S('#activity').hide();
-      this.S('#activitybuttons').hide();
-      this.S('#tutorial').html('');
+      var tutorial_dom;
+      this.SM('.mainscreen').hide();
       this.S('#tutorial').show();
-      tutorial = $("<tutorial-display tutorial='" + itemtype + "'>");
-      return tutorial.appendTo(this.S('#tutorial'));
+      tutorial_dom = Polymer.dom(this.$$('#tutorial'));
+      return tutorial_dom.innerHTML = "<tutorial-display tutorial='" + itemtype + "'></tutorial-display>";
     },
     closeTutorial: function(){
-      this.S('#tutorial').hide();
-      this.S('#tutorial').html('');
-      this.S('#activity').show();
-      return this.S('#activitybuttons').show();
+      var tutorial_dom;
+      this.SM('.mainscreen').hide();
+      tutorial_dom = Polymer.dom(this.$$('#tutorial'));
+      tutorial_dom.innerHTML = '';
+      return this.S('#activityscreen').show();
+    },
+    openTaskFinished: function(item){
+      var taskfinished_dom;
+      addlog({
+        event: 'task-finished',
+        item: item
+      });
+      this.itemFinished(item);
+      this.SM('.mainscreen').hide();
+      this.S('#taskfinished').show();
+      taskfinished_dom = Polymer.dom(this.$$('#taskfinished'));
+      return taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>";
+    },
+    closeTaskFinished: function(){
+      var tutorial_dom;
+      this.SM('.mainscreen').hide();
+      tutorial_dom = Polymer.dom(this.$$('#taskfinished'));
+      tutorial_dom.innerHTML = '';
+      return this.S('#thumbnails').show();
     },
     closeActivity: function(){
+      this.SM('.mainscreen').hide();
       this.S('#activity').html('');
       this.S('#thumbnails').show();
-      this.S('#activitybuttons').hide();
       return this.$$('#sharingbutton').closeShareWidget();
     },
     itemFinished: function(item){
@@ -74,22 +90,17 @@
     },
     openItem: function(item){
       var activity, this$ = this;
-      this.S('#thumbnails').hide();
-      this.S('#activitybuttons').show();
+      this.SM('.mainscreen').hide();
+      this.S('#activityscreen').show();
       this.S('#donebutton').hide();
       this.S('#exitbutton').show();
       this.S('#activity').html('');
       this.current_item = item;
       activity = makeActivity(item);
-      activity.on('task-finished', function(){
-        addlog({
-          event: 'task-finished',
-          item: item
-        });
-        this$.itemFinished(item);
-        return this$.closeActivity();
+      activity[0].addEventListener('task-finished', function(){
+        return this$.openTaskFinished(item);
       });
-      activity.on('task-left', function(){
+      activity[0].addEventListener('task-left', function(){
         addlog({
           event: 'task-left',
           item: item
@@ -175,10 +186,10 @@
         });
       });
     },
-    shareActivity: function(obj, evt){
+    shareActivity: function(evt){
       var self, username;
       self = this;
-      username = evt.username;
+      username = evt.detail.username;
       return getUsername(function(local_username){
         var ref$, itemtype, data, social;
         console.log('sharing with: ' + username);
@@ -204,21 +215,27 @@
     ready: function(){
       var self;
       self = this;
-      $(this).on('hide-admin-activity', function(){
+      this.addEventListener('hide-admin-activity', function(){
         self.hide_admin_console = true;
         return self.updateItems();
       });
-      $(this).on('task-freeplay', function(){
+      this.addEventListener('task-freeplay', function(){
         console.log('received task-freeplay');
         self.S('#exitbutton').hide();
         return self.S('#donebutton').show();
       });
-      $(this).on('task-notfreeplay', function(){
+      this.addEventListener('task-notfreeplay', function(){
         self.S('#donebutton').hide();
         return self.S('#exitbutton').show();
       });
-      $(this).on('close-tutorial', function(){
+      this.addEventListener('close-tutorial', function(){
         return self.closeTutorial();
+      });
+      this.addEventListener('close-taskfinished', function(){
+        return self.closeTaskFinished();
+      });
+      this.addEventListener('share-activity', function(evt){
+        return self.shareActivity(evt);
       });
       this.updateItems(true);
       return getUsername(function(username){

@@ -9,6 +9,8 @@ Polymer {
   }
   S: (pattern) ->
     $(this.$$(pattern))
+  SM: (pattern) ->
+    $(this.querySelectorAll(pattern))
   closeShareWidget: ->
     this.$$('#sharingbutton').closeShareWidget()
   closeButtonClicked: ->
@@ -21,28 +23,37 @@ Polymer {
     if this.$$('#sharingbutton').isShareWidgetOpen()
       this.closeShareWidget()
     else
-      addlog {event: 'task-finished', item: this.current_item}
-      this.itemFinished this.current_item
-      this.closeActivity()
+      this.openTaskFinished(this.current_item)
   helpButtonClicked: ->
     itemtype = this.current_item.itemtype
     this.openTutorial(itemtype)
   openTutorial: (itemtype) ->
-    this.S('#activity').hide()
-    this.S('#activitybuttons').hide()
-    this.S('#tutorial').html('')
+    this.SM('.mainscreen').hide()
     this.S('#tutorial').show()
-    tutorial = $("<tutorial-display tutorial='#{itemtype}'>")
-    tutorial.appendTo this.S('#tutorial')
+    tutorial_dom = Polymer.dom(this.$$('#tutorial'))
+    tutorial_dom.innerHTML = "<tutorial-display tutorial='#{itemtype}'></tutorial-display>"
   closeTutorial: ->
-    this.S('#tutorial').hide()
-    this.S('#tutorial').html('')
-    this.S('#activity').show()
-    this.S('#activitybuttons').show()
+    this.SM('.mainscreen').hide()
+    tutorial_dom = Polymer.dom(this.$$('#tutorial'))
+    tutorial_dom.innerHTML = ''
+    this.S('#activityscreen').show()
+  openTaskFinished: (item) ->
+    addlog {event: 'task-finished', item: item}
+    this.itemFinished item
+    #this.closeActivity()
+    this.SM('.mainscreen').hide()
+    this.S('#taskfinished').show()
+    taskfinished_dom = Polymer.dom(this.$$('#taskfinished'))
+    taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>"
+  closeTaskFinished: ->
+    this.SM('.mainscreen').hide()
+    tutorial_dom = Polymer.dom(this.$$('#taskfinished'))
+    tutorial_dom.innerHTML = ''
+    this.S('#thumbnails').show()
   closeActivity: ->
+    this.SM('.mainscreen').hide()
     this.S('#activity').html('')
     this.S('#thumbnails').show()
-    this.S('#activitybuttons').hide()
     this.$$('#sharingbutton').closeShareWidget()
   itemFinished: (item) ->
     self = this
@@ -63,18 +74,16 @@ Polymer {
           x.finishedby = x.finishedby ++ [username]
     */
   openItem: (item) ->
-    this.S('#thumbnails').hide()
-    this.S('#activitybuttons').show()
+    this.SM('.mainscreen').hide()
+    this.S('#activityscreen').show()
     this.S('#donebutton').hide()
     this.S('#exitbutton').show()
     this.S('#activity').html('')
     this.current_item = item
     activity = makeActivity(item) # feed-items.ls
-    activity.on 'task-finished', ~>
-      addlog {event: 'task-finished', item: item}
-      this.itemFinished item
-      this.closeActivity()
-    activity.on 'task-left', ~>
+    activity[0].addEventListener 'task-finished', ~>
+      this.openTaskFinished(item)
+    activity[0].addEventListener 'task-left', ~>
       addlog {event: 'task-left', item: item}
       this.closeActivity()
     activity.appendTo this.S('#activity')
@@ -113,9 +122,9 @@ Polymer {
     self.items = docs
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
-  shareActivity: (obj, evt) ->
+  shareActivity: (evt) ->
     self = this
-    {username} = evt
+    {username} = evt.detail
     local_username <- getUsername()
     console.log 'sharing with: ' + username
     if not username?
@@ -135,18 +144,22 @@ Polymer {
     }
   ready: ->
     self = this
-    $(this).on 'hide-admin-activity', ->
+    this.addEventListener 'hide-admin-activity', ->
       self.hide_admin_console = true
       self.updateItems()
-    $(this).on 'task-freeplay', ->
+    this.addEventListener 'task-freeplay', ->
       console.log 'received task-freeplay'
       self.S('#exitbutton').hide()
       self.S('#donebutton').show()
-    $(this).on 'task-notfreeplay', ->
+    this.addEventListener 'task-notfreeplay', ->
       self.S('#donebutton').hide()
       self.S('#exitbutton').show()
-    $(this).on 'close-tutorial', ->
+    this.addEventListener 'close-tutorial', ->
       self.closeTutorial()
+    this.addEventListener 'close-taskfinished', ->
+      self.closeTaskFinished()
+    this.addEventListener 'share-activity', (evt) ->
+      self.shareActivity(evt)
     this.updateItems(true)
     getUsername (username) ->
       setSyncHandler "feeditems_#{username}", (change) ->

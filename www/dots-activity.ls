@@ -35,10 +35,11 @@ RegisterActivity {
       product: this.target_product
     }
   finished: ->
-    console.log 'done! task=' + this.task
+    #console.log 'done! task=' + this.task
     $('#dotsgrid').prop('ignoretouch', true)
-    setInterval ~>
-      this.fire 'task-finished', this
+    setTimeout ~>
+      play_success_sound ~>
+        this.fire 'task-finished', this
     , 2000
   selectedDotsChanged: (obj, data) ->
     {xdim, ydim} = data

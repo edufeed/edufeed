@@ -21,8 +21,8 @@
     }
   </style>
   <template>
-    <template is="dom-repeat" items="{{sentences}}" as="sentence">
-      <readaloud-text text="{{sentence}}"></readaloud-text>
+    <template is="dom-repeat" items="{{sentences}}" as="sentence" index-as="sentenceidx">
+      <readaloud-text text="{{sentence}}" sentenceidx="{{sentenceidx}}" id="{{getSentenceId(sentenceidx)}}"></readaloud-text>
       <!--<span>{{sentence}}</span>-->
       <br>
     </template>

@@ -40,7 +40,7 @@
     getWordId: function(wordidx){
       return "word_" + wordidx;
     },
-    sentenceClicked: function(obj, evt){
+    playSentence: function(){
       var self, wordlist, playlist, res$, i$, len$, word;
       self = this;
       wordlist = this.wordlist;
@@ -62,10 +62,11 @@
         }
       });
     },
-    wordClicked: function(obj, evt){
-      var wordidx, self, word, wordspan;
-      wordidx = obj.target.wordidx;
-      console.log(this.wordlist[wordidx]);
+    sentenceClicked: function(obj, evt){
+      return this.playSentence();
+    },
+    playWord: function(wordidx){
+      var self, word, wordspan;
       self = this;
       word = this.wordlist[wordidx];
       self.S('.highlighted').removeClass('highlighted');
@@ -74,6 +75,11 @@
       return synthesize_word(word.toLowerCase(), function(){
         return self.S('.highlighted').removeClass('highlighted');
       });
+    },
+    wordClicked: function(obj, evt){
+      var wordidx;
+      wordidx = obj.target.wordidx;
+      return this.playWord(wordidx);
     }
     /*
     S: (pattern) ->

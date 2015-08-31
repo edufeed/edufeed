@@ -30,7 +30,7 @@ RegisterActivity {
     return output
   getWordId: (wordidx) ->
     return "word_#{wordidx}"
-  sentenceClicked: (obj, evt) ->
+  playSentence: ->
     self = this
     wordlist = this.wordlist
     playlist = [word.toLowerCase() for word in wordlist]
@@ -42,9 +42,9 @@ RegisterActivity {
       done: ->
         self.S('.highlighted').removeClass('highlighted')
     }
-  wordClicked: (obj, evt) ->
-    {wordidx} = obj.target
-    console.log this.wordlist[wordidx]
+  sentenceClicked: (obj, evt) ->
+    this.playSentence()
+  playWord: (wordidx) ->
     self = this
     word = this.wordlist[wordidx]
     self.S('.highlighted').removeClass('highlighted')
@@ -52,6 +52,9 @@ RegisterActivity {
     wordspan.addClass('highlighted')
     synthesize_word word.toLowerCase(), ->
       self.S('.highlighted').removeClass('highlighted')
+  wordClicked: (obj, evt) ->
+    {wordidx} = obj.target
+    this.playWord(wordidx)
   #computevideoid: (videosrc) ->
   #  return videosrc.split('http://www.youtube.com/embed/').join('')
   /*

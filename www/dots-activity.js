@@ -41,10 +41,11 @@
     },
     finished: function(){
       var this$ = this;
-      console.log('done! task=' + this.task);
       $('#dotsgrid').prop('ignoretouch', true);
-      return setInterval(function(){
-        return this$.fire('task-finished', this$);
+      return setTimeout(function(){
+        return play_success_sound(function(){
+          return this$.fire('task-finished', this$);
+        });
       }, 2000);
     },
     selectedDotsChanged: function(obj, data){

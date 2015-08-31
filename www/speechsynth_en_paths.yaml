@@ -119,6 +119,7 @@ cat: speechsynth_en/cat.mp3
 centipede: speechsynth_en/centipede.mp3
 cherry: speechsynth_en/cherry.mp3
 city: speechsynth_en/city.mp3
+congratulations: speechsynth_en/congratulations.mp3
 cross: speechsynth_en/cross.mp3
 do: speechsynth_en/do.mp3
 dog: speechsynth_en/dog.mp3
@@ -137,6 +138,7 @@ in: speechsynth_en/in.mp3
 instead type the letter: speechsynth_en/instead type the letter.mp3
 is: speechsynth_en/is.mp3
 kelsey: speechsynth_en/kelsey.mp3
+like: speechsynth_en/like.mp3
 lion: speechsynth_en/lion.mp3
 mice: speechsynth_en/mice.mp3
 never: speechsynth_en/never.mp3
@@ -149,6 +151,7 @@ red: speechsynth_en/red.mp3
 river: speechsynth_en/river.mp3
 roof: speechsynth_en/roof.mp3
 see: speechsynth_en/see.mp3
+share: speechsynth_en/share.mp3
 shared with: speechsynth_en/shared with.mp3
 six: speechsynth_en/six.mp3
 snail: speechsynth_en/snail.mp3
@@ -158,8 +161,10 @@ talkie: speechsynth_en/talkie.mp3
 tells: speechsynth_en/tells.mp3
 the: speechsynth_en/the.mp3
 them: speechsynth_en/them.mp3
+this: speechsynth_en/this.mp3
 three: speechsynth_en/three.mp3
 tiger: speechsynth_en/tiger.mp3
+to: speechsynth_en/to.mp3
 tree: speechsynth_en/tree.mp3
 type the letter: speechsynth_en/type the letter.mp3
 type the word: speechsynth_en/type the word.mp3
@@ -168,8 +173,10 @@ what: speechsynth_en/what.mp3
 when: speechsynth_en/when.mp3
 white: speechsynth_en/white.mp3
 who would you like to share this with: speechsynth_en/who would you like to share this with.mp3
+who: speechsynth_en/who.mp3
 why: speechsynth_en/why.mp3
 with: speechsynth_en/with.mp3
+would: speechsynth_en/would.mp3
 you typed the letter: speechsynth_en/you typed the letter.mp3
 you typed the word: speechsynth_en/you typed the word.mp3
 you: speechsynth_en/you.mp3
