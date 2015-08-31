@@ -1,0 +1,30 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="readaloud-text">
+  <style>
+    :host {
+      display: inline-block;
+      overflow: hidden;
+      font-size: 44px;
+      white-space: normal;
+    }
+    .saysentence {
+      cursor: pointer;
+    }
+    .sayword {
+      cursor: pointer;
+    }
+    .highlighted {
+      background-color: yellow;
+    }
+  </style>
+  <template>
+    <span style="float: left" class="glyphicon glyphicon-volume-up saysentence" on-click="sentenceClicked"></span>
+    <div style="margin-left: 70px">
+      <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
+        <span on-click="wordClicked" wordidx="{{wordidx}}" id="{{getWordId(wordidx)}}" class="sayword">{{word}}</span>
+      </template>
+    </div>
+  </template>
+  <script src="readaloud-text.js"></script>  
+</dom-module>
