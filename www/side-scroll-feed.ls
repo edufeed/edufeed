@@ -59,7 +59,8 @@ Polymer {
   itemFinished: (item) ->
     self = this
     postFinishedItem item, ->
-      self.updateItems()
+      addNewItemSuggestions item, self.items, self.finished_items, ->
+        self.updateItems()
     /*
     for x in $('social-thumbnail')
       tag = $(x).find('#thumbnail')
@@ -112,6 +113,7 @@ Polymer {
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
       docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
     finished_items <- getFinishedItems()
+    self.finished_items = finished_items
     for doc in docs
       matching_finished_items = [x for x in finished_items when itemtype_and_data_matches(doc, x)]
       if matching_finished_items.length > 0

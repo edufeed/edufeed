@@ -81,7 +81,9 @@
       var self;
       self = this;
       return postFinishedItem(item, function(){
-        return self.updateItems();
+        return addNewItemSuggestions(item, self.items, self.finished_items, function(){
+          return self.updateItems();
+        });
       });
     },
     openItem: function(item){
@@ -156,6 +158,7 @@
             }
             return getFinishedItems(function(finished_items){
               var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x;
+              self.finished_items = finished_items;
               for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
                 doc = ref$[i$];
                 res$ = [];
