@@ -1,6 +1,8 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="feed-items.html">
 <link rel="import" href="sharing-button.html">
+<link rel="import" href="readaloud-text.html">
+<link rel="import" href="tutorial-display.html">
 
 <dom-module id="side-scroll-feed">
   <style>
@@ -12,12 +14,10 @@
       height: 100px;
       margin-left: 5px;
     }
-    #exitvideobutton {
+    #donebutton {
       width: 100px;
       height: 100px;
-      position: fixed;
-      bottom: 0px;
-      right: 0px;
+      margin-left: 5px;
     }
     #helpbutton {
       width: 100px;
@@ -63,12 +63,10 @@
   <template>
   <div id="thumbnails"></div>
   <div id="activity" on-click="closeShareWidget"></div>
-  <div id="tutorial">
-    <div id="tutorialvideo_alttext"></div>
-    <img id="exitvideobutton" src="close-icon.svg" on-click="closeTutorial" class="controlbutton">
-  </div>
+  <div id="tutorial"></div>
   <div id="activitybuttons">
     <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked" class="controlbutton">
+    <img id="donebutton" src="done-icon.svg" on-click="doneButtonClicked" class="controlbutton">
     <img id="helpbutton" src="help-icon.svg" on-click="helpButtonClicked" class="controlbutton">
     <sharing-button id="sharingbutton" on-share-activity="shareActivity" class="controlbutton"></sharing-button>
   </div>

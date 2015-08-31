@@ -16,13 +16,22 @@
       return $(this.$$(pattern));
     },
     targetformulaChanged: function(){
-      var ref$, task, term1, term2, product;
+      var ref$, task, term1, term2, product, this$ = this;
       ref$ = parseMultiplicationProblem(this.targetformula), task = ref$.task, term1 = ref$.term1, term2 = ref$.term2, product = ref$.product;
       this.task = task;
       this.target_term1 = term1;
       this.target_term2 = term2;
       this.target_terms = [term1, term2];
       this.target_product = product;
+      if (this.task === '') {
+        setTimeout(function(){
+          return this$.fire('task-freeplay', this$);
+        }, 0);
+      } else {
+        setTimeout(function(){
+          return this$.fire('task-notfreeplay', this$);
+        }, 0);
+      }
       return this.S('#formuladisplay').prop({
         task: this.task,
         term1: this.target_term1,

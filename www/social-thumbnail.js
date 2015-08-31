@@ -4,13 +4,23 @@
     properties: {
       poster: {
         type: String,
-        value: '',
-        notify: true
+        value: ''
       },
       finishedby: {
         type: Array,
-        value: [],
-        notify: true
+        value: []
+      },
+      finished: {
+        type: Boolean,
+        value: false,
+        observer: 'finished_changed'
+      }
+    },
+    finished_changed: function(finished){
+      if (finished) {
+        return this.$$('#doneicon').style.display = 'inline';
+      } else {
+        return this.$$('#doneicon').style.display = 'none';
       }
     }
   });
