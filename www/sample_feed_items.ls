@@ -48,7 +48,7 @@ export getAllFeedItems = ->
   #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
 
   balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
 
   admin =
     [{itemtype: 'admin', social: {poster: 'horse'}}]
