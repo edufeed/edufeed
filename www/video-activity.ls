@@ -10,6 +10,11 @@ RegisterActivity {
       #computed: 'computevideoid(videosrc)'
     }
   }
+  youtubeVideoStateChanged: (newstate) ->
+    console.log 'videoStateChanged: '
+    console.log newstate
+    if newstate? and newstate.detail? and newstate.detail.data? and newstate.detail.data == 0
+      this.fire 'task-finished', this
   #computevideoid: (videosrc) ->
   #  return videosrc.split('http://www.youtube.com/embed/').join('')
   /*

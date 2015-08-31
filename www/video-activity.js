@@ -5,6 +5,13 @@
       videoid: {
         type: String
       }
+    },
+    youtubeVideoStateChanged: function(newstate){
+      console.log('videoStateChanged: ');
+      console.log(newstate);
+      if (newstate != null && newstate.detail != null && newstate.detail.data != null && newstate.detail.data === 0) {
+        return this.fire('task-finished', this);
+      }
     }
     /*
     S: (pattern) ->

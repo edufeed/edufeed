@@ -25,6 +25,18 @@
         return this.closeActivity();
       }
     },
+    doneButtonClicked: function(){
+      if (this.$$('#sharingbutton').isShareWidgetOpen()) {
+        return this.closeShareWidget();
+      } else {
+        addlog({
+          event: 'task-finished',
+          item: this.current_item
+        });
+        this.itemFinished(this.current_item);
+        return this.closeActivity();
+      }
+    },
     helpButtonClicked: function(){
       var itemtype;
       itemtype = this.current_item.itemtype;
@@ -90,6 +102,8 @@
       var activity, this$ = this;
       this.S('#thumbnails').hide();
       this.S('#activitybuttons').show();
+      this.S('#donebutton').hide();
+      this.S('#exitbutton').show();
       this.S('#activity').html('');
       this.current_item = item;
       activity = makeActivity(item);
@@ -219,6 +233,15 @@
       $(this).on('hide-admin-activity', function(){
         self.hide_admin_console = true;
         return self.updateItems();
+      });
+      $(this).on('task-freeplay', function(){
+        console.log('received task-freeplay');
+        self.S('#exitbutton').hide();
+        return self.S('#donebutton').show();
+      });
+      $(this).on('task-notfreeplay', function(){
+        self.S('#donebutton').hide();
+        return self.S('#exitbutton').show();
       });
       this.updateItems(true);
       return getUsername(function(username){

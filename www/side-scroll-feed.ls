@@ -17,6 +17,13 @@ Polymer {
     else
       addlog {event: 'task-closed', item: this.current_item}
       this.closeActivity()
+  doneButtonClicked: ->
+    if this.$$('#sharingbutton').isShareWidgetOpen()
+      this.closeShareWidget()
+    else
+      addlog {event: 'task-finished', item: this.current_item}
+      this.itemFinished this.current_item
+      this.closeActivity()
   helpButtonClicked: ->
     itemtype = this.current_item.itemtype
     this.openTutorial(itemtype)
@@ -77,6 +84,8 @@ Polymer {
   openItem: (item) ->
     this.S('#thumbnails').hide()
     this.S('#activitybuttons').show()
+    this.S('#donebutton').hide()
+    this.S('#exitbutton').show()
     this.S('#activity').html('')
     this.current_item = item
     activity = makeActivity(item) # feed-items.ls
@@ -148,6 +157,13 @@ Polymer {
     $(this).on 'hide-admin-activity', ->
       self.hide_admin_console = true
       self.updateItems()
+    $(this).on 'task-freeplay', ->
+      console.log 'received task-freeplay'
+      self.S('#exitbutton').hide()
+      self.S('#donebutton').show()
+    $(this).on 'task-notfreeplay', ->
+      self.S('#donebutton').hide()
+      self.S('#exitbutton').show()
     this.updateItems(true)
     getUsername (username) ->
       setSyncHandler "feeditems_#{username}", (change) ->

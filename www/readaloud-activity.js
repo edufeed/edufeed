@@ -14,6 +14,12 @@
     S: function(pattern){
       return $(this.$$(pattern));
     },
+    ready: function(){
+      var this$ = this;
+      return setTimeout(function(){
+        return this$.fire('task-freeplay', this$);
+      }, 0);
+    },
     splitWordsInSentence: function(sentence){
       var output, curword, end_curword, i$, len$, c;
       output = [];

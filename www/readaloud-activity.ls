@@ -15,6 +15,10 @@ RegisterActivity {
   }
   S: (pattern) ->
     return $(this.$$(pattern))
+  ready: ->
+    setTimeout ~>
+      this.fire 'task-freeplay', this
+    , 0
   splitWordsInSentence: (sentence) ->
     output = []
     curword = []

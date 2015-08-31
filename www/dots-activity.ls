@@ -20,6 +20,14 @@ RegisterActivity {
     this.target_term2 = term2
     this.target_terms = [term1, term2]
     this.target_product = product
+    if this.task == ''
+      setTimeout ~>
+        this.fire 'task-freeplay', this
+      , 0
+    else
+      setTimeout ~>
+        this.fire 'task-notfreeplay', this
+      , 0
     this.S('#formuladisplay').prop {
       task: this.task
       term1: this.target_term1

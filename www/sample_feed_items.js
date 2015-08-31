@@ -2,7 +2,7 @@
   var all_feed_items_cache, getAllFeedItems, getItemsFinishedByUser, itemNotInList, addNewItemSuggestions, feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   all_feed_items_cache = null;
   out$.getAllFeedItems = getAllFeedItems = function(){
-    var wordlist, readinglist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideos, videoid, readaloud, sentences, defaults;
+    var wordlist, readinglist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, readaloud, sentences, defaults;
     if (all_feed_items_cache != null) {
       return all_feed_items_cache;
     }
@@ -82,7 +82,7 @@
     }
     typeword = res$;
     res$ = [];
-    for (i$ = 0, len$ = (ref$ = [1, 3, 5, 10, 20, 50, 100, 200, 300]).length; i$ < len$; ++i$) {
+    for (i$ = 0, len$ = (ref$ = [1, 2, 3, 5, 10, 20, 50, 100, 200, 300]).length; i$ < len$; ++i$) {
       number = ref$[i$];
       res$.push({
         itemtype: 'balance',
@@ -133,6 +133,7 @@
       res$.push({
         itemtype: 'video',
         data: {
+          itemcategory: 'lettervideo',
           videoid: videoid
         },
         social: {
@@ -140,7 +141,7 @@
         }
       });
     }
-    lettervideos = res$;
+    lettervideo = res$;
     res$ = [];
     for (i$ = 0, len$ = readinglist.length; i$ < len$; ++i$) {
       sentences = readinglist[i$];
@@ -164,7 +165,7 @@
       typeletter: typeletter,
       readaloud: readaloud,
       balance: balance,
-      lettervideos: lettervideos,
+      lettervideo: lettervideo,
       admin: admin,
       example: example,
       iframe: iframe
@@ -190,31 +191,36 @@
     }()).length === 0;
   };
   out$.addNewItemSuggestions = addNewItemSuggestions = function(finished_item, current_feed_items, all_finished_items, callback){
-    console.log(finished_item);
-    console.log(current_feed_items);
-    console.log(all_finished_items);
     return getUsername(function(username){
       var itemtype, available_items, items_finished_by_user, new_available_items, newitem;
       itemtype = finished_item.itemtype;
+      if (itemtype === 'video' && finished_item.data != null && finished_item.data.itemcategory != null) {
+        itemtype = finished_item.data.itemcategory;
+      }
       available_items = getAllFeedItems()[itemtype];
+      if (available_items == null) {
+        if (callback != null) {
+          callback();
+        }
+        return;
+      }
       items_finished_by_user = getItemsFinishedByUser(username, all_finished_items);
       new_available_items = available_items.filter(function(item){
         return itemNotInList(item, all_finished_items) && itemNotInList(item, current_feed_items);
       });
-      console.log(new_available_items);
-      if (new_available_items.length > 0) {
-        newitem = new_available_items[0];
-        return postItemToSelf(newitem, callback);
-      } else {
+      if (new_available_items.length === 0) {
         if (callback != null) {
-          return callback();
+          callback();
         }
+        return;
       }
+      newitem = new_available_items[0];
+      return postItemToSelf(newitem, callback);
     });
   };
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideos, videoid, readaloud, sentences, defaults;
+    var wordlist, readinglist, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, readaloud, sentences, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
@@ -294,7 +300,7 @@
     }
     typeword = res$;
     res$ = [];
-    for (i$ = 0, len$ = (ref$ = [1, 3, 50, 300]).length; i$ < len$; ++i$) {
+    for (i$ = 0, len$ = (ref$ = [1, 2, 3, 50, 300]).length; i$ < len$; ++i$) {
       number = ref$[i$];
       res$.push({
         itemtype: 'balance',
@@ -345,6 +351,7 @@
       res$.push({
         itemtype: 'video',
         data: {
+          itemcategory: 'lettervideo',
           videoid: videoid
         },
         social: {
@@ -352,7 +359,7 @@
         }
       });
     }
-    lettervideos = res$;
+    lettervideo = res$;
     res$ = [];
     for (i$ = 0, len$ = readinglist.length; i$ < len$; ++i$) {
       sentences = readinglist[i$];
@@ -367,7 +374,7 @@
       });
     }
     readaloud = res$;
-    defaults = [dots[0], dots[1]].concat([typeletter[0], typeletter[1]], [typeword[0], typeword[1]]);
+    defaults = [dots[0], dots[1]].concat([typeletter[0], typeletter[1]], [typeword[0], typeword[1]], [balance[0], balance[1]], [lettervideo[0], lettervideo[1]], [readaloud[0], readaloud[1]]);
     feed_items_cache = {
       defaults: defaults,
       bars: bars,
@@ -376,7 +383,7 @@
       typeletter: typeletter,
       readaloud: readaloud,
       balance: balance,
-      lettervideos: lettervideos,
+      lettervideo: lettervideo,
       admin: admin,
       example: example,
       iframe: iframe
