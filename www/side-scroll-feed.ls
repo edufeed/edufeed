@@ -42,6 +42,8 @@ Polymer {
     this.itemFinished item
     #this.closeActivity()
     this.SM('.mainscreen').hide()
+    this.S('#activity').html('')
+    this.$$('#sharingbutton').closeShareWidget()
     this.S('#taskfinished').show()
     taskfinished_dom = Polymer.dom(this.$$('#taskfinished'))
     taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>"

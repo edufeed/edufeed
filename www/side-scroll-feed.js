@@ -62,6 +62,8 @@
       });
       this.itemFinished(item);
       this.SM('.mainscreen').hide();
+      this.S('#activity').html('');
+      this.$$('#sharingbutton').closeShareWidget();
       this.S('#taskfinished').show();
       taskfinished_dom = Polymer.dom(this.$$('#taskfinished'));
       return taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>";
