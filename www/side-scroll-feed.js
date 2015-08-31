@@ -225,6 +225,21 @@
         self.hide_admin_console = true;
         return self.updateItems();
       });
+      this.addEventListener('make-all-buttons-transparent', function(){
+        return self.S('#activitybuttons').css('opacity', 0);
+      });
+      this.addEventListener('hide-share-button', function(){
+        return self.S('#sharingbutton').hide();
+      });
+      this.addEventListener('show-share-button', function(){
+        return self.S('#sharingbutton').show();
+      });
+      this.addEventListener('hide-help-button', function(){
+        return self.S('#helpbutton').hide();
+      });
+      this.addEventListener('show-help-button', function(){
+        return self.S('#helpbutton').show();
+      });
       this.addEventListener('task-freeplay', function(){
         self.S('#exitbutton').hide();
         return self.S('#donebutton').show();
@@ -243,7 +258,7 @@
         return self.shareActivity(evt);
       });
       this.updateItems(true);
-      return getUsername(function(username){
+      getUsername(function(username){
         setSyncHandler("feeditems_" + username, function(change){
           return self.updateItems();
         });
@@ -257,6 +272,16 @@
             return setSyncHandler("finisheditems_" + classmate, function(change){
               return self.updateItems();
             });
+          }
+        });
+      });
+      return getBoolParam('hidesharebutton', function(hidesharebutton){
+        return getBoolParam('hidehelpbutton', function(hidehelpbutton){
+          if (hidesharebutton) {
+            self.S('#sharingbutton').hide();
+          }
+          if (hidehelpbutton) {
+            return self.S('#helpbutton').hide();
           }
         });
       });

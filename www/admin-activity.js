@@ -21,23 +21,29 @@
               poster: username
             }).trim());
             self.S('#targetinput').val(username.trim());
-            return getAllUsers(function(all_users){
-              var fastlogin_buttons, i$, len$, results$ = [];
-              fastlogin_buttons = $(self).find('#fastlogin_buttons');
-              for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
-                results$.push((fn$.call(this, all_users[i$])));
-              }
-              return results$;
-              function fn$(current_user){
-                var new_fastlogin_button;
-                new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
-                  self.S('#usernameinput').val(current_user);
-                  self.S('#passwordinput').val(current_user);
-                  return self.setUsername();
+            return getBoolParam('hidesharebutton', function(hidesharebutton){
+              return getBoolParam('hidehelpbutton', function(hidehelpbutton){
+                self.S('#hidesharebutton').prop('checked', hidesharebutton);
+                self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
+                return getAllUsers(function(all_users){
+                  var fastlogin_buttons, i$, len$, results$ = [];
+                  fastlogin_buttons = $(self).find('#fastlogin_buttons');
+                  for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                    results$.push((fn$.call(this, all_users[i$])));
+                  }
+                  return results$;
+                  function fn$(current_user){
+                    var new_fastlogin_button;
+                    new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                      self.S('#usernameinput').val(current_user);
+                      self.S('#passwordinput').val(current_user);
+                      return self.setUsername();
+                    });
+                    new_fastlogin_button.appendTo(fastlogin_buttons);
+                    return fastlogin_buttons.append(' ');
+                  }
                 });
-                new_fastlogin_button.appendTo(fastlogin_buttons);
-                return fastlogin_buttons.append(' ');
-              }
+              });
             });
           });
         });
@@ -133,6 +139,36 @@
     hideAdminActivity: function(){
       console.log('hideAdminActivity');
       this.fire('hide-admin-activity', this);
+      return this.fire('task-left', this);
+    },
+    hidesharebutton_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        this.fire('hide-share-button', this);
+      } else {
+        this.fire('show-share-button', this);
+      }
+      return setParam('hidesharebutton', checked);
+    },
+    hidehelpbutton_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        this.fire('hide-help-button', this);
+      } else {
+        this.fire('show-help-button', this);
+      }
+      return setParam('hidehelpbutton', checked);
+    },
+    makeAllButtonsTransparent: function(){
+      this.fire('make-all-buttons-transparent', this);
       return this.fire('task-left', this);
     },
     setUsername: function(){

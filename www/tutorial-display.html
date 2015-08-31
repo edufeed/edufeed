@@ -26,8 +26,11 @@
       user-select: none;
     }
     #tutorialvideo {
-      width: 100%;
-      height: auto;
+      display: block;
+      width: auto;
+      height: 100%;
+      margin: 0 auto;
+      text-align: center;
       overflow: hidden;
       pointer-events: none;
     }
@@ -37,7 +40,7 @@
   </style>
   <template>
     <span id="tutorialvideo_alttext"></span>
-    <video id="tutorialvideo" src="{{videosrc}}" on-ended="videoEnded" on-error="videoError" autoplay="true"></video>
+    <video id="tutorialvideo" on-ended="videoEnded" on-error="videoError" autoplay="true"></video>
     <img id="exitvideobutton" src="close-icon.svg" on-click="closeTutorial">
   </template>
   <script src="tutorial-display.js"></script>  

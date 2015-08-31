@@ -151,6 +151,16 @@ Polymer {
     this.addEventListener 'hide-admin-activity', ->
       self.hide_admin_console = true
       self.updateItems()
+    this.addEventListener 'make-all-buttons-transparent', ->
+      self.S('#activitybuttons').css('opacity', 0)
+    this.addEventListener 'hide-share-button', ->
+      self.S('#sharingbutton').hide()
+    this.addEventListener 'show-share-button', ->
+      self.S('#sharingbutton').show()
+    this.addEventListener 'hide-help-button', ->
+      self.S('#helpbutton').hide()
+    this.addEventListener 'show-help-button', ->
+      self.S('#helpbutton').show()
     this.addEventListener 'task-freeplay', ->
       self.S('#exitbutton').hide()
       self.S('#donebutton').show()
@@ -171,4 +181,10 @@ Polymer {
       for let classmate in classmates
         setSyncHandler "finisheditems_#{classmate}", (change) ->
           self.updateItems()
+    hidesharebutton <- getBoolParam('hidesharebutton')
+    hidehelpbutton <- getBoolParam('hidehelpbutton')
+    if hidesharebutton
+      self.S('#sharingbutton').hide()
+    if hidehelpbutton
+      self.S('#helpbutton').hide()
 }
