@@ -342,9 +342,9 @@ function RotateBeam()
 
     if (percentDiff == 0)
         rotationDeg = 0;
-    if (percentDiff >= 0.25)
+    if (percentDiff > 0)
         rotationDeg = 3;
-    if (percentDiff >= 0.50)
+    if (percentDiff >= 0.30)
         rotationDeg = 7;
     if (percentDiff >= 0.75)
         rotationDeg = 12;
