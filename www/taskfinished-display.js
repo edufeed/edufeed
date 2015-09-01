@@ -14,7 +14,7 @@
       self = this;
       setTimeout(function(){
         return self.$$('#sharemessage').playSentence();
-      }, 100);
+      }, 1000);
       return getUsername(function(username){
         return getClassmates(username, function(classmates){
           var res$, i$, len$, x, results$ = [];

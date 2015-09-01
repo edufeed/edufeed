@@ -110,6 +110,14 @@ synthesize_word_real = (play_id, word, callback) ->
 export synthesize_multiple_words = (wordlist, callbacks) ->
   synthesize_multiple_words_real(get_new_play_id(), wordlist, callbacks)
 
+async_eachSeries = (list, callback, done) ->
+  if list.length == 0
+    if done?
+      done()
+    return
+  callback list[0], (err, res) ->
+    async_eachSeries(list[1 to], callback, done)
+
 synthesize_multiple_words_real = (play_id, wordlist, callbacks) ->
   if not callbacks?
     callbacks = {}
@@ -123,7 +131,7 @@ synthesize_multiple_words_real = (play_id, wordlist, callbacks) ->
       done()
     return
   word_idx = 0
-  async.eachSeries wordlist, (info, ncallback) ->
+  async_eachSeries wordlist, (info, ncallback) ->
     if current_play_id != play_id
       ncallback(null, null)
       return

@@ -1,5 +1,5 @@
 (function(){
-  var current_play_id, get_new_play_id, stop_sound, fetchAsDataURLCached, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, is_empty_word, synthesize_word_real, synthesize_multiple_words, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this;
+  var current_play_id, get_new_play_id, stop_sound, fetchAsDataURLCached, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, is_empty_word, synthesize_word_real, synthesize_multiple_words, async_eachSeries, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this, slice$ = [].slice;
   current_play_id = null;
   get_new_play_id = function(){
     var play_id;
@@ -140,6 +140,17 @@
   out$.synthesize_multiple_words = synthesize_multiple_words = function(wordlist, callbacks){
     return synthesize_multiple_words_real(get_new_play_id(), wordlist, callbacks);
   };
+  async_eachSeries = function(list, callback, done){
+    if (list.length === 0) {
+      if (done != null) {
+        done();
+      }
+      return;
+    }
+    return callback(list[0], function(err, res){
+      return async_eachSeries(slice$.call(list, 1), callback, done);
+    });
+  };
   synthesize_multiple_words_real = function(play_id, wordlist, callbacks){
     var done, startword, endword, word_idx;
     if (callbacks == null) {
@@ -158,7 +169,7 @@
       return;
     }
     word_idx = 0;
-    return async.eachSeries(wordlist, function(info, ncallback){
+    return async_eachSeries(wordlist, function(info, ncallback){
       if (current_play_id !== play_id) {
         ncallback(null, null);
         return;

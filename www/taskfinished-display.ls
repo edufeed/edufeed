@@ -12,7 +12,7 @@ RegisterActivity {
     setTimeout ->
       #play_success_sound ->
       self.$$('#sharemessage').playSentence()
-    , 100
+    , 1000
     username <- getUsername()
     classmates <- getClassmates(username)
     classmates = [x for x in classmates when x != username]
