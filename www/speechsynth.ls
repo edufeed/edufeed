@@ -9,6 +9,14 @@ export stop_sound = ->
   get_new_play_id()
   $('#soundtags').html('')
 
+export fetchAsDataURLCached = (uri, callback) ->
+  if filecache?
+    cached_data = filecache[uri]
+    if cached_data?
+      callback(cached_data)
+      return
+  fetchAsDataURL(uri, callback)
+
 export play_sound = (wordpath, callback) ->
   play_sound_real(get_new_play_id(), wordpath, callback)
 
@@ -48,7 +56,7 @@ play_sound_real = (play_id, wordpath, callback) ->
       callback()
   video_tag[0].addEventListener('canplaythrough', play_audio)
   video_tag[0].addEventListener('ended', tag_finished_playing)
-  fetchAsDataURL wordpath, (dataurl) ->
+  fetchAsDataURLCached wordpath, (dataurl) ->
     if current_play_id != play_id
       $(video_tag).remove()
       if callback? and not callback_called
@@ -79,6 +87,9 @@ synthesize_word_uncached_real = (play_id, word, synth_lang, callback) ->
 export synthesize_word = (word, callback) ->
   synthesize_word_real(get_new_play_id(), word, callback)
 
+is_empty_word = (word) ->
+  return ['', '?', '.', '!'].indexOf(word.trim()) != -1
+
 synthesize_word_real = (play_id, word, callback) ->
   if current_play_id != play_id
     if callback?
@@ -86,7 +97,7 @@ synthesize_word_real = (play_id, word, callback) ->
     return
   synth_lang = 'en'
   word = word.trim()
-  if ['', '?', '.', '!'].indexOf(word) != -1
+  if is_empty_word(word)
     if callback?
       callback()
     return

@@ -1,5 +1,5 @@
 (function(){
-  var current_play_id, get_new_play_id, stop_sound, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, synthesize_word_real, synthesize_multiple_words, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this;
+  var current_play_id, get_new_play_id, stop_sound, fetchAsDataURLCached, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, is_empty_word, synthesize_word_real, synthesize_multiple_words, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this;
   current_play_id = null;
   get_new_play_id = function(){
     var play_id;
@@ -10,6 +10,17 @@
   out$.stop_sound = stop_sound = function(){
     get_new_play_id();
     return $('#soundtags').html('');
+  };
+  out$.fetchAsDataURLCached = fetchAsDataURLCached = function(uri, callback){
+    var cached_data;
+    if (typeof filecache != 'undefined' && filecache !== null) {
+      cached_data = filecache[uri];
+      if (cached_data != null) {
+        callback(cached_data);
+        return;
+      }
+    }
+    return fetchAsDataURL(uri, callback);
   };
   out$.play_sound = play_sound = function(wordpath, callback){
     return play_sound_real(get_new_play_id(), wordpath, callback);
@@ -60,7 +71,7 @@
     };
     video_tag[0].addEventListener('canplaythrough', play_audio);
     video_tag[0].addEventListener('ended', tag_finished_playing);
-    return fetchAsDataURL(wordpath, function(dataurl){
+    return fetchAsDataURLCached(wordpath, function(dataurl){
       if (current_play_id !== play_id) {
         $(video_tag).remove();
         if (callback != null && !callback_called) {
@@ -99,6 +110,9 @@
   out$.synthesize_word = synthesize_word = function(word, callback){
     return synthesize_word_real(get_new_play_id(), word, callback);
   };
+  is_empty_word = function(word){
+    return ['', '?', '.', '!'].indexOf(word.trim()) !== -1;
+  };
   synthesize_word_real = function(play_id, word, callback){
     var synth_lang;
     if (current_play_id !== play_id) {
@@ -109,7 +123,7 @@
     }
     synth_lang = 'en';
     word = word.trim();
-    if (['', '?', '.', '!'].indexOf(word) !== -1) {
+    if (is_empty_word(word)) {
       if (callback != null) {
         callback();
       }
