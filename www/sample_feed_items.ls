@@ -1,8 +1,5 @@
-all_feed_items_cache = null
-export getAllFeedItems = ->
-  if all_feed_items_cache?
-    return all_feed_items_cache
-  wordlist = [
+export getFeedWordList = ->
+  [
     'cat'
     'dog'
     'white'
@@ -25,12 +22,27 @@ export getAllFeedItems = ->
     'orange'
     'pear'
   ]
-  readinglist = [
+
+export getFeedReadingList = ->
+  [
     ['Why do elephants never forget?', 'Because nobody ever tells them anything!']
     ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!']
     ['What is the strongest animal?', 'A snail. He carries his house on his back!']
     ['What has six eyes but cannot see?', 'Three blind mice!']
   ]
+
+export getFeedVideoLists = ->
+  {
+    lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']
+  }
+
+all_feed_items_cache = null
+export getAllFeedItems = ->
+  if all_feed_items_cache?
+    return all_feed_items_cache
+  wordlist = getFeedWordList()
+  readinglist = getFeedReadingList()
+  videolists = getFeedVideoLists()
 
   bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
@@ -60,7 +72,7 @@ export getAllFeedItems = ->
     [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: ['elephant']}}]
 
   lettervideo =
-    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']]
+    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
 
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
@@ -116,35 +128,9 @@ feed_items_cache = null
 export getSampleFeedItems = ->
   if feed_items_cache?
     return feed_items_cache
-  wordlist = [
-    'cat'
-    'dog'
-    'white'
-    'black'
-    'blue'
-    'red'
-    'bee'
-    'bird'
-    'lion'
-    'tiger'
-    'fish'
-    'city'
-    'house'
-    'roof'
-    'tree'
-    'river'
-    'apple'
-    'banana'
-    'cherry'
-    'orange'
-    'pear'
-  ]
-  readinglist = [
-    ['Why do elephants never forget?', 'Because nobody ever tells them anything!']
-    ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!']
-    ['What is the strongest animal?', 'A snail. He carries his house on his back!']
-    ['What has six eyes but cannot see?', 'Three blind mice!']
-  ]
+  wordlist = getFeedWordList()
+  readinglist = getFeedReadingList()
+  videolists = getFeedVideoLists()
 
   bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
@@ -174,7 +160,7 @@ export getSampleFeedItems = ->
     [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: ['elephant']}}]
 
   lettervideo =
-    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']]
+    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
 
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]

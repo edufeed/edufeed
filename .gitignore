@@ -9,6 +9,7 @@ desktop.ini
 /couchdata
 /log.txt
 /couchdb_log.txt
+/www/videos/youtube
 
 # Usually, you shouldn't version control `platforms/` and `plugins/`. They are
 # build artefacts which change from machine to machine and over time.
