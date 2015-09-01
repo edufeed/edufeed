@@ -7,13 +7,23 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      font-size: 44px;
+      white-space: normal;
+    }
+    .saysentence {
+      cursor: pointer;
+    }
+    .sayword {
+      cursor: pointer;
+    }
+    .highlighted {
+      background-color: yellow;
     }
   </style>
   <template>
-    <template is="dom-repeat" items="{{sentences_split}}" as="wordlist" index-as="sentenceidx">
-      <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
-        <span on-click="wordClicked" wordidx="{{wordidx}}" sentenceidx="{{sentenceidx}}">{{word}}</span>
-      </template>
+    <template is="dom-repeat" items="{{sentences}}" as="sentence" index-as="sentenceidx">
+      <readaloud-text text="{{sentence}}" sentenceidx="{{sentenceidx}}" id="{{getSentenceId(sentenceidx)}}"></readaloud-text>
+      <!--<span>{{sentence}}</span>-->
       <br>
     </template>
   </template>

@@ -165,6 +165,10 @@ export postItem = (dbname, item, callback) ->
     if callback?
       callback(null, null)
 
+export postItemToSelf = (item, callback) ->
+  username <- getUsername()
+  postItem "feeditems_#{username}", item, callback
+
 export postItemToTarget = (target, item, callback) ->
   #console.log 'postItemToTarget before getClasses'
   getClasses (classes) ->

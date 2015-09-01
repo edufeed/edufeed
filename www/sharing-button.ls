@@ -16,7 +16,7 @@ Polymer {
     classmates <- getClassmates(username)
     classmates = [x for x in classmates when x != username]
     for let classmate in classmates
-      avatar = $("<user-avatar username='#{classmate}'>").css({float: 'right'})
+      avatar = $("<user-avatar username='#{classmate}'>").css({display: 'inline-block'})
       avatar.click ->
         synthesize_multiple_words ['shared with', classmate]
         avatar.prop('checked', true)

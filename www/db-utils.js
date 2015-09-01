@@ -1,5 +1,5 @@
 (function(){
-  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToTarget, postFinishedItem, getFinishedItems, out$ = typeof exports != 'undefined' && exports || this;
+  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToSelf, postItemToTarget, postFinishedItem, getFinishedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
       var pouchOpts, use_https, db, ajaxOpts;
@@ -218,6 +218,11 @@
       if (callback != null) {
         return callback(null, null);
       }
+    });
+  };
+  out$.postItemToSelf = postItemToSelf = function(item, callback){
+    return getUsername(function(username){
+      return postItem("feeditems_" + username, item, callback);
     });
   };
   out$.postItemToTarget = postItemToTarget = function(target, item, callback){

@@ -9,8 +9,7 @@
       },
       difficulty: {
         type: Number,
-        value: 0,
-        observer: 'shownKeysChanged'
+        value: 0
       },
       partialword: {
         type: String,
@@ -18,34 +17,59 @@
         observer: 'partialwordChanged'
       }
     },
-    playword: function(success){
-      var playlist;
+    picturePressed: function(){
+      return this.playword(false);
+    },
+    get_instruction_playlist: function(){
+      var letter;
+      return ['type the word', this.word].concat((function(){
+        var i$, ref$, len$, results$ = [];
+        for (i$ = 0, len$ = (ref$ = this.word).length; i$ < len$; ++i$) {
+          letter = ref$[i$];
+          results$.push({
+            letter: letter
+          });
+        }
+        return results$;
+      }.call(this)));
+    },
+    playword: function(success, callback){
+      var playlist, this$ = this;
       if (this.word == null || this.word.length === 0) {
         return;
       }
-      playlist = ['type the word', this.word];
+      playlist = this.get_instruction_playlist();
       if (success != null && success === true) {
         playlist.unshift({
-          file: 'success.mp3'
+          sound: 'success'
         });
       }
-      return play_multiple_sounds(playlist);
+      return play_multiple_sounds(playlist, function(){
+        if (callback != null) {
+          return callback();
+        }
+      });
     },
     wordChanged: function(){
-      this.playword();
-      return this.shownKeysChanged();
+      var this$ = this;
+      this.shownKeysChanged();
+      this.disableKeyboard();
+      return this.playword(false, function(){
+        return this$.enableKeyboard();
+      });
     },
     partialwordChanged: function(){
       this.$$('#inputarea').innerText = this.partialword;
       return this.shownKeysChanged();
     },
     keyTyped: function(evt, key){
-      var keyboard, letter, next_letter, newkeys, x, this$ = this;
+      var keyboard, letter, next_letter, this$ = this;
       keyboard = this.$$('#keyboard');
       letter = key.keytext;
       next_letter = this.nextLetter();
       if (letter !== next_letter) {
         this.incorrect += 1;
+        this.disableKeyboard();
         play_multiple_sounds([
           {
             sound: 'wrong'
@@ -54,27 +78,39 @@
           }, 'instead type the letter', {
             letter: next_letter
           }
-        ]);
-        newkeys = (function(){
-          var i$, ref$, len$, results$ = [];
-          for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
-            x = ref$[i$];
-            if (x !== letter) {
-              results$.push(x);
+        ], function(){
+          var newkeys, x;
+          this$.enableKeyboard();
+          newkeys = (function(){
+            var i$, ref$, len$, results$ = [];
+            for (i$ = 0, len$ = (ref$ = keyboard.shownkeys.split('')).length; i$ < len$; ++i$) {
+              x = ref$[i$];
+              if (x !== letter) {
+                results$.push(x);
+              }
             }
-          }
-          return results$;
-        }()).join('');
-        keyboard.highlightkey = next_letter;
+            return results$;
+          }()).join('');
+          return keyboard.highlightkey = next_letter;
+        });
       }
       if (letter === next_letter) {
         if (this.partialword + letter === this.word) {
           if (this.difficulty < 2) {
             this.difficulty += 1;
-            play_letter_sound(letter, function(){
-              return this$.playword(true);
+            this.shownKeysChanged();
+            this.disableKeyboard();
+            play_multiple_sounds([
+              {
+                letter: letter
+              }, {
+                sound: 'success'
+              }
+            ].concat(this.get_instruction_playlist()), function(){
+              return this$.enableKeyboard();
             });
           } else {
+            this.disableKeyboard();
             play_multiple_sounds([
               {
                 letter: letter
@@ -82,6 +118,7 @@
                 sound: 'success'
               }, 'you typed the word', this.word
             ], function(){
+              this$.enableKeyboard();
               return this$.fire('task-finished', this$);
             });
           }
@@ -97,6 +134,15 @@
         return '';
       }
       return this.word[this.partialword.length];
+    },
+    disableKeyboard: function(){
+      this.$$('#keyboard').highlightkey = '';
+      this.$$('#keyboard').style.opacity = 0.2;
+      return this.style['pointer-events'] = 'none';
+    },
+    enableKeyboard: function(){
+      this.$$('#keyboard').style.opacity = 1.0;
+      return this.style['pointer-events'] = 'all';
     },
     shownKeysChanged: function(){
       var keyboard, next_letter;

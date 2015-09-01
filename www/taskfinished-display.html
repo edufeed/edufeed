@@ -1,0 +1,31 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="taskfinished-display">
+  <style>
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      white-space: normal;
+    }
+    #finishedbutton {
+      display: block;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
+  <template>
+    <readaloud-text id="sharemessage" style="font-size: 44px" text="Great! Who do you want to share this with?"></readaloud-text>
+    <div style="width: 100vw; margin-top: 20px">
+      <div id="classmate_avatars" style="display: block; text-align: center; margin: 0 auto; "></div>
+    </div>
+    <div style="width: 100vw; margin-top: 50px">
+      <img id="finishedbutton" src="done-icon.svg" on-click="closeTaskFinishedDisplay">
+    </div>
+  </template>
+  <script src="taskfinished-display.js"></script>  
+</dom-module>

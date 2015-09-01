@@ -75,6 +75,14 @@ export memoizeSingleAsync = (func) ->
       cached_val := result
       callback result
 
+export onceTrue = (condition, callback) ->
+  if condition()
+    callback()
+  else
+    setTimeout ->
+      onceTrue(condition, callback)
+    , 100
+
 export getClasses = memoizeSingleAsync (callback) ->
   $.get '/classes.yaml', (yamltxt) ->
     data = jsyaml.safeLoad(yamltxt)

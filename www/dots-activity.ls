@@ -20,6 +20,14 @@ RegisterActivity {
     this.target_term2 = term2
     this.target_terms = [term1, term2]
     this.target_product = product
+    if this.task == ''
+      setTimeout ~>
+        this.fire 'task-freeplay', this
+      , 0
+    else
+      setTimeout ~>
+        this.fire 'task-notfreeplay', this
+      , 0
     this.S('#formuladisplay').prop {
       task: this.task
       term1: this.target_term1
@@ -27,10 +35,11 @@ RegisterActivity {
       product: this.target_product
     }
   finished: ->
-    console.log 'done! task=' + this.task
+    #console.log 'done! task=' + this.task
     $('#dotsgrid').prop('ignoretouch', true)
-    setInterval ~>
-      this.fire 'task-finished', this
+    setTimeout ~>
+      play_success_sound ~>
+        this.fire 'task-finished', this
     , 2000
   selectedDotsChanged: (obj, data) ->
     {xdim, ydim} = data

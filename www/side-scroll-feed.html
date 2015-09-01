@@ -1,42 +1,76 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="feed-items.html">
 <link rel="import" href="sharing-button.html">
+<link rel="import" href="readaloud-text.html">
+<link rel="import" href="tutorial-display.html">
+<link rel="import" href="taskfinished-display.html">
 
 <dom-module id="side-scroll-feed">
   <style>
     :host {
       display: block;
-      white-space: nowrap;
     }
     #exitbutton {
-      position: fixed;
       width: 100px;
       height: 100px;
-      right: 0px;
-      bottom: 0px;
-      cursor: pointer;
+      margin-left: 5px;
+    }
+    #donebutton {
+      width: 100px;
+      height: 100px;
+      margin-left: 5px;
+    }
+    #helpbutton {
+      width: 100px;
+      height: 100px;
+      margin-left: 5px;
     }
     #thumbnails {
       width: 100vl;
       height: 100vh;
       overflow: auto;
-    }
-    #sharingbutton {
-      position: fixed;
-      bottom: 0px;
-      right: 110px;
-      cursor: pointer;
+      white-space: nowrap;
     }
     #activitybuttons {
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      height: 100px;
+      pointer-events: none;
+    }
+    .controlbutton {
+      cursor: pointer;
+      float: right;
+      pointer-events: auto;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .mainscreen {
       display: none;
+      width: 100vl;
+      height: 100vh;
+    }
+    #tutorial {
+      display: none;
+      overflow: hidden;
     }
   </style>
   <template>
-  <div id="thumbnails"></div>
-  <div id="activity" on-click="closeShareWidget"></div>
-  <div id="activitybuttons">
-    <sharing-button id="sharingbutton" on-share-activity="shareActivity"></sharing-button>
-    <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked">
+  <div id="thumbnails" class="mainscreen" style="display: inline"></div>
+  <div id="tutorial" class="mainscreen"></div>
+  <div id="taskfinished" class="mainscreen"></div>
+  <div id="activityscreen" class="mainscreen">
+    <div id="activity" on-click="closeShareWidget"></div>
+    <div id="activitybuttons">
+      <img id="exitbutton" src="close-icon.svg" on-click="closeButtonClicked" class="controlbutton">
+      <img id="donebutton" src="done-icon.svg" on-click="doneButtonClicked" class="controlbutton">
+      <img id="helpbutton" src="help-icon.svg" on-click="helpButtonClicked" class="controlbutton">
+      <sharing-button id="sharingbutton" class="controlbutton"></sharing-button>
+    </div>
   </div>
   </template>
   <script src="feed-items.js"></script>

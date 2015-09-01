@@ -37,6 +37,9 @@ function fetchAsDataURL(uri, callback) {
   if (/\.mp3$/.test(uri)) {
     mimetype = 'audio/mpeg'
   }
+  else if (/\.mp4$/.test(uri)) {
+    mimetype = 'video/mp4'
+  }
   else {
     console.log('fetchAsDataURL on unknown data type: ' + uri)
     alert('fetchAsDataURL on unknown data type: ' + uri)

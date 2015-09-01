@@ -15,19 +15,24 @@
     <!--<div>Application Cache status: <span>{{appcacheStatus()}}</span></div>-->
     <!-- <button class="btn btn-lg btn-primary" on-click="makeFullScreen">Make Fullscreen</button><br> -->
     <div>CouchDB Server:</div>
-    <input id="couchserverinput"></input><br>
+    <input id="couchserverinput"><br>
     <div>Username:</div>
-    <input id="usernameinput"></input><br>
+    <input id="usernameinput"><br>
     <div>Password:</div>
-    <input id="passwordinput" type="password"></input><br>
+    <input id="passwordinput" type="password"><br>
     <button class="btn btn-lg btn-primary" on-click="setUsername">Login</button>
     <br><br>
     <div>Fast Login:</div>
     <div id="fastlogin_buttons"></div>
     <br><br>
+    <div>Shown and Hidden buttons:</div>
+    <label><input type="checkbox" id="hidesharebutton" on-click="hidesharebutton_changed">Hide Share button</label><br>
+    <label><input type="checkbox" id="hidehelpbutton" on-click="hidehelpbutton_changed">Hide Help button</label><br>
+    <button class="btn btn-lg btn-primary" on-click="makeAllButtonsTransparent">Temporarily make all buttons transparent</button>
+    <br><br>
     <div>Add custom item:</div>
     <div>itemtype:</div>
-    <input id="itemtypeinput"></input>
+    <input id="itemtypeinput">
     <div>data:</div>
     <textarea id="datainput"></textarea>
     <div>social:</div>

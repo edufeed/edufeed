@@ -14,6 +14,10 @@ RegisterActivity {
     self.S('#datainput').val jsyaml.safeDump({word: 'cat'}).trim()
     self.S('#socialinput').val jsyaml.safeDump({poster: username}).trim()
     self.S('#targetinput').val username.trim()
+    hidesharebutton <- getBoolParam('hidesharebutton')
+    hidehelpbutton <- getBoolParam('hidehelpbutton')
+    self.S('#hidesharebutton').prop('checked', hidesharebutton)
+    self.S('#hidehelpbutton').prop('checked', hidehelpbutton)
     all_users <- getAllUsers()
     fastlogin_buttons = $(self).find('#fastlogin_buttons')
     for let current_user in all_users
@@ -77,6 +81,27 @@ RegisterActivity {
   hideAdminActivity: ->
     console.log 'hideAdminActivity'
     this.fire 'hide-admin-activity', this
+    this.fire 'task-left', this
+  hidesharebutton_changed: (evt) ->
+    checked = false
+    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
+      checked = true
+    if checked
+      this.fire 'hide-share-button', this
+    else
+      this.fire 'show-share-button', this
+    setParam 'hidesharebutton', checked
+  hidehelpbutton_changed: (evt) ->
+    checked = false
+    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
+      checked = true
+    if checked
+      this.fire 'hide-help-button', this
+    else
+      this.fire 'show-help-button', this
+    setParam 'hidehelpbutton', checked
+  makeAllButtonsTransparent: ->
+    this.fire 'make-all-buttons-transparent', this
     this.fire 'task-left', this
   setUsername: ->
     self = this
