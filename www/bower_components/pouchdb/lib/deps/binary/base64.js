@@ -1,8 +1,7 @@
 'use strict';
 
-var buffer = require('./buffer');
+var buffer = require('./../buffer');
 
-/* istanbul ignore if */
 if (typeof atob === 'function') {
   exports.atob = function (str) {
     /* global atob */
@@ -20,7 +19,6 @@ if (typeof atob === 'function') {
   };
 }
 
-/* istanbul ignore if */
 if (typeof btoa === 'function') {
   exports.btoa = function (str) {
     /* global btoa */

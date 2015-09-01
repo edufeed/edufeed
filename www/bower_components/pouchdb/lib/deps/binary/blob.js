@@ -4,7 +4,6 @@
 // browsers that don't support the native Blob constructor (e.g.
 // old QtWebKit versions, Android < 4.4).
 function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
   parts = parts || [];
   properties = properties || {};
   try {
@@ -13,11 +12,11 @@ function createBlob(parts, properties) {
     if (e.name !== "TypeError") {
       throw e;
     }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
+    var BlobBuilder = global.BlobBuilder ||
+                      global.MSBlobBuilder ||
+                      global.MozBlobBuilder ||
+                      global.WebKitBlobBuilder;
+    var builder = new BlobBuilder();
     for (var i = 0; i < parts.length; i += 1) {
       builder.append(parts[i]);
     }

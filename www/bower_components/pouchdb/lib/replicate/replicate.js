@@ -3,8 +3,8 @@
 var utils = require('./../utils');
 var Checkpointer = require('./checkpointer');
 var backOff = require('./backoff');
-var generateReplicationId = require('./generateReplicationId');
-var getDocs = require('./getDocs');
+var genReplicationId = require('./gen-replication-id');
+var getDocs = require('./get-docs');
 
 function replicate(src, target, opts, returnValue, result) {
   var batches = [];               // list of batches to be processed
@@ -30,8 +30,6 @@ function replicate(src, target, opts, returnValue, result) {
   var checkpointer;
   var allErrors = [];
   var changedDocs = [];
-  // Like couchdb, every replication gets a unique session id
-  var session = utils.uuid();
 
   result = result || {
     ok: true,
@@ -49,7 +47,7 @@ function replicate(src, target, opts, returnValue, result) {
     if (checkpointer) {
       return utils.Promise.resolve();
     }
-    return generateReplicationId(src, target, opts).then(function (res) {
+    return genReplicationId(src, target, opts).then(function (res) {
       repId = res;
       checkpointer = new Checkpointer(src, target, repId, state);
     });
@@ -104,8 +102,7 @@ function replicate(src, target, opts, returnValue, result) {
 
   function finishBatch() {
     writingCheckpoint = true;
-    return checkpointer.writeCheckpoint(currentBatch.seq,
-        session).then(function () {
+    return checkpointer.writeCheckpoint(currentBatch.seq).then(function () {
       writingCheckpoint = false;
       if (state.cancelled) {
         completeReplication();
@@ -181,6 +178,7 @@ function replicate(src, target, opts, returnValue, result) {
         if ((continuous && changesOpts.live) || changesCompleted) {
           returnValue.state = 'pending';
           returnValue.emit('paused');
+          returnValue.emit('uptodate', result);
         }
         if (changesCompleted) {
           completeReplication();
@@ -390,6 +388,10 @@ function replicate(src, target, opts, returnValue, result) {
   if (!returnValue._addedListeners) {
     returnValue.once('cancel', completeReplication);
 
+    if (typeof opts.onChange === 'function') {
+      returnValue.on('change', opts.onChange);
+    }
+
     if (typeof opts.complete === 'function') {
       returnValue.once('error', opts.complete);
       returnValue.once('complete', function (result) {
@@ -404,7 +406,7 @@ function replicate(src, target, opts, returnValue, result) {
   } else {
     initCheckpointer().then(function () {
       writingCheckpoint = true;
-      return checkpointer.writeCheckpoint(opts.since, session);
+      return checkpointer.writeCheckpoint(opts.since);
     }).then(function () {
       writingCheckpoint = false;
       if (state.cancelled) {

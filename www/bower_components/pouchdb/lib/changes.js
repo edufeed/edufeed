@@ -1,14 +1,10 @@
 'use strict';
 var utils = require('./utils');
-var isDeleted = require('./deps/docs/isDeleted');
 var merge = require('./merge');
 var errors = require('./deps/errors');
 var EE = require('events').EventEmitter;
 var evalFilter = require('./evalFilter');
 var evalView = require('./evalView');
-var parseDdocFunctionName = require('./deps/docs/parseDdocFunctionName');
-var normalizeDdocFunctionName =
-  require('./deps/docs/normalizeDdocFunctionName');
 module.exports = Changes;
 utils.inherits(Changes, EE);
 
@@ -17,6 +13,7 @@ function Changes(db, opts, callback) {
   var self = this;
   this.db = db;
   opts = opts ? utils.clone(opts) : {};
+  var oldComplete = callback || opts.complete || function () {};
   var complete = opts.complete = utils.once(function (err, resp) {
     if (err) {
       self.emit('error', err);
@@ -26,13 +23,17 @@ function Changes(db, opts, callback) {
     self.removeAllListeners();
     db.removeListener('destroyed', onDestroy);
   });
-  if (callback) {
+  if (oldComplete) {
     self.on('complete', function (resp) {
-      callback(null, resp);
+      oldComplete(null, resp);
     });
     self.on('error', function (err) {
-      callback(err);
+      oldComplete(err);
     });
+  }
+  var oldOnChange = opts.onChange;
+  if (oldOnChange) {
+    self.on('change', oldOnChange);
   }
   function onDestroy() {
     self.cancel();
@@ -45,6 +46,7 @@ function Changes(db, opts, callback) {
     }
     self.emit('change', change);
     if (self.startSeq && self.startSeq <= change.seq) {
+      self.emit('uptodate');
       self.startSeq = false;
     }
     if (change.deleted) {
@@ -67,6 +69,9 @@ function Changes(db, opts, callback) {
     };
   });
   self.once('cancel', function () {
+    if (oldOnChange) {
+      self.removeListener('change', oldOnChange);
+    }
     db.removeListener('destroyed', onDestroy);
     opts.complete(null, {status: 'cancelled'});
   });
@@ -108,7 +113,7 @@ function processChange(doc, metadata, opts) {
     doc: doc
   };
 
-  if (isDeleted(metadata, doc._rev)) {
+  if (utils.isDeleted(metadata, doc._rev)) {
     change.deleted = true;
   }
   if (opts.conflicts) {
@@ -161,16 +166,10 @@ Changes.prototype.doChanges = function (opts) {
     });
   }
 
-  if (opts.filter && typeof opts.filter === 'string') {
-    if (opts.filter === '_view') {
-      opts.view = normalizeDdocFunctionName(opts.view);
-    } else {
-      opts.filter = normalizeDdocFunctionName(opts.filter);
-    }
-
-    if (this.db.type() !== 'http' && !opts.doc_ids) {
-      return this.filterChanges(opts);
-    }
+  if (this.db.type() !== 'http' &&
+      opts.filter && typeof opts.filter === 'string' &&
+      !opts.doc_ids) {
+    return this.filterChanges(opts);
   }
 
   if (!('descending' in opts)) {
@@ -196,52 +195,62 @@ Changes.prototype.filterChanges = function (opts) {
   if (opts.filter === '_view') {
     if (!opts.view || typeof opts.view !== 'string') {
       var err = errors.error(errors.BAD_REQUEST,
-        '`view` filter parameter not found or invalid.');
-      return callback(err);
+                             '`view` filter parameter is not provided.');
+      callback(err);
+      return;
     }
     // fetch a view from a design doc, make it behave like a filter
-    var viewName = parseDdocFunctionName(opts.view);
+    var viewName = opts.view.split('/');
     this.db.get('_design/' + viewName[0], function (err, ddoc) {
       if (self.isCancelled) {
-        return callback(null, {status: 'cancelled'});
+        callback(null, {status: 'cancelled'});
+        return;
       }
-      /* istanbul ignore next */
       if (err) {
-        return callback(errors.generateErrorFromResponse(err));
+        callback(errors.generateErrorFromResponse(err));
+        return;
       }
-      var mapFun = ddoc && ddoc.views && ddoc.views[viewName[1]] &&
-        ddoc.views[viewName[1]].map;
-      if (!mapFun) {
-        return callback(errors.error(errors.MISSING_DOC,
-          (ddoc.views ? 'missing json key: ' + viewName[1] :
-            'missing json key: views')));
+      if (ddoc && ddoc.views && ddoc.views[viewName[1]]) {
+        
+        var filter = evalView(ddoc.views[viewName[1]].map);
+        opts.filter = filter;
+        self.doChanges(opts);
+        return;
       }
-      opts.filter = evalView(mapFun);
-      self.doChanges(opts);
+      var msg = ddoc.views ? 'missing json key: ' + viewName[1] :
+        'missing json key: views';
+      if (!err) {
+        err = errors.error(errors.MISSING_DOC, msg);
+      }
+      callback(err);
+      return;
     });
   } else {
     // fetch a filter from a design doc
-    var filterName = parseDdocFunctionName(opts.filter);
-    if (!filterName) {
-      return callback(errors.error(errors.BAD_REQUEST,
-                             '`filter` filter parameter invalid.'));
-    }
+    var filterName = opts.filter.split('/');
     this.db.get('_design/' + filterName[0], function (err, ddoc) {
       if (self.isCancelled) {
-        return callback(null, {status: 'cancelled'});
+        callback(null, {status: 'cancelled'});
+        return;
       }
-      /* istanbul ignore next */
       if (err) {
-        return callback(errors.generateErrorFromResponse(err));
+        callback(errors.generateErrorFromResponse(err));
+        return;
       }
-      var filterFun = ddoc && ddoc.filters && ddoc.filters[filterName[1]];
-      if (!filterFun) {
-        return callback(errors.error(errors.MISSING_DOC,
-          ((ddoc && ddoc.filters) ? 'missing json key: ' + filterName[1]
-            : 'missing json key: filters')));
+      if (ddoc && ddoc.filters && ddoc.filters[filterName[1]]) {
+        var filter = evalFilter(ddoc.filters[filterName[1]]);
+        opts.filter = filter;
+        self.doChanges(opts);
+        return;
+      } else {
+        var msg = (ddoc && ddoc.filters) ? 'missing json key: ' + filterName[1]
+          : 'missing json key: filters';
+        if (!err) {
+          err = errors.error(errors.MISSING_DOC, msg);
+        }
+        callback(err);
+        return;
       }
-      opts.filter = evalFilter(filterFun);
-      self.doChanges(opts);
     });
   }
 };

@@ -1,4 +1,4 @@
-//    PouchDB localStorage plugin 4.0.1
+//    PouchDB localStorage plugin 3.6.0
 //    Based on localstorage-down: https://github.com/No9/localstorage-down
 //    
 //    (c) 2012-2015 Dale Harvey and the PouchDB team
@@ -8,53 +8,122 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 
-module.exports = _dereq_(46);
-},{"46":46}],2:[function(_dereq_,module,exports){
+module.exports = _dereq_(26);
+},{"26":26}],2:[function(_dereq_,module,exports){
+(function (process){
 'use strict';
 
-var createBlob = _dereq_(19);
+// similar to an idb or websql transaction object
+// designed to be passed around. basically just caches
+// things in-memory and then does a big batch() operation
+// when you're done
 
-module.exports = function createEmptyBlobOrBuffer(type) {
-  return createBlob([''], {type: type});
+var utils = _dereq_(27);
+
+function getCacheFor(transaction, store) {
+  var prefix = store.prefix();
+  var cache = transaction._cache;
+  var subCache = cache.get(prefix);
+  if (!subCache) {
+    subCache = new utils.Map();
+    cache.set(prefix, subCache);
+  }
+  return subCache;
+}
+
+function LevelTransaction() {
+  this._batch = [];
+  this._cache = new utils.Map();
+}
+
+LevelTransaction.prototype.get = function (store, key, callback) {
+  var cache = getCacheFor(this, store);
+  var exists = cache.get(key);
+  if (exists) {
+    return process.nextTick(function () {
+      callback(null, exists);
+    });
+  } else if (exists === null) { // deleted marker
+    return process.nextTick(function () {
+      callback({name: 'NotFoundError'});
+    });
+  }
+  store.get(key, function (err, res) {
+    if (err) {
+      if (err.name === 'NotFoundError') {
+        cache.set(key, null);
+      }
+      return callback(err);
+    }
+    cache.set(key, res);
+    callback(null, res);
+  });
 };
-},{"19":19}],3:[function(_dereq_,module,exports){
+
+LevelTransaction.prototype.batch = function (batch) {
+  for (var i = 0, len = batch.length; i < len; i++) {
+    var operation = batch[i];
+
+    var cache = getCacheFor(this, operation.prefix);
+
+    if (operation.type === 'put') {
+      cache.set(operation.key, operation.value);
+    } else {
+      cache.set(operation.key, null);
+    }
+  }
+  this._batch = this._batch.concat(batch);
+};
+
+LevelTransaction.prototype.execute = function (db, callback) {
+
+  var keys = new utils.Set();
+  var uniqBatches = [];
+
+  // remove duplicates; last one wins
+  for (var i = this._batch.length - 1; i >= 0; i--) {
+    var operation = this._batch[i];
+    var lookupKey = operation.prefix.prefix() + '\xff' + operation.key;
+    if (keys.has(lookupKey)) {
+      continue;
+    }
+    keys.add(lookupKey);
+    uniqBatches.push(operation);
+  }
+
+  db.batch(uniqBatches, callback);
+};
+
+module.exports = LevelTransaction;
+}).call(this,_dereq_(36))
+},{"27":27,"36":36}],3:[function(_dereq_,module,exports){
 (function (process,Buffer){
 'use strict';
 
-var levelup = _dereq_(92);
-var sublevel = _dereq_(78);
-var through = _dereq_(144).obj;
+var levelup = _dereq_(72);
+var sublevel = _dereq_(58);
+var through = _dereq_(141).obj;
 
 var originalLeveldown;
 function requireLeveldown() {
   // wrapped try/catch inside a function to confine code
   // de-optimalization
   try {
-    originalLeveldown = _dereq_(49);
+    originalLeveldown = _dereq_(29);
   } catch (e) {}
 }
 requireLeveldown();
 
-var errors = _dereq_(31);
-var merge = _dereq_(42);
-var utils = _dereq_(47);
-var isDeleted = _dereq_(24);
-var isLocalId = _dereq_(25);
-var processDocs = _dereq_(27);
-var md5 = _dereq_(34);
-var migrate = _dereq_(35);
-var Deque = _dereq_(75);
-var atob = _dereq_(16).atob;
-var btoa = _dereq_(16).btoa;
-var functionName = _dereq_(33);
-var readAsBluffer = _dereq_(5);
-var prepareAttachmentForStorage = _dereq_(4);
-var createEmptyBluffer = _dereq_(2);
+var errors = _dereq_(13);
+var merge = _dereq_(22);
+var utils = _dereq_(27);
+var migrate = _dereq_(16);
+var Deque = _dereq_(55);
 
-var binStringToBluffer =
-  _dereq_(18);
+var readAsBinaryString = _dereq_(11);
+var binaryStringToBlob = _dereq_(8);
 
-var LevelTransaction = _dereq_(6);
+var LevelTransaction = _dereq_(2);
 
 var DOC_STORE = 'document-store';
 var BY_SEQ_STORE = 'by-sequence';
@@ -82,66 +151,32 @@ var safeJsonEncoding = {
   type: 'cheap-json'
 };
 
-// winningRev and deleted are performance-killers, but
-// in newer versions of PouchDB, they are cached on the metadata
-function getWinningRev(metadata) {
-  return 'winningRev' in metadata ?
-    metadata.winningRev : merge.winningRev(metadata);
-}
-
-function getIsDeleted(metadata, winningRev) {
-  return 'deleted' in metadata ?
-    metadata.deleted : isDeleted(metadata, winningRev);
-}
-
-function fetchAttachment(att, stores, opts) {
-  var type = att.content_type;
-  return new utils.Promise(function (resolve, reject) {
-    stores.binaryStore.get(att.digest, function (err, buffer) {
-      var data;
-      if (err) {
-        if (err.name !== 'NotFoundError') {
-          return reject(err);
-        } else {
-          // empty
-          if (!opts.binary) {
-            data = '';
-          } else {
-            data = binStringToBluffer('', type);
-          }
+function fetchAttachments(results, stores) {
+  return utils.Promise.all(results.map(function (row) {
+    if (row.doc && row.doc._attachments) {
+      var attNames = Object.keys(row.doc._attachments);
+      return utils.Promise.all(attNames.map(function (att) {
+        var attObj = row.doc._attachments[att];
+        if ('data' in attObj) { // already fetched
+          return;
         }
-      } else { // non-empty
-        if (!opts.binary) {
-          data = btoa(buffer);
-        } else  {
-          data = readAsBluffer(buffer, type);
-        }
-      }
-      delete att.stub;
-      delete att.length;
-      att.data = data;
-      resolve();
-    });
-  });
-}
-
-function fetchAttachments(results, stores, opts) {
-  var atts = [];
-  results.forEach(function (row) {
-    if (!(row.doc && row.doc._attachments)) {
-      return;
+        return new utils.Promise(function (resolve, reject) {
+          stores.binaryStore.get(attObj.digest, function (err, buffer) {
+            var base64 = '';
+            if (err && err.name !== 'NotFoundError') {
+              return reject(err);
+            } else if (!err) {
+              base64 = utils.btoa(buffer);
+            }
+            row.doc._attachments[att] = utils.extend(
+              utils.pick(attObj, ['digest', 'content_type']),
+              {data: base64}
+            );
+            resolve();
+          });
+        });
+      }));
     }
-    var attNames = Object.keys(row.doc._attachments);
-    attNames.forEach(function (attName) {
-      var att = row.doc._attachments[attName];
-      if (!('data' in att)) {
-        atts.push(att);
-      }
-    });
-  });
-
-  return utils.Promise.all(atts.map(function (att) {
-    return fetchAttachment(att, stores, opts);
   }));
 }
 
@@ -168,11 +203,11 @@ function LevelPouch(opts, callback) {
     leveldown.destroy = function (name, cb) { cb(); };
   }
   var dbStore;
-  if (dbStores.has(functionName(leveldown))) {
+  if (dbStores.has(leveldown.name)) {
     dbStore = dbStores.get(leveldown.name);
   } else {
     dbStore = new utils.Map();
-    dbStores.set(functionName(leveldown), dbStore);
+    dbStores.set(leveldown.name, dbStore);
   }
   if (dbStore.has(name)) {
     db = dbStore.get(name);
@@ -240,8 +275,7 @@ function LevelPouch(opts, callback) {
   api._info = function (callback) {
     var res = {
       doc_count: db._docCount,
-      update_seq: db._updateSeq,
-      backend_adapter: functionName(leveldown)
+      update_seq: db._updateSeq
     };
     return process.nextTick(function () {
       callback(null, res);
@@ -366,12 +400,11 @@ function LevelPouch(opts, callback) {
         return callback(errors.error(errors.MISSING_DOC, 'missing'));
       }
 
-      var rev = getWinningRev(metadata);
-      var deleted = getIsDeleted(metadata, rev);
-      if (deleted && !opts.rev) {
+      if (utils.isDeleted(metadata) && !opts.rev) {
         return callback(errors.error(errors.MISSING_DOC, "deleted"));
       }
 
+      var rev = merge.winningRev(metadata);
       rev = opts.rev ? opts.rev : rev;
 
       var seq = metadata.rev_map[rev];
@@ -403,22 +436,32 @@ function LevelPouch(opts, callback) {
   // method...
   api._getAttachment = function (attachment, opts, callback) {
     var digest = attachment.digest;
-    var type = attachment.content_type;
 
     stores.binaryStore.get(digest, function (err, attach) {
-      if (err) {
-        if (err.name !== 'NotFoundError') {
-          return callback(err);
-        }
+      var data;
+
+      if (err && err.name === 'NotFoundError') {
         // Empty attachment
-        return callback(null, opts.binary ? createEmptyBluffer(type) : '');
+        data = opts.encode ? '' : process.browser ?
+          utils.createBlob([''], {type: attachment.content_type}) :
+          new Buffer('');
+        return callback(null, data);
       }
 
-      if (opts.binary) {
-        callback(null, readAsBluffer(attach, type));
-      } else {
-        callback(null, btoa(attach));
+      if (err) {
+        return callback(err);
       }
+
+      if (process.browser) {
+        if (opts.encode) {
+          data = utils.btoa(attach);
+        } else {
+          data = binaryStringToBlob(attach, attachment.content_type);
+        }
+      } else {
+        data = opts.encode ? utils.btoa(attach) : attach;
+      }
+      callback(null, data);
     });
   };
 
@@ -433,7 +476,7 @@ function LevelPouch(opts, callback) {
     // parse the docs and give each a sequence number
     var userDocs = req.docs;
     var docInfos = userDocs.map(function (doc, i) {
-      if (doc._id && isLocalId(doc._id)) {
+      if (doc._id && utils.isLocalId(doc._id)) {
         return doc;
       }
       var newDoc = utils.parseDoc(doc, newEdits);
@@ -508,7 +551,7 @@ function LevelPouch(opts, callback) {
       }
 
       userDocs.forEach(function (doc) {
-        if (doc._id && isLocalId(doc._id)) {
+        if (doc._id && utils.isLocalId(doc._id)) {
           // skip local docs
           return checkDone();
         }
@@ -564,9 +607,6 @@ function LevelPouch(opts, callback) {
       var err = null;
       var recv = 0;
 
-      docInfo.metadata.winningRev = winningRev;
-      docInfo.metadata.deleted = winningRevIsDeleted;
-
       docInfo.data._id = docInfo.metadata.id;
       docInfo.data._rev = docInfo.metadata.rev;
 
@@ -596,9 +636,9 @@ function LevelPouch(opts, callback) {
         };
       }
 
-      function doMD5(doc, key, attachmentSaved) {
+      function onLoadEnd(doc, key, attachmentSaved) {
         return function (data) {
-          md5(data).then(
+          utils.MD5(data).then(
             onMD5Load(doc, key, data, attachmentSaved)
           );
         };
@@ -618,17 +658,22 @@ function LevelPouch(opts, callback) {
         var data;
         if (typeof att.data === 'string') {
           try {
-            data = atob(att.data);
+            data = utils.atob(att.data);
           } catch (e) {
             callback(errors.error(errors.BAD_ARG,
                      'Attachments need to be base64 encoded'));
             return;
           }
-          doMD5(docInfo, key, attachmentSaved)(data);
-        } else {
-          prepareAttachmentForStorage(att.data,
-            doMD5(docInfo, key, attachmentSaved));
+        } else if (!process.browser) {
+          data = att.data;
+        } else { // browser
+          readAsBinaryString(att.data,
+            onLoadEnd(docInfo, key, attachmentSaved));
+          continue;
         }
+        utils.MD5(data).then(
+          onMD5Load(docInfo, key, data, attachmentSaved)
+        );
       }
 
       function finish() {
@@ -804,8 +849,8 @@ function LevelPouch(opts, callback) {
         if (err) {
           return callback(err);
         }
-        processDocs(docInfos, api, fetchedDocs, txn, results, writeDoc,
-          opts, finish);
+        utils.processDocs(docInfos, api, fetchedDocs,
+          txn, results, writeDoc, opts, finish);
       });
     });
   });
@@ -853,12 +898,7 @@ function LevelPouch(opts, callback) {
       var docstream = stores.docStore.readStream(readstreamOpts);
 
       var throughStream = through(function (entry, _, next) {
-        var metadata = entry.value;
-        // winningRev and deleted are performance-killers, but
-        // in newer versions of PouchDB, they are cached on the metadata
-        var winningRev = getWinningRev(metadata);
-        var deleted = getIsDeleted(metadata, winningRev);
-        if (!deleted) {
+        if (!utils.isDeleted(entry.value)) {
           if (skip-- > 0) {
             next();
             return;
@@ -872,12 +912,12 @@ function LevelPouch(opts, callback) {
           next();
           return;
         }
-        function allDocsInner(data) {
+        function allDocsInner(metadata, data) {
           var doc = {
             id: metadata.id,
             key: metadata.id,
             value: {
-              rev: winningRev
+              rev: merge.winningRev(metadata)
             }
           };
           if (opts.include_docs) {
@@ -894,7 +934,7 @@ function LevelPouch(opts, callback) {
           }
           if (opts.inclusive_end === false && metadata.id === opts.endkey) {
             return next();
-          } else if (deleted) {
+          } else if (utils.isDeleted(metadata)) {
             if (opts.deleted === 'ok') {
               doc.value.deleted = true;
               doc.doc = null;
@@ -905,20 +945,19 @@ function LevelPouch(opts, callback) {
           results.push(doc);
           next();
         }
+        var metadata = entry.value;
         if (opts.include_docs) {
-          var seq = metadata.rev_map[winningRev];
+          var seq = metadata.rev_map[merge.winningRev(metadata)];
           stores.bySeqStore.get(formatSeq(seq), function (err, data) {
-            allDocsInner(data);
+            allDocsInner(metadata, data);
           });
         }
         else {
-          allDocsInner();
+          allDocsInner(metadata);
         }
       }, function (next) {
         utils.Promise.resolve().then(function () {
-          if (opts.include_docs && opts.attachments){
-            return fetchAttachments(results, stores, opts);
-          }
+          return opts.attachments && fetchAttachments(results, stores);
         }).then(function () {
           callback(null, {
             total_rows: docCount,
@@ -987,13 +1026,13 @@ function LevelPouch(opts, callback) {
       changeStream.unpipe(throughStream);
       changeStream.destroy();
       if (!opts.continuous && !opts.cancelled) {
-        if (opts.include_docs && opts.attachments) {
-          fetchAttachments(results, stores, opts).then(function () {
-            opts.complete(null, {results: results, last_seq: lastSeq});
-          });
-        } else {
+        utils.Promise.resolve().then(function () {
+          if (opts.include_docs && opts.attachments) {
+            return fetchAttachments(results, stores);
+          }
+        }).then(function () {
           opts.complete(null, {results: results, last_seq: lastSeq});
-        }
+        });
       }
     }
     var changeStream = stores.bySeqStore.readStream(streamOpts);
@@ -1021,7 +1060,7 @@ function LevelPouch(opts, callback) {
       var metadata;
 
       function onGetMetadata(metadata) {
-        var winningRev = getWinningRev(metadata);
+        var winningRev = merge.winningRev(metadata);
 
         function onGetWinningDoc(winningDoc) {
 
@@ -1034,7 +1073,7 @@ function LevelPouch(opts, callback) {
             if (opts.attachments && opts.include_docs) {
               // fetch attachment immediately for the benefit
               // of live listeners
-              fetchAttachments([change], stores, opts).then(function () {
+              fetchAttachments([change], stores).then(function () {
                 opts.onChange(change);
               });
             } else {
@@ -1075,7 +1114,7 @@ function LevelPouch(opts, callback) {
       // metadata not cached, have to go fetch it
       stores.docStore.get(doc._id, function (err, metadata) {
         if (opts.cancelled || opts.done || db.isClosed() ||
-          isLocalId(metadata.id)) {
+          utils.isLocalId(metadata.id)) {
           return next();
         }
         docIdsToMetadata.set(doc._id, metadata);
@@ -1368,11 +1407,7 @@ function LevelPouch(opts, callback) {
     var txn = opts.ctx || new LevelTransaction();
     txn.get(stores.localStore, doc._id, function (err, resp) {
       if (err) {
-        if (err.name !== 'NotFoundError') {
-          return callback(err);
-        } else {
-          return callback(errors.error(errors.MISSING_DOC));
-        }
+        return callback(err);
       }
       if (resp._rev !== doc._rev) {
         return callback(errors.error(errors.REV_CONFLICT));
@@ -1426,8 +1461,7 @@ function LevelPouch(opts, callback) {
 }
 
 LevelPouch.valid = function () {
-  // this gets overriden by the *down-based browser adapters
-  return true;
+  return process && !process.browser;
 };
 
 LevelPouch.use_prefix = false;
@@ -1436,232 +1470,32 @@ LevelPouch.Changes = new utils.Changes();
 
 module.exports = LevelPouch;
 
-}).call(this,_dereq_(56),_dereq_(50).Buffer)
-},{"144":144,"16":16,"18":18,"2":2,"24":24,"25":25,"27":27,"31":31,"33":33,"34":34,"35":35,"4":4,"42":42,"47":47,"49":49,"5":5,"50":50,"56":56,"6":6,"75":75,"78":78,"92":92}],4:[function(_dereq_,module,exports){
-'use strict';
-
-var readAsBinaryString = _dereq_(22);
-
-// In the browser, we store a binary string
-module.exports = function prepareAttachmentForStorage(attData, cb) {
-  readAsBinaryString(attData, cb);
-};
-},{"22":22}],5:[function(_dereq_,module,exports){
-'use strict';
-
-var binToBluffer = _dereq_(18);
-
-module.exports = function readAsBlobOrBuffer(storedObject, type) {
-  // In the browser, we've stored a binary string
-  return binToBluffer(storedObject, type);
-};
-},{"18":18}],6:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),_dereq_(30).Buffer)
+},{"11":11,"13":13,"141":141,"16":16,"2":2,"22":22,"27":27,"29":29,"30":30,"36":36,"55":55,"58":58,"72":72,"8":8}],4:[function(_dereq_,module,exports){
 (function (process){
-'use strict';
-
-// similar to an idb or websql transaction object
-// designed to be passed around. basically just caches
-// things in-memory and then does a big batch() operation
-// when you're done
-
-var utils = _dereq_(47);
-
-function getCacheFor(transaction, store) {
-  var prefix = store.prefix();
-  var cache = transaction._cache;
-  var subCache = cache.get(prefix);
-  if (!subCache) {
-    subCache = new utils.Map();
-    cache.set(prefix, subCache);
-  }
-  return subCache;
-}
-
-function LevelTransaction() {
-  this._batch = [];
-  this._cache = new utils.Map();
-}
-
-LevelTransaction.prototype.get = function (store, key, callback) {
-  var cache = getCacheFor(this, store);
-  var exists = cache.get(key);
-  if (exists) {
-    return process.nextTick(function () {
-      callback(null, exists);
-    });
-  } else if (exists === null) { // deleted marker
-    return process.nextTick(function () {
-      callback({name: 'NotFoundError'});
-    });
-  }
-  store.get(key, function (err, res) {
-    if (err) {
-      /* istanbul ignore else */
-      if (err.name === 'NotFoundError') {
-        cache.set(key, null);
-      }
-      return callback(err);
-    }
-    cache.set(key, res);
-    callback(null, res);
-  });
-};
-
-LevelTransaction.prototype.batch = function (batch) {
-  for (var i = 0, len = batch.length; i < len; i++) {
-    var operation = batch[i];
-
-    var cache = getCacheFor(this, operation.prefix);
-
-    if (operation.type === 'put') {
-      cache.set(operation.key, operation.value);
-    } else {
-      cache.set(operation.key, null);
-    }
-  }
-  this._batch = this._batch.concat(batch);
-};
-
-LevelTransaction.prototype.execute = function (db, callback) {
-
-  var keys = new utils.Set();
-  var uniqBatches = [];
-
-  // remove duplicates; last one wins
-  for (var i = this._batch.length - 1; i >= 0; i--) {
-    var operation = this._batch[i];
-    var lookupKey = operation.prefix.prefix() + '\xff' + operation.key;
-    if (keys.has(lookupKey)) {
-      continue;
-    }
-    keys.add(lookupKey);
-    uniqBatches.push(operation);
-  }
-
-  db.batch(uniqBatches, callback);
-};
-
-module.exports = LevelTransaction;
-}).call(this,_dereq_(56))
-},{"47":47,"56":56}],7:[function(_dereq_,module,exports){
-'use strict';
-
-var EventEmitter = _dereq_(54).EventEmitter;
-var inherits = _dereq_(76);
-var isChromeApp = _dereq_(30);
-var hasLocalStorage = _dereq_(29);
-var pick = _dereq_(38);
-
-inherits(Changes, EventEmitter);
-
-/* istanbul ignore next */
-function attachBrowserEvents(self) {
-  if (isChromeApp()) {
-    chrome.storage.onChanged.addListener(function (e) {
-      // make sure it's event addressed to us
-      if (e.db_name != null) {
-        //object only has oldValue, newValue members
-        self.emit(e.dbName.newValue);
-      }
-    });
-  } else if (hasLocalStorage()) {
-    if (typeof addEventListener !== 'undefined') {
-      addEventListener("storage", function (e) {
-        self.emit(e.key);
-      });
-    } else { // old IE
-      window.attachEvent("storage", function (e) {
-        self.emit(e.key);
-      });
-    }
-  }
-}
-
-function Changes() {
-  EventEmitter.call(this);
-  this._listeners = {};
-
-  attachBrowserEvents(this);
-}
-Changes.prototype.addListener = function (dbName, id, db, opts) {
-  if (this._listeners[id]) {
-    return;
-  }
-  var self = this;
-  var inprogress = false;
-  function eventFunction() {
-    if (!self._listeners[id]) {
-      return;
-    }
-    if (inprogress) {
-      inprogress = 'waiting';
-      return;
-    }
-    inprogress = true;
-    var changesOpts = pick(opts, [
-      'style', 'include_docs', 'attachments', 'conflicts', 'filter',
-      'doc_ids', 'view', 'since', 'query_params', 'binary'
-    ]);
-
-    db.changes(changesOpts).on('change', function (c) {
-      if (c.seq > opts.since && !opts.cancelled) {
-        opts.since = c.seq;
-        opts.onChange(c);
-      }
-    }).on('complete', function () {
-      if (inprogress === 'waiting') {
-        setTimeout(function(){
-          eventFunction();
-        },0);
-      }
-      inprogress = false;
-    }).on('error', function () {
-      inprogress = false;
-    });
-  }
-  this._listeners[id] = eventFunction;
-  this.on(dbName, eventFunction);
-};
-
-Changes.prototype.removeListener = function (dbName, id) {
-  if (!(id in this._listeners)) {
-    return;
-  }
-  EventEmitter.prototype.removeListener.call(this, dbName,
-    this._listeners[id]);
-};
-
-
-/* istanbul ignore next */
-Changes.prototype.notifyLocalWindows = function (dbName) {
-  //do a useless change on a storage thing
-  //in order to get other windows's listeners to activate
-  if (isChromeApp()) {
-    chrome.storage.local.set({dbName: dbName});
-  } else if (hasLocalStorage()) {
-    localStorage[dbName] = (localStorage[dbName] === "a") ? "b" : "a";
-  }
-};
-
-Changes.prototype.notify = function (dbName) {
-  this.emit(dbName);
-  this.notifyLocalWindows(dbName);
-};
-
-module.exports = Changes;
-
-},{"29":29,"30":30,"38":38,"54":54,"76":76}],8:[function(_dereq_,module,exports){
 "use strict";
 
-var request = _dereq_(14);
+var request = _dereq_(20);
 
-var errors = _dereq_(31);
-var utils = _dereq_(47);
-var applyTypeToBuffer = _dereq_(9);
-var defaultBody = _dereq_(10);
-var explainCors = _dereq_(12);
+var buffer = _dereq_(12);
+var errors = _dereq_(13);
+var utils = _dereq_(27);
 
-function ajax(options, callback) {
+function ajax(options, adapterCallback) {
+
+  var requestCompleted = false;
+  var callback = utils.getArguments(function (args) {
+    if (requestCompleted) {
+      return;
+    }
+    adapterCallback.apply(this, args);
+    requestCompleted = true;
+  });
+
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
 
   options = utils.clone(options);
 
@@ -1674,7 +1508,7 @@ function ajax(options, callback) {
     cache: false
   };
 
-  options = utils.extend(defaultOptions, options);
+  options = utils.extend(true, defaultOptions, options);
 
 
   function onSuccess(obj, resp, cb) {
@@ -1697,9 +1531,6 @@ function ajax(options, callback) {
           return v;
         }
       });
-    }
-    if (options.binary) {
-      applyTypeToBuffer(obj, resp);
     }
     cb(null, obj, resp);
   }
@@ -1739,16 +1570,16 @@ function ajax(options, callback) {
     options.json = false;
   }
 
+  function defaultBody(data) {
+    if (process.browser) {
+      return '';
+    }
+    return new buffer('', 'binary');
+  }
+
   return request(options, function (err, response, body) {
     if (err) {
-      if (response) {
-        if (response.statusCode === 0) {
-          explainCors(); // statusCode 0 indicates a CORS error (405)
-        }
-        err.status = response.statusCode;
-      } else {
-        err.status = 400;
-      }
+      err.status = response ? response.statusCode : 400;
       return onError(err, callback);
     }
 
@@ -1762,14 +1593,15 @@ function ajax(options, callback) {
         typeof data !== 'object' &&
         (/json/.test(content_type) ||
          (/^[\s]*\{/.test(data) && /\}[\s]*$/.test(data)))) {
-      try {
-        data = JSON.parse(data.toString());
-      } catch (e) {}
+      data = JSON.parse(data);
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       onSuccess(data, response, callback);
     } else {
+      if (options.binary) {
+        data = JSON.parse(data.toString());
+      }
       error = errors.generateErrorFromResponse(data);
       error.status = response.statusCode;
       callback(error);
@@ -1779,287 +1611,8 @@ function ajax(options, callback) {
 
 module.exports = ajax;
 
-},{"10":10,"12":12,"14":14,"31":31,"47":47,"9":9}],9:[function(_dereq_,module,exports){
-'use strict';
-
-// the blob already has a type; do nothing
-module.exports = function () {};
-},{}],10:[function(_dereq_,module,exports){
-'use strict';
-
-module.exports = function defaultBody() {
-  return '';
-};
-},{}],11:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-
-// designed to give info to browser users, who are disturbed
-// when they see 404s in the console
-module.exports = function explain404(str) {
-  if ('console' in global && 'info' in console) {
-    console.info('The above 404 is totally normal. ' + str);
-  }
-};
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],12:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-
-module.exports = function () {
-  if ('console' in global && 'error' in console) {
-    console.error('PouchDB error: the remote database does not seem to have ' +
-      'CORS enabled. To fix this, please enable CORS: ' +
-      'http://pouchdb.com/errors.html#no_access_control_allow_origin_header');
-  }
-};
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],13:[function(_dereq_,module,exports){
-'use strict';
-
-var ajax = _dereq_(8);
-
-module.exports = function(opts, callback) {
-
-  // cache-buster, specifically designed to work around IE's aggressive caching
-  // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
-  // Also Safari caches POSTs, so we need to cache-bust those too.
-  if ((opts.method === 'POST' || opts.method === 'GET') && !opts.cache) {
-    var hasArgs = opts.url.indexOf('?') !== -1;
-    opts.url += (hasArgs ? '&' : '?') + '_nonce=' + Date.now();
-  }
-
-  return ajax(opts, callback);
-};
-
-},{"8":8}],14:[function(_dereq_,module,exports){
-/* global fetch */
-/* global Headers */
-'use strict';
-
-var createBlob = _dereq_(19);
-var utils = _dereq_(47);
-var readAsArrayBuffer = _dereq_(21);
-
-function wrappedFetch() {
-  var wrappedPromise = {};
-
-  var promise = new utils.Promise(function(resolve, reject) {
-    wrappedPromise.resolve = resolve;
-    wrappedPromise.reject = reject;
-  });
-
-  var args = new Array(arguments.length);
-
-  for (var i = 0; i < args.length; i++) {
-    args[i] = arguments[i];
-  }
-
-  wrappedPromise.promise = promise;
-
-  utils.Promise.resolve().then(function () {
-    return fetch.apply(null, args);
-  }).then(function(response) {
-    wrappedPromise.resolve(response);
-  })["catch"](function(error) {
-    wrappedPromise.reject(error);
-  });
-
-  return wrappedPromise;
-}
-
-function fetchRequest(options, callback) {
-  var wrappedPromise, timer, response;
-
-  var headers = new Headers();
-
-  var fetchOptions = {
-    method: options.method,
-    credentials: 'include',
-    headers: headers
-  };
-
-  if (options.json) {
-    headers.set('Accept', 'application/json');
-    headers.set('Content-Type', options.headers['Content-Type'] ||
-      'application/json');
-  }
-
-  if (options.body && (options.body instanceof Blob)) {
-    readAsArrayBuffer(options.body, function (arrayBuffer) {
-      fetchOptions.body = arrayBuffer;
-    });
-  } else if (options.body &&
-             options.processData &&
-             typeof options.body !== 'string') {
-    fetchOptions.body = JSON.stringify(options.body);
-  } else if ('body' in options) {
-    fetchOptions.body = options.body;
-  } else {
-    fetchOptions.body = null;
-  }
-
-  Object.keys(options.headers).forEach(function(key) {
-    if (options.headers.hasOwnProperty(key)) {
-      headers.set(key, options.headers[key]);
-    }
-  });
-
-  wrappedPromise = wrappedFetch(options.url, fetchOptions);
-
-  if (options.timeout > 0) {
-    timer = setTimeout(function() {
-      wrappedPromise.reject(new Error('Load timeout for resource: ' +
-        options.url));
-    }, options.timeout);
-  }
-
-  wrappedPromise.promise.then(function(fetchResponse) {
-    response = {
-      statusCode: fetchResponse.status
-    };
-
-    if (options.timeout > 0) {
-      clearTimeout(timer);
-    }
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return options.binary ? fetchResponse.blob() : fetchResponse.text();
-    }
-
-    return fetchResponse.json();
-  }).then(function(result) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      callback(null, response, result);
-    } else {
-      callback(result, response);
-    }
-  })["catch"](function(error) {
-    callback(error, response);
-  });
-
-  return {abort: wrappedPromise.reject};
-}
-
-function xhRequest(options, callback) {
-
-  var xhr, timer, hasUpload;
-
-  var abortReq = function () {
-    xhr.abort();
-  };
-
-  if (options.xhr) {
-    xhr = new options.xhr();
-  } else {
-    xhr = new XMLHttpRequest();
-  }
-
-  xhr.open(options.method, options.url);
-  xhr.withCredentials = true;
-
-  if (options.method === 'GET') {
-    delete options.headers['Content-Type'];
-  } else if (options.json) {
-    options.headers.Accept = 'application/json';
-    options.headers['Content-Type'] = options.headers['Content-Type'] ||
-      'application/json';
-    if (options.body &&
-        options.processData &&
-        typeof options.body !== "string") {
-      options.body = JSON.stringify(options.body);
-    }
-  }
-
-  if (options.binary) {
-    xhr.responseType = 'arraybuffer';
-  }
-
-  if (!('body' in options)) {
-    options.body = null;
-  }
-
-  for (var key in options.headers) {
-    if (options.headers.hasOwnProperty(key)) {
-      xhr.setRequestHeader(key, options.headers[key]);
-    }
-  }
-
-  if (options.timeout > 0) {
-    timer = setTimeout(abortReq, options.timeout);
-    xhr.onprogress = function () {
-      clearTimeout(timer);
-      timer = setTimeout(abortReq, options.timeout);
-    };
-    if (typeof hasUpload === 'undefined') {
-      // IE throws an error if you try to access it directly
-      hasUpload = Object.keys(xhr).indexOf('upload') !== -1 &&
-                  typeof xhr.upload !== 'undefined';
-    }
-    if (hasUpload) { // does not exist in ie9
-      xhr.upload.onprogress = xhr.onprogress;
-    }
-  }
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState !== 4) {
-      return;
-    }
-
-    var response = {
-      statusCode: xhr.status
-    };
-
-    if (xhr.status >= 200 && xhr.status < 300) {
-      var data;
-      if (options.binary) {
-        data = createBlob([xhr.response || ''], {
-          type: xhr.getResponseHeader('Content-Type')
-        });
-      } else {
-        data = xhr.responseText;
-      }
-      callback(null, response, data);
-    } else {
-      var err = {};
-      try {
-        err = JSON.parse(xhr.response);
-      } catch(e) {}
-      callback(err, response);
-    }
-  };
-
-  if (options.body && (options.body instanceof Blob)) {
-    readAsArrayBuffer(options.body, function (arrayBuffer) {
-      xhr.send(arrayBuffer);
-    });
-  } else {
-    xhr.send(options.body);
-  }
-
-  return {abort: abortReq};
-}
-
-function testXhr() {
-  try {
-    new XMLHttpRequest();
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
-var hasXhr = testXhr();
-
-module.exports = function(options, callback) {
-  if (hasXhr || options.xhr) {
-    return xhRequest(options, callback);
-  } else {
-    return fetchRequest(options, callback);
-  }
-};
-
-},{"19":19,"21":21,"47":47}],15:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"12":12,"13":13,"20":20,"27":27,"36":36}],5:[function(_dereq_,module,exports){
 'use strict';
 
 //Can't find original post, but this is close
@@ -2074,12 +1627,11 @@ module.exports = function (buffer) {
   }
   return binary;
 };
-},{}],16:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
 'use strict';
 
-var buffer = _dereq_(20);
+var buffer = _dereq_(12);
 
-/* istanbul ignore if */
 if (typeof atob === 'function') {
   exports.atob = function (str) {
     /* global atob */
@@ -2097,7 +1649,6 @@ if (typeof atob === 'function') {
   };
 }
 
-/* istanbul ignore if */
 if (typeof btoa === 'function') {
   exports.btoa = function (str) {
     /* global btoa */
@@ -2108,7 +1659,7 @@ if (typeof btoa === 'function') {
     return new buffer(str, 'binary').toString('base64');
   };
 }
-},{"20":20}],17:[function(_dereq_,module,exports){
+},{"12":12}],7:[function(_dereq_,module,exports){
 'use strict';
 
 // From http://stackoverflow.com/questions/14967647/ (continues on next line)
@@ -2122,23 +1673,23 @@ module.exports = function (bin) {
   }
   return buf;
 };
-},{}],18:[function(_dereq_,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 'use strict';
 
-var createBlob = _dereq_(19);
-var binaryStringToArrayBuffer = _dereq_(17);
+var createBlob = _dereq_(9);
+var binaryStringToArrayBuffer = _dereq_(7);
 
-module.exports = function (binString, type) {
+module.exports = function binaryStringToBlob(binString, type) {
   return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
 };
-},{"17":17,"19":19}],19:[function(_dereq_,module,exports){
+},{"7":7,"9":9}],9:[function(_dereq_,module,exports){
+(function (global){
 "use strict";
 
 // Abstracts constructing a Blob object, so it also works in older
 // browsers that don't support the native Blob constructor (e.g.
 // old QtWebKit versions, Android < 4.4).
 function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
   parts = parts || [];
   properties = properties || {};
   try {
@@ -2147,11 +1698,11 @@ function createBlob(parts, properties) {
     if (e.name !== "TypeError") {
       throw e;
     }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
+    var BlobBuilder = global.BlobBuilder ||
+                      global.MSBlobBuilder ||
+                      global.MozBlobBuilder ||
+                      global.WebKitBlobBuilder;
+    var builder = new BlobBuilder();
     for (var i = 0; i < parts.length; i += 1) {
       builder.append(parts[i]);
     }
@@ -2162,10 +1713,8 @@ function createBlob(parts, properties) {
 module.exports = createBlob;
 
 
-},{}],20:[function(_dereq_,module,exports){
-// hey guess what, we don't need this in the browser
-module.exports = {};
-},{}],21:[function(_dereq_,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],10:[function(_dereq_,module,exports){
 'use strict';
 
 // simplified API. universal browser support is assumed
@@ -2177,10 +1726,10 @@ module.exports = function (blob, callback) {
   };
   reader.readAsArrayBuffer(blob);
 };
-},{}],22:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 'use strict';
 
-var arrayBufferToBinaryString = _dereq_(15);
+var arrayBufferToBinaryString = _dereq_(5);
 
 // shim for browsers that don't support it
 module.exports = function (blob, callback) {
@@ -2199,469 +1748,13 @@ module.exports = function (blob, callback) {
     reader.readAsArrayBuffer(blob);
   }
 };
-},{"15":15}],23:[function(_dereq_,module,exports){
-'use strict';
-
-function isPlainObject(object) {
-  // dead-simple "is this a straight-up object" test, taken
-  // from pouchdb-extend ala jQuery 1.9.0
-  // Own properties are enumerated firstly, so to speed up,
-  // if last one is own, then all properties are own.
-
-  if (typeof object.hasOwnProperty !== 'function') {
-    return false;
-  }
-
-  var key;
-  for (key in object) {}
-  return key === undefined || object.hasOwnProperty(key);
-}
-
-module.exports = function clone(object) {
-  var newObject;
-  var i;
-  var len;
-
-  if (!object || typeof object !== 'object') {
-    return object;
-  }
-
-  if (Array.isArray(object)) {
-    newObject = [];
-    for (i = 0, len = object.length; i < len; i++) {
-      newObject[i] = clone(object[i]);
-    }
-    return newObject;
-  }
-
-  // special case: to avoid inconsistencies between IndexedDB
-  // and other backends, we automatically stringify Dates
-  if (object instanceof Date) {
-    return object.toISOString();
-  }
-
-  if (!isPlainObject(object)) {
-    return object;
-  }
-
-  newObject = {};
-  for (i in object) {
-    if (object.hasOwnProperty(i)) {
-      var value = clone(object[i]);
-      if (typeof value !== 'undefined') {
-        newObject[i] = value;
-      }
-    }
-  }
-  return newObject;
-};
-},{}],24:[function(_dereq_,module,exports){
-'use strict';
-
-var merge = _dereq_(42);
-
-function getTrees(node) {
-  return node.ids;
-}
-
-// check if a specific revision of a doc has been deleted
-//  - metadata: the metadata object from the doc store
-//  - rev: (optional) the revision to check. defaults to winning revision
-function isDeleted(metadata, rev) {
-  if (!rev) {
-    rev = merge.winningRev(metadata);
-  }
-  var id = rev.substring(rev.indexOf('-') + 1);
-  var toVisit = metadata.rev_tree.map(getTrees);
-
-  var tree;
-  while ((tree = toVisit.pop())) {
-    if (tree[0] === id) {
-      return !!tree[1].deleted;
-    }
-    toVisit = toVisit.concat(tree[2]);
-  }
-}
-
-module.exports = isDeleted;
-},{"42":42}],25:[function(_dereq_,module,exports){
-'use strict';
-
-function isLocalId(id) {
-  return (/^_local/).test(id);
-}
-
-module.exports = isLocalId;
-},{}],26:[function(_dereq_,module,exports){
-'use strict';
-
-var errors = _dereq_(31);
-var uuid = _dereq_(41);
-
-function toObject(array) {
-  return array.reduce(function (obj, item) {
-    obj[item] = true;
-    return obj;
-  }, {});
-}
-// List of top level reserved words for doc
-var reservedWords = toObject([
-  '_id',
-  '_rev',
-  '_attachments',
-  '_deleted',
-  '_revisions',
-  '_revs_info',
-  '_conflicts',
-  '_deleted_conflicts',
-  '_local_seq',
-  '_rev_tree',
-  //replication documents
-  '_replication_id',
-  '_replication_state',
-  '_replication_state_time',
-  '_replication_state_reason',
-  '_replication_stats',
-  // Specific to Couchbase Sync Gateway
-  '_removed'
-]);
-
-// List of reserved words that should end up the document
-var dataWords = toObject([
-  '_attachments',
-  //replication documents
-  '_replication_id',
-  '_replication_state',
-  '_replication_state_time',
-  '_replication_state_reason',
-  '_replication_stats'
-]);
-
-// Determine id an ID is valid
-//   - invalid IDs begin with an underescore that does not begin '_design' or
-//     '_local'
-//   - any other string value is a valid id
-// Returns the specific error object for each case
-exports.invalidIdError = function (id) {
-  var err;
-  if (!id) {
-    err = errors.error(errors.MISSING_ID);
-  } else if (typeof id !== 'string') {
-    err = errors.error(errors.INVALID_ID);
-  } else if (/^_/.test(id) && !(/^_(design|local)/).test(id)) {
-    err = errors.error(errors.RESERVED_ID);
-  }
-  if (err) {
-    throw err;
-  }
-};
-
-function parseRevisionInfo(rev) {
-  if (!/^\d+\-./.test(rev)) {
-    return errors.error(errors.INVALID_REV);
-  }
-  var idx = rev.indexOf('-');
-  var left = rev.substring(0, idx);
-  var right = rev.substring(idx + 1);
-  return {
-    prefix: parseInt(left, 10),
-    id: right
-  };
-}
-
-function makeRevTreeFromRevisions(revisions, opts) {
-  var pos = revisions.start - revisions.ids.length + 1;
-
-  var revisionIds = revisions.ids;
-  var ids = [revisionIds[0], opts, []];
-
-  for (var i = 1, len = revisionIds.length; i < len; i++) {
-    ids = [revisionIds[i], {status: 'missing'}, [ids]];
-  }
-
-  return [{
-    pos: pos,
-    ids: ids
-  }];
-}
-
-// Preprocess documents, parse their revisions, assign an id and a
-// revision for new writes that are missing them, etc
-exports.parseDoc = function (doc, newEdits) {
-
-  var nRevNum;
-  var newRevId;
-  var revInfo;
-  var opts = {status: 'available'};
-  if (doc._deleted) {
-    opts.deleted = true;
-  }
-
-  if (newEdits) {
-    if (!doc._id) {
-      doc._id = uuid();
-    }
-    newRevId = uuid(32, 16).toLowerCase();
-    if (doc._rev) {
-      revInfo = parseRevisionInfo(doc._rev);
-      if (revInfo.error) {
-        return revInfo;
-      }
-      doc._rev_tree = [{
-        pos: revInfo.prefix,
-        ids: [revInfo.id, {status: 'missing'}, [[newRevId, opts, []]]]
-      }];
-      nRevNum = revInfo.prefix + 1;
-    } else {
-      doc._rev_tree = [{
-        pos: 1,
-        ids : [newRevId, opts, []]
-      }];
-      nRevNum = 1;
-    }
-  } else {
-    if (doc._revisions) {
-      doc._rev_tree = makeRevTreeFromRevisions(doc._revisions, opts);
-      nRevNum = doc._revisions.start;
-      newRevId = doc._revisions.ids[0];
-    }
-    if (!doc._rev_tree) {
-      revInfo = parseRevisionInfo(doc._rev);
-      if (revInfo.error) {
-        return revInfo;
-      }
-      nRevNum = revInfo.prefix;
-      newRevId = revInfo.id;
-      doc._rev_tree = [{
-        pos: nRevNum,
-        ids: [newRevId, opts, []]
-      }];
-    }
-  }
-
-  exports.invalidIdError(doc._id);
-
-  doc._rev = nRevNum + '-' + newRevId;
-
-  var result = {metadata : {}, data : {}};
-  for (var key in doc) {
-    /* istanbul ignore else */
-    if (doc.hasOwnProperty(key)) {
-      var specialKey = key[0] === '_';
-      if (specialKey && !reservedWords[key]) {
-        var error = errors.error(errors.DOC_VALIDATION, key);
-        error.message = errors.DOC_VALIDATION.message + ': ' + key;
-        throw error;
-      } else if (specialKey && !dataWords[key]) {
-        result.metadata[key.slice(1)] = doc[key];
-      } else {
-        result.data[key] = doc[key];
-      }
-    }
-  }
-  return result;
-};
-
-},{"31":31,"41":41}],27:[function(_dereq_,module,exports){
-'use strict';
-
-var merge = _dereq_(42);
-var errors = _dereq_(31);
-var updateDoc = _dereq_(28);
-var isDeleted = _dereq_(24);
-var isLocalId = _dereq_(25);
-
-var collections = _dereq_(128);
-var Map = collections.Map;
-
-function processDocs(docInfos, api, fetchedDocs, tx, results, writeDoc, opts,
-                     overallCallback) {
-
-  function insertDoc(docInfo, resultsIdx, callback) {
-    // Cant insert new deleted documents
-    var winningRev = merge.winningRev(docInfo.metadata);
-    var deleted = isDeleted(docInfo.metadata, winningRev);
-    if ('was_delete' in opts && deleted) {
-      results[resultsIdx] = errors.error(errors.MISSING_DOC, 'deleted');
-      return callback();
-    }
-
-    var delta = deleted ? 0 : 1;
-
-    writeDoc(docInfo, winningRev, deleted, deleted, false,
-      delta, resultsIdx, callback);
-  }
-
-  var newEdits = opts.new_edits;
-  var idsToDocs = new Map();
-
-  var docsDone = 0;
-  var docsToDo = docInfos.length;
-
-  function checkAllDocsDone() {
-    if (++docsDone === docsToDo && overallCallback) {
-      overallCallback();
-    }
-  }
-
-  docInfos.forEach(function (currentDoc, resultsIdx) {
-
-    if (currentDoc._id && isLocalId(currentDoc._id)) {
-      api[currentDoc._deleted ? '_removeLocal' : '_putLocal'](
-        currentDoc, {ctx: tx}, function (err) {
-          if (err) {
-            results[resultsIdx] = err;
-          } else {
-            results[resultsIdx] = {ok: true};
-          }
-          checkAllDocsDone();
-        });
-      return;
-    }
-
-    var id = currentDoc.metadata.id;
-    if (idsToDocs.has(id)) {
-      docsToDo--; // duplicate
-      idsToDocs.get(id).push([currentDoc, resultsIdx]);
-    } else {
-      idsToDocs.set(id, [[currentDoc, resultsIdx]]);
-    }
-  });
-
-  // in the case of new_edits, the user can provide multiple docs
-  // with the same id. these need to be processed sequentially
-  idsToDocs.forEach(function (docs, id) {
-    var numDone = 0;
-
-    function docWritten() {
-      if (++numDone < docs.length) {
-        nextDoc();
-      } else {
-        checkAllDocsDone();
-      }
-    }
-    function nextDoc() {
-      var value = docs[numDone];
-      var currentDoc = value[0];
-      var resultsIdx = value[1];
-
-      if (fetchedDocs.has(id)) {
-        updateDoc(fetchedDocs.get(id), currentDoc, results,
-          resultsIdx, docWritten, writeDoc, newEdits);
-      } else {
-        insertDoc(currentDoc, resultsIdx, docWritten);
-      }
-    }
-    nextDoc();
-  });
-}
-
-module.exports = processDocs;
-},{"128":128,"24":24,"25":25,"28":28,"31":31,"42":42}],28:[function(_dereq_,module,exports){
-'use strict';
-
-var merge = _dereq_(42);
-var errors = _dereq_(31);
-var isDeleted = _dereq_(24);
-var parseDoc = _dereq_(26).parseDoc;
-
-function updateDoc(prev, docInfo, results, i, cb, writeDoc, newEdits) {
-
-  if (merge.revExists(prev.rev_tree, docInfo.metadata.rev)) {
-    results[i] = docInfo;
-    return cb();
-  }
-
-  // sometimes this is pre-calculated. historically not always
-  var previousWinningRev = prev.winningRev || merge.winningRev(prev);
-  var previouslyDeleted = 'deleted' in prev ? prev.deleted :
-    isDeleted(prev, previousWinningRev);
-  var deleted = 'deleted' in docInfo.metadata ? docInfo.metadata.deleted :
-    isDeleted(docInfo.metadata);
-  var isRoot = /^1-/.test(docInfo.metadata.rev);
-
-  if (previouslyDeleted && !deleted && newEdits && isRoot) {
-    var newDoc = docInfo.data;
-    newDoc._rev = previousWinningRev;
-    newDoc._id = docInfo.metadata.id;
-    docInfo = parseDoc(newDoc, newEdits);
-  }
-
-  var merged = merge.merge(prev.rev_tree, docInfo.metadata.rev_tree[0], 1000);
-
-  var inConflict = newEdits && (((previouslyDeleted && deleted) ||
-    (!previouslyDeleted && merged.conflicts !== 'new_leaf') ||
-    (previouslyDeleted && !deleted && merged.conflicts === 'new_branch')));
-
-  if (inConflict) {
-    var err = errors.error(errors.REV_CONFLICT);
-    results[i] = err;
-    return cb();
-  }
-
-  var newRev = docInfo.metadata.rev;
-  docInfo.metadata.rev_tree = merged.tree;
-  /* istanbul ignore else */
-  if (prev.rev_map) {
-    docInfo.metadata.rev_map = prev.rev_map; // used only by leveldb
-  }
-
-  // recalculate
-  var winningRev = merge.winningRev(docInfo.metadata);
-  var winningRevIsDeleted = isDeleted(docInfo.metadata, winningRev);
-
-  // calculate the total number of documents that were added/removed,
-  // from the perspective of total_rows/doc_count
-  var delta = (previouslyDeleted === winningRevIsDeleted) ? 0 :
-    previouslyDeleted < winningRevIsDeleted ? -1 : 1;
-
-  var newRevIsDeleted;
-  if (newRev === winningRev) {
-    // if the new rev is the same as the winning rev, we can reuse that value
-    newRevIsDeleted = winningRevIsDeleted;
-  } else {
-    // if they're not the same, then we need to recalculate
-    newRevIsDeleted = isDeleted(docInfo.metadata, newRev);
-  }
-
-  writeDoc(docInfo, winningRev, winningRevIsDeleted, newRevIsDeleted,
-    true, delta, i, cb);
-}
-
-module.exports = updateDoc;
-},{"24":24,"26":26,"31":31,"42":42}],29:[function(_dereq_,module,exports){
-'use strict';
-
-var isChromeApp = _dereq_(30);
-
-var hasLocal;
-
-if (isChromeApp()) {
-  hasLocal = false;
-} else {
-  try {
-    localStorage.setItem('_pouch_check_localstorage', 1);
-    hasLocal = !!localStorage.getItem('_pouch_check_localstorage');
-  } catch (e) {
-    hasLocal = false;
-  }
-}
-
-module.exports = function hasLocalStorage() {
-  return hasLocal;
-};
-},{"30":30}],30:[function(_dereq_,module,exports){
-'use strict';
-
-module.exports = function isChromeApp() {
-  return (typeof chrome !== "undefined" &&
-    typeof chrome.storage !== "undefined" &&
-    typeof chrome.storage.local !== "undefined");
-};
-},{}],31:[function(_dereq_,module,exports){
+},{"5":5}],12:[function(_dereq_,module,exports){
+// hey guess what, we don't need this in the browser
+module.exports = {};
+},{}],13:[function(_dereq_,module,exports){
 "use strict";
 
-var inherits = _dereq_(76);
+var inherits = _dereq_(56);
 inherits(PouchError, Error);
 
 function PouchError(opts) {
@@ -2880,10 +1973,17 @@ exports.generateErrorFromResponse = function (res) {
     errMsg = errReason;
   } else if (errName === 'bad_request' && errType.message !== errReason) {
     // if bad_request error already found based on reason don't override.
-    errType = errors.BAD_REQUEST;
+
+    // attachment errors.
+    if (errReason.indexOf('unknown stub attachment') === 0) {
+      errType = errors.MISSING_STUB;
+      errMsg = errReason;
+    } else {
+      errType = errors.BAD_REQUEST;
+    }
   }
 
-  // fallback to error by status or unknown error.
+  // fallback to error by statys or unknown error.
   if (!errType) {
     errType = errors.getErrorTypeByProp('status', res.status, errReason) ||
                 errors.UNKNOWN_ERROR;
@@ -2903,6 +2003,9 @@ exports.generateErrorFromResponse = function (res) {
   if (res.status) {
     error.status = res.status;
   }
+  if (res.statusText) {
+    error.name = res.statusText;
+  }
   if (res.missing) {
     error.missing = res.missing;
   }
@@ -2910,51 +2013,27 @@ exports.generateErrorFromResponse = function (res) {
   return error;
 };
 
-},{"76":76}],32:[function(_dereq_,module,exports){
+},{"56":56}],14:[function(_dereq_,module,exports){
+(function (process,global){
 'use strict';
 
-var clone = _dereq_(23);
-
-function extendInner(obj, otherObj) {
-  for (var key in otherObj) {
-    if (otherObj.hasOwnProperty(key)) {
-      var value = clone(otherObj[key]);
-      if (typeof value !== 'undefined') {
-        obj[key] = value;
-      }
-    }
+// designed to give info to browser users, who are disturbed
+// when they see 404s in the console
+function explain404(str) {
+  if (process.browser && 'console' in global && 'info' in console) {
+    console.info('The above 404 is totally normal. ' + str);
   }
 }
 
-module.exports = function extend(obj, obj2, obj3) {
-  extendInner(obj, obj2);
-  if (obj3) {
-    extendInner(obj, obj3);
-  }
-  return obj;
-};
-},{"23":23}],33:[function(_dereq_,module,exports){
+module.exports = explain404;
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"36":36}],15:[function(_dereq_,module,exports){
+(function (process,global){
 'use strict';
 
-// shim for Function.prototype.name,
-// for browsers that don't support it like IE
-if ((function f() {}).name) {
-  module.exports = function (fun) {
-    return fun.name;
-  };
-} else {
-  module.exports = function (fun) {
-    return fun.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
-  };
-}
-
-},{}],34:[function(_dereq_,module,exports){
-(function (global){
-'use strict';
-
-var toPromise = _dereq_(40);
-var base64 = _dereq_(16);
-var Md5 = _dereq_(129);
+var base64 = _dereq_(6);
+var crypto = _dereq_(29);
+var Md5 = _dereq_(126);
 var setImmediateShim = global.setImmediate || global.setTimeout;
 var MD5_CHUNK_SIZE = 32768;
 
@@ -2993,7 +2072,12 @@ function appendString(buffer, data, start, end) {
   buffer.appendBinary(data);
 }
 
-module.exports = toPromise(function (data, callback) {
+module.exports = function (data, callback) {
+  if (!process.browser) {
+    var base64 = crypto.createHash('md5').update(data).digest('base64');
+    callback(null, base64);
+    return;
+  }
   var inputIsString = typeof data === 'string';
   var len = inputIsString ? data.length : data.byteLength;
   var chunkSize = Math.min(MD5_CHUNK_SIZE, len);
@@ -3019,10 +2103,10 @@ module.exports = toPromise(function (data, callback) {
     }
   }
   loadNextChunk();
-});
+};
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"129":129,"16":16,"40":40}],35:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"126":126,"29":29,"36":36,"6":6}],16:[function(_dereq_,module,exports){
 (function (process){
 'use strict';
 // in the browser, LevelAlt doesn't need the
@@ -3038,143 +2122,464 @@ exports.localAndMetaStores = function (db, stores, callback) {
     callback();
   });
 };
-}).call(this,_dereq_(56))
-},{"56":56}],36:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"36":36}],17:[function(_dereq_,module,exports){
 'use strict';
 
-var getArguments = _dereq_(48);
+var errors = _dereq_(13);
+var uuid = _dereq_(21);
 
-function once(fun) {
-  var called = false;
-  return getArguments(function (args) {
-    /* istanbul ignore if */
-    if (called) {
-      // this is a smoke test and should never actually happen
-      throw new Error('once called more than once');
-    } else {
-      called = true;
-      fun.apply(this, args);
-    }
-  });
+function toObject(array) {
+  return array.reduce(function (obj, item) {
+    obj[item] = true;
+    return obj;
+  }, {});
+}
+// List of top level reserved words for doc
+var reservedWords = toObject([
+  '_id',
+  '_rev',
+  '_attachments',
+  '_deleted',
+  '_revisions',
+  '_revs_info',
+  '_conflicts',
+  '_deleted_conflicts',
+  '_local_seq',
+  '_rev_tree',
+  //replication documents
+  '_replication_id',
+  '_replication_state',
+  '_replication_state_time',
+  '_replication_state_reason',
+  '_replication_stats',
+  // Specific to Couchbase Sync Gateway
+  '_removed'
+]);
+
+// List of reserved words that should end up the document
+var dataWords = toObject([
+  '_attachments',
+  //replication documents
+  '_replication_id',
+  '_replication_state',
+  '_replication_state_time',
+  '_replication_state_reason',
+  '_replication_stats'
+]);
+
+// Determine id an ID is valid
+//   - invalid IDs begin with an underescore that does not begin '_design' or
+//     '_local'
+//   - any other string value is a valid id
+// Returns the specific error object for each case
+exports.invalidIdError = function (id) {
+  var err;
+  if (!id) {
+    err = errors.error(errors.MISSING_ID);
+  } else if (typeof id !== 'string') {
+    err = errors.error(errors.INVALID_ID);
+  } else if (/^_/.test(id) && !(/^_(design|local)/).test(id)) {
+    err = errors.error(errors.RESERVED_ID);
+  }
+  if (err) {
+    throw err;
+  }
+};
+
+function parseRevisionInfo(rev) {
+  if (!/^\d+\-./.test(rev)) {
+    return errors.error(errors.INVALID_REV);
+  }
+  var idx = rev.indexOf('-');
+  var left = rev.substring(0, idx);
+  var right = rev.substring(idx + 1);
+  return {
+    prefix: parseInt(left, 10),
+    id: right
+  };
 }
 
-module.exports = once;
-},{"48":48}],37:[function(_dereq_,module,exports){
+function makeRevTreeFromRevisions(revisions, opts) {
+  var pos = revisions.start - revisions.ids.length + 1;
+
+  var revisionIds = revisions.ids;
+  var ids = [revisionIds[0], opts, []];
+
+  for (var i = 1, len = revisionIds.length; i < len; i++) {
+    ids = [revisionIds[i], {status: 'missing'}, [ids]];
+  }
+
+  return [{
+    pos: pos,
+    ids: ids
+  }];
+}
+
+// Preprocess documents, parse their revisions, assign an id and a
+// revision for new writes that are missing them, etc
+exports.parseDoc = function (doc, newEdits) {
+
+  var nRevNum;
+  var newRevId;
+  var revInfo;
+  var opts = {status: 'available'};
+  if (doc._deleted) {
+    opts.deleted = true;
+  }
+
+  if (newEdits) {
+    if (!doc._id) {
+      doc._id = uuid();
+    }
+    newRevId = uuid(32, 16).toLowerCase();
+    if (doc._rev) {
+      revInfo = parseRevisionInfo(doc._rev);
+      if (revInfo.error) {
+        return revInfo;
+      }
+      doc._rev_tree = [{
+        pos: revInfo.prefix,
+        ids: [revInfo.id, {status: 'missing'}, [[newRevId, opts, []]]]
+      }];
+      nRevNum = revInfo.prefix + 1;
+    } else {
+      doc._rev_tree = [{
+        pos: 1,
+        ids : [newRevId, opts, []]
+      }];
+      nRevNum = 1;
+    }
+  } else {
+    if (doc._revisions) {
+      doc._rev_tree = makeRevTreeFromRevisions(doc._revisions, opts);
+      nRevNum = doc._revisions.start;
+      newRevId = doc._revisions.ids[0];
+    }
+    if (!doc._rev_tree) {
+      revInfo = parseRevisionInfo(doc._rev);
+      if (revInfo.error) {
+        return revInfo;
+      }
+      nRevNum = revInfo.prefix;
+      newRevId = revInfo.id;
+      doc._rev_tree = [{
+        pos: nRevNum,
+        ids: [newRevId, opts, []]
+      }];
+    }
+  }
+
+  exports.invalidIdError(doc._id);
+
+  doc._rev = nRevNum + '-' + newRevId;
+
+  var result = {metadata : {}, data : {}};
+  for (var key in doc) {
+    if (doc.hasOwnProperty(key)) {
+      var specialKey = key[0] === '_';
+      if (specialKey && !reservedWords[key]) {
+        var error = errors.error(errors.DOC_VALIDATION, key);
+        error.message = errors.DOC_VALIDATION.message + ': ' + key;
+        throw error;
+      } else if (specialKey && !dataWords[key]) {
+        result.metadata[key.slice(1)] = doc[key];
+      } else {
+        result.data[key] = doc[key];
+      }
+    }
+  }
+  return result;
+};
+},{"13":13,"21":21}],18:[function(_dereq_,module,exports){
 'use strict';
 
 // originally parseUri 1.2.2, now patched by us
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
-var keys = ["source", "protocol", "authority", "userInfo", "user", "password",
-    "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
-var qName ="queryKey";
-var qParser = /(?:^|&)([^&=]*)=?([^&]*)/g;
-
-// use the "loose" parser
-/* jshint maxlen: false */
-var parser = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-
+var options = {
+  strictMode: false,
+  key: ["source", "protocol", "authority", "userInfo", "user", "password",
+    "host", "port", "relative", "path", "directory", "file", "query",
+    "anchor"],
+  q:   {
+    name:   "queryKey",
+    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+  },
+  parser: {
+    /* jshint maxlen: false */
+    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
 function parseUri(str) {
-  var m = parser.exec(str);
+  var o = options;
+  var m = o.parser[o.strictMode ? "strict" : "loose"].exec(str);
   var uri = {};
   var i = 14;
 
   while (i--) {
-    var key = keys[i];
+    var key = o.key[i];
     var value = m[i] || "";
     var encoded = ['user', 'password'].indexOf(key) !== -1;
     uri[key] = encoded ? decodeURIComponent(value) : value;
   }
 
-  uri[qName] = {};
-  uri[keys[12]].replace(qParser, function ($0, $1, $2) {
+  uri[o.q.name] = {};
+  uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
     if ($1) {
-      uri[qName][$1] = $2;
+      uri[o.q.name][$1] = $2;
     }
   });
 
   return uri;
 }
 
+
 module.exports = parseUri;
-},{}],38:[function(_dereq_,module,exports){
+},{}],19:[function(_dereq_,module,exports){
 'use strict';
 
-// like underscore/lodash _.pick()
-module.exports = function pick(obj, arr) {
-  var res = {};
-  for (var i = 0, len = arr.length; i < len; i++) {
-    var prop = arr[i];
-    if (prop in obj) {
-      res[prop] = obj[prop];
-    }
-  }
-  return res;
-};
-},{}],39:[function(_dereq_,module,exports){
-'use strict';
-/* istanbul ignore next */
-module.exports = typeof Promise === 'function' ? Promise : _dereq_(115);
-
-},{"115":115}],40:[function(_dereq_,module,exports){
-(function (process){
+if (typeof Promise === 'function') {
+  module.exports = Promise;
+} else {
+  module.exports = _dereq_(98);
+}
+},{"98":98}],20:[function(_dereq_,module,exports){
+/* global fetch */
+/* global Headers */
 'use strict';
 
-var Promise = _dereq_(39);
-var getArguments = _dereq_(48);
-var once = _dereq_(36);
+var createBlob = _dereq_(9);
+var utils = _dereq_(27);
+var readAsArrayBuffer = _dereq_(10);
 
-function toPromise(func) {
-  //create the function we will be returning
-  return getArguments(function (args) {
-    var self = this;
-    var tempCB =
-      (typeof args[args.length - 1] === 'function') ? args.pop() : false;
-    // if the last argument is a function, assume its a callback
-    var usedCB;
-    if (tempCB) {
-      // if it was a callback, create a new callback which calls it,
-      // but do so async so we don't trap any errors
-      usedCB = function (err, resp) {
-        process.nextTick(function () {
-          tempCB(err, resp);
-        });
-      };
-    }
-    var promise = new Promise(function (fulfill, reject) {
-      var resp;
-      try {
-        var callback = once(function (err, mesg) {
-          if (err) {
-            reject(err);
-          } else {
-            fulfill(mesg);
-          }
-        });
-        // create a callback for this invocation
-        // apply the function in the orig context
-        args.push(callback);
-        resp = func.apply(self, args);
-        if (resp && typeof resp.then === 'function') {
-          fulfill(resp);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    });
-    // if there is a callback, call it back
-    if (usedCB) {
-      promise.then(function (result) {
-        usedCB(null, result);
-      }, usedCB);
-    }
-    return promise;
+function wrappedFetch() {
+  var wrappedPromise = {};
+
+  var promise = new utils.Promise(function(resolve, reject) {
+    wrappedPromise.resolve = resolve;
+    wrappedPromise.reject = reject;
   });
+
+  var args = new Array(arguments.length);
+
+  for (var i = 0; i < args.length; i++) {
+    args[i] = arguments[i];
+  }
+
+  wrappedPromise.promise = promise;
+
+  utils.Promise.resolve().then(function () {
+    return fetch.apply(null, args);
+  }).then(function(response) {
+    wrappedPromise.resolve(response);
+  })["catch"](function(error) {
+    wrappedPromise.reject(error);
+  });
+
+  return wrappedPromise;
 }
 
-module.exports = toPromise;
-}).call(this,_dereq_(56))
-},{"36":36,"39":39,"48":48,"56":56}],41:[function(_dereq_,module,exports){
+function fetchRequest(options, callback) {
+  var wrappedPromise, timer, response;
+
+  var headers = new Headers();
+
+  var fetchOptions = {
+    method: options.method,
+    credentials: 'include',
+    headers: headers
+  };
+
+  if (options.json) {
+    headers.set('Accept', 'application/json');
+    headers.set('Content-Type', options.headers['Content-Type'] ||
+      'application/json');
+  }
+
+  if (options.body && (options.body instanceof Blob)) {
+    readAsArrayBuffer(options.body, function (arrayBuffer) {
+      fetchOptions.body = arrayBuffer;
+    });
+  } else if (options.body &&
+             options.processData &&
+             typeof options.body !== 'string') {
+    fetchOptions.body = JSON.stringify(options.body);
+  } else if ('body' in options) {
+    fetchOptions.body = options.body;
+  } else {
+    fetchOptions.body = null;
+  }
+
+  Object.keys(options.headers).forEach(function(key) {
+    if (options.headers.hasOwnProperty(key)) {
+      headers.set(key, options.headers[key]);
+    }
+  });
+
+  wrappedPromise = wrappedFetch(options.url, fetchOptions);
+
+  if (options.timeout > 0) {
+    timer = setTimeout(function() {
+      wrappedPromise.reject(new Error('Load timeout for resource: ' +
+        options.url));
+    }, options.timeout);
+  }
+
+  wrappedPromise.promise.then(function(fetchResponse) {
+    response = {
+      statusCode: fetchResponse.status
+    };
+
+    if (options.timeout > 0) {
+      clearTimeout(timer);
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return options.binary ? fetchResponse.blob() : fetchResponse.text();
+    }
+
+    return fetchResponse.json();
+  }).then(function(result) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      callback(null, response, result);
+    } else {
+      callback(result, response);
+    }
+  })["catch"](function(error) {
+    callback(error, response);
+  });
+
+  return {abort: wrappedPromise.reject};
+}
+
+function xhRequest(options, callback) {
+
+  var xhr, timer, hasUpload;
+
+  var abortReq = function () {
+    xhr.abort();
+  };
+
+  if (options.xhr) {
+    xhr = new options.xhr();
+  } else {
+    xhr = new XMLHttpRequest();
+  }
+
+  // cache-buster, specifically designed to work around IE's aggressive caching
+  // see http://www.dashbay.com/2011/05/internet-explorer-caches-ajax/
+  if (options.method === 'GET' && !options.cache) {
+    var hasArgs = options.url.indexOf('?') !== -1;
+    options.url += (hasArgs ? '&' : '?') + '_nonce=' + Date.now();
+  }
+
+  xhr.open(options.method, options.url);
+  xhr.withCredentials = true;
+
+  if (options.method === 'GET') {
+    delete options.headers['Content-Type'];
+  } else if (options.json) {
+    options.headers.Accept = 'application/json';
+    options.headers['Content-Type'] = options.headers['Content-Type'] ||
+      'application/json';
+    if (options.body &&
+        options.processData &&
+        typeof options.body !== "string") {
+      options.body = JSON.stringify(options.body);
+    }
+  }
+
+  if (options.binary) {
+    xhr.responseType = 'arraybuffer';
+  }
+
+  if (!('body' in options)) {
+    options.body = null;
+  }
+
+  for (var key in options.headers) {
+    if (options.headers.hasOwnProperty(key)) {
+      xhr.setRequestHeader(key, options.headers[key]);
+    }
+  }
+
+  if (options.timeout > 0) {
+    timer = setTimeout(abortReq, options.timeout);
+    xhr.onprogress = function () {
+      clearTimeout(timer);
+      timer = setTimeout(abortReq, options.timeout);
+    };
+    if (typeof hasUpload === 'undefined') {
+      // IE throws an error if you try to access it directly
+      hasUpload = Object.keys(xhr).indexOf('upload') !== -1 &&
+                  typeof xhr.upload !== 'undefined';
+    }
+    if (hasUpload) { // does not exist in ie9
+      xhr.upload.onprogress = xhr.onprogress;
+    }
+  }
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) {
+      return;
+    }
+
+    var response = {
+      statusCode: xhr.status
+    };
+
+    if (xhr.status >= 200 && xhr.status < 300) {
+      var data;
+      if (options.binary) {
+        data = createBlob([xhr.response || ''], {
+          type: xhr.getResponseHeader('Content-Type')
+        });
+      } else {
+        data = xhr.responseText;
+      }
+      callback(null, response, data);
+    } else {
+      var err = {};
+      try {
+        err = JSON.parse(xhr.response);
+      } catch(e) {}
+      callback(err, response);
+    }
+  };
+
+  if (options.body && (options.body instanceof Blob)) {
+    readAsArrayBuffer(options.body, function (arrayBuffer) {
+      xhr.send(arrayBuffer);
+    });
+  } else {
+    xhr.send(options.body);
+  }
+
+  return {abort: abortReq};
+}
+
+function testXhr() {
+  try {
+    new XMLHttpRequest();
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+var hasXhr = testXhr();
+
+module.exports = function(options, callback) {
+  if (hasXhr || options.xhr) {
+    return xhRequest(options, callback);
+  } else {
+    return fetchRequest(options, callback);
+  }
+};
+
+},{"10":10,"27":27,"9":9}],21:[function(_dereq_,module,exports){
 "use strict";
 
 // BEGIN Math.uuid.js
@@ -3259,8 +2664,10 @@ function uuid(len, radix) {
 module.exports = uuid;
 
 
-},{}],42:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 'use strict';
+var extend = _dereq_(125);
+
 
 // for a better overview of what this is doing, read:
 // https://github.com/apache/couchdb/blob/master/src/couchdb/couch_key_tree.erl
@@ -3289,31 +2696,24 @@ function binarySearch(arr, item, comparator) {
   return low;
 }
 
-function sortByPos(a, b) {
-  return a.pos - b.pos;
-}
-
 // assuming the arr is sorted, insert the item in the proper place
 function insertSorted(arr, item, comparator) {
   var idx = binarySearch(arr, item, comparator);
   arr.splice(idx, 0, item);
 }
 
-// Turn a path as a flat array into a tree with a single branch.
-// If any should be stemmed from the beginning of the array, that's passed
-// in as the second argument
-function pathToTree(path, numStemmed) {
-  var root;
-  var leaf;
-  for (var i = numStemmed, len = path.length; i < len; i++) {
-    var node = path[i];
-    var currentLeaf = [node.id, node.opts, []];
-    if (leaf) {
-      leaf[2].push(currentLeaf);
-      leaf = currentLeaf;
-    } else {
-      root = leaf = currentLeaf;
-    }
+// Turn a path as a flat array into a tree with a single branch
+function pathToTree(path) {
+  var doc = path.shift();
+  var root = [doc.id, doc.opts, []];
+  var leaf = root;
+  var nleaf;
+
+  while (path.length) {
+    doc = path.shift();
+    nleaf = [doc.id, doc.opts, []];
+    leaf[2].push(nleaf);
+    leaf = nleaf;
   }
   return root;
 }
@@ -3372,8 +2772,7 @@ function doMerge(tree, path, dontExpand) {
     return {tree: [path], conflicts: 'new_leaf'};
   }
 
-  for (var i = 0, len = tree.length; i < len; i++) {
-    var branch = tree[i];
+  tree.forEach(function (branch) {
     if (branch.pos === path.pos && branch.ids[0] === path.ids[0]) {
       // Paths start at the same position and have the same root, so they need
       // merged
@@ -3403,15 +2802,14 @@ function doMerge(tree, path, dontExpand) {
           }
           continue;
         }
-        var elements = item.ids[2];
-        for (var j = 0, elementsLen = elements.length; j < elementsLen; j++) {
-          trees.push({
-            ids: elements[j],
-            diff: item.diff - 1,
-            parent: item.ids,
-            parentIdx: j
-          });
+        if (!item.ids) {
+          continue;
         }
+        /*jshint loopfunc:true */
+        item.ids[2].forEach(function (el, idx) {
+          trees.push(
+            {ids: el, diff: item.diff - 1, parent: item.ids, parentIdx: idx});
+        });
       }
 
       var el = candidateParents[0];
@@ -3428,14 +2826,16 @@ function doMerge(tree, path, dontExpand) {
     } else {
       restree.push(branch);
     }
-  }
+  });
 
   // We didnt find
   if (!merged) {
     restree.push(path);
   }
 
-  restree.sort(sortByPos);
+  restree.sort(function (a, b) {
+    return a.pos - b.pos;
+  });
 
   return {
     tree: restree,
@@ -3445,33 +2845,28 @@ function doMerge(tree, path, dontExpand) {
 
 // To ensure we dont grow the revision tree infinitely, we stem old revisions
 function stem(tree, depth) {
-  // First we break out the tree into a complete list of root to leaf paths
-  var paths = PouchMerge.rootToLeaf(tree);
-  var result;
-  for (var i = 0, len = paths.length; i < len; i++) {
-    // Then for each path, we cut off the start of the path based on the
-    // `depth` to stem to, and generate a new set of flat trees
-    var path = paths[i];
-    var stemmed = path.ids;
-    var numStemmed = Math.max(0, stemmed.length - depth);
-    var stemmedNode = {
-      pos: path.pos + numStemmed,
-      ids: pathToTree(stemmed, numStemmed)
+  // First we break out the tree into a complete list of root to leaf paths,
+  // we cut off the start of the path and generate a new set of flat trees
+  var stemmedPaths = PouchMerge.rootToLeaf(tree).map(function (path) {
+    var stemmed = path.ids.slice(-depth);
+    return {
+      pos: path.pos + (path.ids.length - stemmed.length),
+      ids: pathToTree(stemmed)
     };
-    // Then we remerge all those flat trees together, ensuring that we dont
-    // connect trees that would go beyond the depth limit
-    if (result) {
-      result = doMerge(result, stemmedNode, true).tree;
-    } else {
-      result = [stemmedNode];
-    }
-  }
-  return result;
+  });
+  // Then we remerge all those flat trees together, ensuring that we dont
+  // connect trees that would go beyond the depth limit
+  return stemmedPaths.reduce(function (prev, current) {
+    return doMerge(prev, current, true).tree;
+  }, [stemmedPaths.shift()]);
 }
 
 var PouchMerge = {};
 
 PouchMerge.merge = function (tree, path, depth) {
+  // Ugh, nicer way to not modify arguments in place?
+  tree = extend(true, [], tree);
+  path = extend(true, {}, path);
   var newTree = doMerge(tree, path);
   return {
     tree: stem(newTree.tree, depth),
@@ -3485,33 +2880,24 @@ PouchMerge.merge = function (tree, path, depth) {
 // The final sort algorithm is slightly documented in a sidebar here:
 // http://guide.couchdb.org/draft/conflicts.html
 PouchMerge.winningRev = function (metadata) {
-  var winningId;
-  var winningPos;
-  var winningDeleted;
-  var toVisit = metadata.rev_tree.slice();
-  var node;
-  while ((node = toVisit.pop())) {
-    var tree = node.ids;
-    var branches = tree[2];
-    var pos = node.pos;
-    if (branches.length) { // non-leaf
-      for (var i = 0, len = branches.length; i < len; i++) {
-        toVisit.push({pos: pos + 1, ids: branches[i]});
-      }
-      continue;
+  var leafs = [];
+  PouchMerge.traverseRevTree(metadata.rev_tree,
+                              function (isLeaf, pos, id, something, opts) {
+    if (isLeaf) {
+      leafs.push({pos: pos, id: id, deleted: !!opts.deleted});
     }
-    var deleted = !!tree[1].deleted;
-    var id = tree[0];
-    // sort by deleted, then pos, then id
-    if (!winningId || (winningDeleted !== deleted ? winningDeleted :
-        winningPos !== pos ? winningPos < pos : winningId < id)) {
-      winningId = id;
-      winningPos = pos;
-      winningDeleted = deleted;
+  });
+  leafs.sort(function (a, b) {
+    if (a.deleted !== b.deleted) {
+      return a.deleted > b.deleted ? 1 : -1;
     }
-  }
+    if (a.pos !== b.pos) {
+      return b.pos - a.pos;
+    }
+    return a.id < b.id ? 1 : -1;
+  });
 
-  return winningPos + '-' + winningId;
+  return leafs[0].pos + '-' + leafs[0].id;
 };
 
 // Pretty much all below can be combined into a higher order function to
@@ -3534,26 +2920,6 @@ PouchMerge.traverseRevTree = function (revs, callback) {
   }
 };
 
-// return true if a rev exists in the rev tree, false otherwise
-PouchMerge.revExists = function (revs, rev) {
-  var toVisit = revs.slice();
-  var splitRev = rev.split('-');
-  var targetPos = parseInt(splitRev[0], 10);
-  var targetId = splitRev[1];
-
-  var node;
-  while ((node = toVisit.pop())) {
-    if (node.pos === targetPos && node.ids[0] === targetId) {
-      return true;
-    }
-    var branches = node.ids[2];
-    for (var i = 0, len = branches.length; i < len; i++) {
-      toVisit.push({pos: node.pos + 1, ids: branches[i]});
-    }
-  }
-  return false;
-};
-
 PouchMerge.collectLeaves = function (revs) {
   var leaves = [];
   PouchMerge.traverseRevTree(revs, function (isLeaf, pos, id, acc, opts) {
@@ -3561,10 +2927,10 @@ PouchMerge.collectLeaves = function (revs) {
       leaves.push({rev: pos + "-" + id, pos: pos, opts: opts});
     }
   });
-  leaves.sort(sortByPos).reverse();
-  for (var i = 0, len = leaves.length; i < len; i++) {
-    delete leaves[i].pos;
-  }
+  leaves.sort(function (a, b) {
+    return b.pos - a.pos;
+  });
+  leaves.forEach(function (leaf) { delete leaf.pos; });
   return leaves;
 };
 
@@ -3575,50 +2941,38 @@ PouchMerge.collectConflicts = function (metadata) {
   var win = PouchMerge.winningRev(metadata);
   var leaves = PouchMerge.collectLeaves(metadata.rev_tree);
   var conflicts = [];
-  for (var i = 0, len = leaves.length; i < len; i++) {
-    var leaf = leaves[i];
+  leaves.forEach(function (leaf) {
     if (leaf.rev !== win && !leaf.opts.deleted) {
       conflicts.push(leaf.rev);
     }
-  }
+  });
   return conflicts;
 };
 
-// build up a list of all the paths to the leafs in this revision tree
-PouchMerge.rootToLeaf = function (revs) {
+PouchMerge.rootToLeaf = function (tree) {
   var paths = [];
-  var toVisit = revs.slice();
-  var node;
-  while ((node = toVisit.pop())) {
-    var pos = node.pos;
-    var tree = node.ids;
-    var id = tree[0];
-    var opts = tree[1];
-    var branches = tree[2];
-    var isLeaf = branches.length === 0;
-
-    var history = node.history ? node.history.slice() : [];
+  PouchMerge.traverseRevTree(tree, function (isLeaf, pos, id, history, opts) {
+    history = history ? history.slice(0) : [];
     history.push({id: id, opts: opts});
     if (isLeaf) {
-      paths.push({pos: (pos + 1 - history.length), ids: history});
+      var rootPos = pos + 1 - history.length;
+      paths.unshift({pos: rootPos, ids: history});
     }
-    for (var i = 0, len = branches.length; i < len; i++) {
-      toVisit.push({pos: pos + 1, ids: branches[i], history: history});
-    }
-  }
-  return paths.reverse();
+    return history;
+  });
+  return paths;
 };
 
 
 module.exports = PouchMerge;
 
-},{}],43:[function(_dereq_,module,exports){
+},{"125":125}],23:[function(_dereq_,module,exports){
 'use strict';
 /* global PouchDB */
 
 function pluginBase(adapterConfig, downAdapter) {
   var adapterName = adapterConfig.name;
-  var adapter = _dereq_(44)(adapterConfig, downAdapter);
+  var adapter = _dereq_(24)(adapterConfig, downAdapter);
   // use global PouchDB if it's there (e.g. window.PouchDB)
   var PDB = (typeof PouchDB !== 'undefined') ? PouchDB : _dereq_("pouchdb");
   if (!PDB) {
@@ -3631,11 +2985,11 @@ function pluginBase(adapterConfig, downAdapter) {
 }
 
 module.exports = pluginBase;
-},{"44":44,"pouchdb":"pouchdb"}],44:[function(_dereq_,module,exports){
+},{"24":24,"pouchdb":"pouchdb"}],24:[function(_dereq_,module,exports){
 'use strict';
 
 var LevelPouch = _dereq_(3);
-var utils = _dereq_(47);
+var utils = _dereq_(27);
 module.exports = altFactory;
 function altFactory(adapterConfig, downAdapter) {
 
@@ -3668,7 +3022,7 @@ function altFactory(adapterConfig, downAdapter) {
 
 }
 
-},{"3":3,"47":47}],45:[function(_dereq_,module,exports){
+},{"27":27,"3":3}],25:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = {
@@ -3679,44 +3033,125 @@ module.exports = {
   use_prefix: true
 };
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
-var pluginBase = _dereq_(43);
-var adapterConfig = _dereq_(45);
-var downAdapter = _dereq_(117);
+var pluginBase = _dereq_(23);
+var adapterConfig = _dereq_(25);
+var downAdapter = _dereq_(113);
 pluginBase(adapterConfig, downAdapter);
-},{"117":117,"43":43,"45":45}],47:[function(_dereq_,module,exports){
+},{"113":113,"23":23,"25":25}],27:[function(_dereq_,module,exports){
+(function (process){
 /*jshint strict: false */
-var merge = _dereq_(42);
-exports.ajax = _dereq_(13);
-exports.uuid = _dereq_(41);
-exports.getArguments = _dereq_(48);
-var collections = _dereq_(128);
+/*global chrome */
+var merge = _dereq_(22);
+exports.extend = _dereq_(125);
+exports.ajax = _dereq_(4);
+exports.createBlob = _dereq_(9);
+exports.uuid = _dereq_(21);
+exports.getArguments = _dereq_(28);
+var errors = _dereq_(13);
+var EventEmitter = _dereq_(34).EventEmitter;
+var collections = _dereq_(124);
 exports.Map = collections.Map;
 exports.Set = collections.Set;
-var parseDoc = _dereq_(26);
+var parseDoc = _dereq_(17);
 
-var Promise = _dereq_(39);
+var Promise = _dereq_(19);
 exports.Promise = Promise;
 
-var base64 = _dereq_(16);
+var base64 = _dereq_(6);
 
 // TODO: don't export these
 exports.atob = base64.atob;
 exports.btoa = base64.btoa;
 
-var binStringToBlobOrBuffer =
-  _dereq_(18);
+var binaryStringToBlob = _dereq_(8);
+var arrayBufferToBinaryString =
+  _dereq_(5);
+var readAsArrayBuffer = _dereq_(10);
 
 // TODO: only used by the integration tests
-exports.binaryStringToBlobOrBuffer = binStringToBlobOrBuffer;
+exports.binaryStringToBlob = binaryStringToBlob;
 
-exports.clone = _dereq_(23);
-exports.extend = _dereq_(32);
+exports.lastIndexOf = function (str, char) {
+  for (var i = str.length - 1; i >= 0; i--) {
+    if (str.charAt(i) === char) {
+      return i;
+    }
+  }
+  return -1;
+};
 
-exports.pick = _dereq_(38);
-exports.inherits = _dereq_(76);
+exports.clone = function (obj) {
+  return exports.extend(true, {}, obj);
+};
+
+// like underscore/lodash _.pick()
+exports.pick = function (obj, arr) {
+  var res = {};
+  for (var i = 0, len = arr.length; i < len; i++) {
+    var prop = arr[i];
+    res[prop] = obj[prop];
+  }
+  return res;
+};
+
+exports.inherits = _dereq_(56);
+
+function isChromeApp() {
+  return (typeof chrome !== "undefined" &&
+          typeof chrome.storage !== "undefined" &&
+          typeof chrome.storage.local !== "undefined");
+}
+
+// Pretty dumb name for a function, just wraps callback calls so we dont
+// to if (callback) callback() everywhere
+exports.call = exports.getArguments(function (args) {
+  if (!args.length) {
+    return;
+  }
+  var fun = args.shift();
+  if (typeof fun === 'function') {
+    fun.apply(this, args);
+  }
+});
+
+exports.isLocalId = function (id) {
+  return (/^_local/).test(id);
+};
+
+// check if a specific revision of a doc has been deleted
+//  - metadata: the metadata object from the doc store
+//  - rev: (optional) the revision to check. defaults to winning revision
+exports.isDeleted = function (metadata, rev) {
+  if (!rev) {
+    rev = merge.winningRev(metadata);
+  }
+  var dashIndex = rev.indexOf('-');
+  if (dashIndex !== -1) {
+    rev = rev.substring(dashIndex + 1);
+  }
+  var deleted = false;
+  merge.traverseRevTree(metadata.rev_tree,
+  function (isLeaf, pos, id, acc, opts) {
+    if (id === rev) {
+      deleted = !!opts.deleted;
+    }
+  });
+
+  return deleted;
+};
+
+exports.revExists = function (metadata, rev) {
+  var found = false;
+  merge.traverseRevTree(metadata.rev_tree, function (leaf, pos, id) {
+    if ((pos + '-' + id) === rev) {
+      found = true;
+    }
+  });
+  return found;
+};
 
 exports.filterChange = function filterChange(opts) {
   var req = {};
@@ -3736,7 +3171,6 @@ exports.filterChange = function filterChange(opts) {
       delete change.doc;
     } else if (!opts.attachments) {
       for (var att in change.doc._attachments) {
-        /* istanbul ignore else */
         if (change.doc._attachments.hasOwnProperty(att)) {
           change.doc._attachments[att].stub = true;
         }
@@ -3755,35 +3189,208 @@ exports.isCordova = function () {
           typeof phonegap !== "undefined");
 };
 
-exports.Changes = _dereq_(7);
-
-exports.once = _dereq_(36);
-
-exports.toPromise = _dereq_(40);
-
-exports.adapterFun = function (name, callback) {
-  var log = _dereq_(72)('pouchdb:api');
-
-  function logApiCall(self, name, args) {
-    /* istanbul ignore if */
-    if (log.enabled) {
-      var logArgs = [self._db_name, name];
-      for (var i = 0; i < args.length - 1; i++) {
-        logArgs.push(args[i]);
+exports.hasLocalStorage = function () {
+  if (isChromeApp()) {
+    return false;
+  }
+  try {
+    return localStorage;
+  } catch (e) {
+    return false;
+  }
+};
+exports.Changes = Changes;
+exports.inherits(Changes, EventEmitter);
+function Changes() {
+  if (!(this instanceof Changes)) {
+    return new Changes();
+  }
+  var self = this;
+  EventEmitter.call(this);
+  this.isChrome = isChromeApp();
+  this._listeners = {};
+  this.hasLocal = false;
+  if (!this.isChrome) {
+    this.hasLocal = exports.hasLocalStorage();
+  }
+  if (this.isChrome) {
+    chrome.storage.onChanged.addListener(function (e) {
+      // make sure it's event addressed to us
+      if (e.db_name != null) {
+        //object only has oldValue, newValue members
+        self.emit(e.dbName.newValue);
       }
-      log.apply(null, logArgs);
+    });
+  } else if (this.hasLocal) {
+    if (typeof addEventListener !== 'undefined') {
+      addEventListener("storage", function (e) {
+        self.emit(e.key);
+      });
+    } else { // old IE
+      window.attachEvent("storage", function (e) {
+        self.emit(e.key);
+      });
+    }
+  }
 
-      // override the callback itself to log the response
-      var origCallback = args[args.length - 1];
-      args[args.length - 1] = function (err, res) {
-        var responseArgs = [self._db_name, name];
-        responseArgs = responseArgs.concat(
-          err ? ['error', err] : ['success', res]
-        );
-        log.apply(null, responseArgs);
-        origCallback(err, res);
+}
+Changes.prototype.addListener = function (dbName, id, db, opts) {
+  if (this._listeners[id]) {
+    return;
+  }
+  var self = this;
+  var inprogress = false;
+  function eventFunction() {
+    if (!self._listeners[id]) {
+      return;
+    }
+    if (inprogress) {
+      inprogress = 'waiting';
+      return;
+    }
+    inprogress = true;
+    db.changes({
+      style: opts.style,
+      include_docs: opts.include_docs,
+      attachments: opts.attachments,
+      conflicts: opts.conflicts,
+      continuous: false,
+      descending: false,
+      filter: opts.filter,
+      doc_ids: opts.doc_ids,
+      view: opts.view,
+      since: opts.since,
+      query_params: opts.query_params
+    }).on('change', function (c) {
+      if (c.seq > opts.since && !opts.cancelled) {
+        opts.since = c.seq;
+        exports.call(opts.onChange, c);
+      }
+    }).on('complete', function () {
+      if (inprogress === 'waiting') {
+        process.nextTick(function () {
+          self.notify(dbName);
+        });
+      }
+      inprogress = false;
+    }).on('error', function () {
+      inprogress = false;
+    });
+  }
+  this._listeners[id] = eventFunction;
+  this.on(dbName, eventFunction);
+};
+
+Changes.prototype.removeListener = function (dbName, id) {
+  if (!(id in this._listeners)) {
+    return;
+  }
+  EventEmitter.prototype.removeListener.call(this, dbName,
+    this._listeners[id]);
+};
+
+
+Changes.prototype.notifyLocalWindows = function (dbName) {
+  //do a useless change on a storage thing
+  //in order to get other windows's listeners to activate
+  if (this.isChrome) {
+    chrome.storage.local.set({dbName: dbName});
+  } else if (this.hasLocal) {
+    localStorage[dbName] = (localStorage[dbName] === "a") ? "b" : "a";
+  }
+};
+
+Changes.prototype.notify = function (dbName) {
+  this.emit(dbName);
+  this.notifyLocalWindows(dbName);
+};
+
+exports.once = function (fun) {
+  var called = false;
+  return exports.getArguments(function (args) {
+    if (called) {
+      throw new Error('once called  more than once');
+    } else {
+      called = true;
+      fun.apply(this, args);
+    }
+  });
+};
+
+exports.toPromise = function (func) {
+  //create the function we will be returning
+  return exports.getArguments(function (args) {
+    var self = this;
+    var tempCB =
+      (typeof args[args.length - 1] === 'function') ? args.pop() : false;
+    // if the last argument is a function, assume its a callback
+    var usedCB;
+    if (tempCB) {
+      // if it was a callback, create a new callback which calls it,
+      // but do so async so we don't trap any errors
+      usedCB = function (err, resp) {
+        process.nextTick(function () {
+          tempCB(err, resp);
+        });
       };
     }
+    var promise = new Promise(function (fulfill, reject) {
+      var resp;
+      try {
+        var callback = exports.once(function (err, mesg) {
+          if (err) {
+            reject(err);
+          } else {
+            fulfill(mesg);
+          }
+        });
+        // create a callback for this invocation
+        // apply the function in the orig context
+        args.push(callback);
+        resp = func.apply(self, args);
+        if (resp && typeof resp.then === 'function') {
+          fulfill(resp);
+        }
+      } catch (e) {
+        reject(e);
+      }
+    });
+    // if there is a callback, call it back
+    if (usedCB) {
+      promise.then(function (result) {
+        usedCB(null, result);
+      }, usedCB);
+    }
+    promise.cancel = function () {
+      return this;
+    };
+    return promise;
+  });
+};
+
+exports.adapterFun = function (name, callback) {
+  var log = _dereq_(52)('pouchdb:api');
+
+  function logApiCall(self, name, args) {
+    if (!log.enabled) {
+      return;
+    }
+    var logArgs = [self._db_name, name];
+    for (var i = 0; i < args.length - 1; i++) {
+      logArgs.push(args[i]);
+    }
+    log.apply(null, logArgs);
+
+    // override the callback itself to log the response
+    var origCallback = args[args.length - 1];
+    args[args.length - 1] = function (err, res) {
+      var responseArgs = [self._db_name, name];
+      responseArgs = responseArgs.concat(
+        err ? ['error', err] : ['success', res]
+      );
+      log.apply(null, responseArgs);
+      origCallback(err, res);
+    };
   }
 
 
@@ -3808,14 +3415,342 @@ exports.adapterFun = function (name, callback) {
   }));
 };
 
-exports.explain404 = _dereq_(11);
+exports.cancellableFun = function (fun, self, opts) {
 
-exports.parseUri = _dereq_(37);
+  opts = opts ? exports.clone(true, {}, opts) : {};
+
+  var emitter = new EventEmitter();
+  var oldComplete = opts.complete || function () { };
+  var complete = opts.complete = exports.once(function (err, resp) {
+    if (err) {
+      oldComplete(err);
+    } else {
+      emitter.emit('end', resp);
+      oldComplete(null, resp);
+    }
+    emitter.removeAllListeners();
+  });
+  var oldOnChange = opts.onChange || function () {};
+  var lastChange = 0;
+  self.on('destroyed', function () {
+    emitter.removeAllListeners();
+  });
+  opts.onChange = function (change) {
+    oldOnChange(change);
+    if (change.seq <= lastChange) {
+      return;
+    }
+    lastChange = change.seq;
+    emitter.emit('change', change);
+    if (change.deleted) {
+      emitter.emit('delete', change);
+    } else if (change.changes.length === 1 &&
+      change.changes[0].rev.slice(0, 1) === '1-') {
+      emitter.emit('create', change);
+    } else {
+      emitter.emit('update', change);
+    }
+  };
+  var promise = new Promise(function (fulfill, reject) {
+    opts.complete = function (err, res) {
+      if (err) {
+        reject(err);
+      } else {
+        fulfill(res);
+      }
+    };
+  });
+
+  promise.then(function (result) {
+    complete(null, result);
+  }, complete);
+
+  // this needs to be overwridden by caller, dont fire complete until
+  // the task is ready
+  promise.cancel = function () {
+    promise.isCancelled = true;
+    if (self.taskqueue.isReady) {
+      opts.complete(null, {status: 'cancelled'});
+    }
+  };
+
+  if (!self.taskqueue.isReady) {
+    self.taskqueue.addTask(function () {
+      if (promise.isCancelled) {
+        opts.complete(null, {status: 'cancelled'});
+      } else {
+        fun(self, opts, promise);
+      }
+    });
+  } else {
+    fun(self, opts, promise);
+  }
+  promise.on = emitter.on.bind(emitter);
+  promise.once = emitter.once.bind(emitter);
+  promise.addListener = emitter.addListener.bind(emitter);
+  promise.removeListener = emitter.removeListener.bind(emitter);
+  promise.removeAllListeners = emitter.removeAllListeners.bind(emitter);
+  promise.setMaxListeners = emitter.setMaxListeners.bind(emitter);
+  promise.listeners = emitter.listeners.bind(emitter);
+  promise.emit = emitter.emit.bind(emitter);
+  return promise;
+};
+
+exports.MD5 = exports.toPromise(_dereq_(15));
+
+exports.explain404 = _dereq_(14);
+
+exports.info = function (str) {
+  if (typeof console !== 'undefined' && 'info' in console) {
+    console.info(str);
+  }
+};
+
+exports.parseUri = _dereq_(18);
 
 exports.compare = function (left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 };
 
+exports.updateDoc = function updateDoc(prev, docInfo, results,
+                                       i, cb, writeDoc, newEdits) {
+
+  if (exports.revExists(prev, docInfo.metadata.rev)) {
+    results[i] = docInfo;
+    return cb();
+  }
+
+  // TODO: some of these can be pre-calculated, but it's safer to just
+  // call merge.winningRev() and exports.isDeleted() all over again
+  var previousWinningRev = merge.winningRev(prev);
+  var previouslyDeleted = exports.isDeleted(prev, previousWinningRev);
+  var deleted = exports.isDeleted(docInfo.metadata);
+  var isRoot = /^1-/.test(docInfo.metadata.rev);
+
+  if (previouslyDeleted && !deleted && newEdits && isRoot) {
+    var newDoc = docInfo.data;
+    newDoc._rev = previousWinningRev;
+    newDoc._id = docInfo.metadata.id;
+    docInfo = exports.parseDoc(newDoc, newEdits);
+  }
+
+  var merged = merge.merge(prev.rev_tree, docInfo.metadata.rev_tree[0], 1000);
+
+  var inConflict = newEdits && (((previouslyDeleted && deleted) ||
+    (!previouslyDeleted && merged.conflicts !== 'new_leaf') ||
+    (previouslyDeleted && !deleted && merged.conflicts === 'new_branch')));
+
+  if (inConflict) {
+    var err = errors.error(errors.REV_CONFLICT);
+    results[i] = err;
+    return cb();
+  }
+
+  var newRev = docInfo.metadata.rev;
+  docInfo.metadata.rev_tree = merged.tree;
+  if (prev.rev_map) {
+    docInfo.metadata.rev_map = prev.rev_map; // used by leveldb
+  }
+
+  // recalculate
+  var winningRev = merge.winningRev(docInfo.metadata);
+  var winningRevIsDeleted = exports.isDeleted(docInfo.metadata, winningRev);
+
+  // calculate the total number of documents that were added/removed,
+  // from the perspective of total_rows/doc_count
+  var delta = (previouslyDeleted === winningRevIsDeleted) ? 0 :
+      previouslyDeleted < winningRevIsDeleted ? -1 : 1;
+
+  var newRevIsDeleted = exports.isDeleted(docInfo.metadata, newRev);
+
+  writeDoc(docInfo, winningRev, winningRevIsDeleted, newRevIsDeleted,
+    true, delta, i, cb);
+};
+
+exports.processDocs = function processDocs(docInfos, api, fetchedDocs,
+                                           tx, results, writeDoc, opts,
+                                           overallCallback) {
+
+  if (!docInfos.length) {
+    return;
+  }
+
+  function insertDoc(docInfo, resultsIdx, callback) {
+    // Cant insert new deleted documents
+    var winningRev = merge.winningRev(docInfo.metadata);
+    var deleted = exports.isDeleted(docInfo.metadata, winningRev);
+    if ('was_delete' in opts && deleted) {
+      results[resultsIdx] = errors.error(errors.MISSING_DOC, 'deleted');
+      return callback();
+    }
+
+    var delta = deleted ? 0 : 1;
+
+    writeDoc(docInfo, winningRev, deleted, deleted, false,
+      delta, resultsIdx, callback);
+  }
+
+  var newEdits = opts.new_edits;
+  var idsToDocs = new exports.Map();
+
+  var docsDone = 0;
+  var docsToDo = docInfos.length;
+
+  function checkAllDocsDone() {
+    if (++docsDone === docsToDo && overallCallback) {
+      overallCallback();
+    }
+  }
+
+  docInfos.forEach(function (currentDoc, resultsIdx) {
+
+    if (currentDoc._id && exports.isLocalId(currentDoc._id)) {
+      api[currentDoc._deleted ? '_removeLocal' : '_putLocal'](
+        currentDoc, {ctx: tx}, function (err) {
+          if (err) {
+            results[resultsIdx] = err;
+          } else {
+            results[resultsIdx] = {ok: true};
+          }
+          checkAllDocsDone();
+        });
+      return;
+    }
+
+    var id = currentDoc.metadata.id;
+    if (idsToDocs.has(id)) {
+      docsToDo--; // duplicate
+      idsToDocs.get(id).push([currentDoc, resultsIdx]);
+    } else {
+      idsToDocs.set(id, [[currentDoc, resultsIdx]]);
+    }
+  });
+
+  // in the case of new_edits, the user can provide multiple docs
+  // with the same id. these need to be processed sequentially
+  idsToDocs.forEach(function (docs, id) {
+    var numDone = 0;
+
+    function docWritten() {
+      if (++numDone < docs.length) {
+        nextDoc();
+      } else {
+        checkAllDocsDone();
+      }
+    }
+    function nextDoc() {
+      var value = docs[numDone];
+      var currentDoc = value[0];
+      var resultsIdx = value[1];
+
+      if (fetchedDocs.has(id)) {
+        exports.updateDoc(fetchedDocs.get(id), currentDoc, results,
+          resultsIdx, docWritten, writeDoc, newEdits);
+      } else {
+        insertDoc(currentDoc, resultsIdx, docWritten);
+      }
+    }
+    nextDoc();
+  });
+};
+
+exports.preprocessAttachments = function preprocessAttachments(
+    docInfos, blobType, callback) {
+
+  if (!docInfos.length) {
+    return callback();
+  }
+
+  var docv = 0;
+
+  function parseBase64(data) {
+    try {
+      return base64.atob(data);
+    } catch (e) {
+      var err = errors.error(errors.BAD_ARG,
+                             'Attachments need to be base64 encoded');
+      return {error: err};
+    }
+  }
+
+  function preprocessAttachment(att, callback) {
+    if (att.stub) {
+      return callback();
+    }
+    if (typeof att.data === 'string') {
+      // input is a base64 string
+
+      var asBinary = parseBase64(att.data);
+      if (asBinary.error) {
+        return callback(asBinary.error);
+      }
+
+      att.length = asBinary.length;
+      if (blobType === 'blob') {
+        att.data = binaryStringToBlob(asBinary, att.content_type);
+      } else if (blobType === 'base64') {
+        att.data = base64.btoa(asBinary);
+      } else { // binary
+        att.data = asBinary;
+      }
+      exports.MD5(asBinary).then(function (result) {
+        att.digest = 'md5-' + result;
+        callback();
+      });
+    } else { // input is a blob
+      readAsArrayBuffer(att.data, function (buff) {
+        if (blobType === 'binary') {
+          att.data = arrayBufferToBinaryString(buff);
+        } else if (blobType === 'base64') {
+          att.data = base64.btoa(arrayBufferToBinaryString(buff));
+        }
+        exports.MD5(buff).then(function (result) {
+          att.digest = 'md5-' + result;
+          att.length = buff.byteLength;
+          callback();
+        });
+      });
+    }
+  }
+
+  var overallErr;
+
+  docInfos.forEach(function (docInfo) {
+    var attachments = docInfo.data && docInfo.data._attachments ?
+      Object.keys(docInfo.data._attachments) : [];
+    var recv = 0;
+
+    if (!attachments.length) {
+      return done();
+    }
+
+    function processedAttachment(err) {
+      overallErr = err;
+      recv++;
+      if (recv === attachments.length) {
+        done();
+      }
+    }
+
+    for (var key in docInfo.data._attachments) {
+      if (docInfo.data._attachments.hasOwnProperty(key)) {
+        preprocessAttachment(docInfo.data._attachments[key],
+          processedAttachment);
+      }
+    }
+  });
+
+  function done() {
+    docv++;
+    if (docInfos.length === docv) {
+      if (overallErr) {
+        callback(overallErr);
+      } else {
+        callback();
+      }
+    }
+  }
+};
 
 // compact a tree by marking its non-leafs as missing,
 // and return a list of revs to delete
@@ -3831,7 +3766,7 @@ exports.compactTree = function compactTree(metadata) {
   return revs;
 };
 
-var vuvuzela = _dereq_(145);
+var vuvuzela = _dereq_(142);
 
 exports.safeJsonParse = function safeJsonParse(str) {
   try {
@@ -3849,7 +3784,8 @@ exports.safeJsonStringify = function safeJsonStringify(json) {
   }
 };
 
-},{"11":11,"128":128,"13":13,"145":145,"16":16,"18":18,"23":23,"26":26,"32":32,"36":36,"37":37,"38":38,"39":39,"40":40,"41":41,"42":42,"48":48,"7":7,"72":72,"76":76}],48:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"10":10,"124":124,"125":125,"13":13,"14":14,"142":142,"15":15,"17":17,"18":18,"19":19,"21":21,"22":22,"28":28,"34":34,"36":36,"4":4,"5":5,"52":52,"56":56,"6":6,"8":8,"9":9}],28:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -3869,9 +3805,9 @@ function argsArray(fun) {
     }
   };
 }
-},{}],49:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 
-},{}],50:[function(_dereq_,module,exports){
+},{}],30:[function(_dereq_,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -3879,15 +3815,16 @@ function argsArray(fun) {
  * @license  MIT
  */
 
-var base64 = _dereq_(51)
-var ieee754 = _dereq_(52)
-var isArray = _dereq_(53)
+var base64 = _dereq_(31)
+var ieee754 = _dereq_(32)
+var isArray = _dereq_(33)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
 exports.INSPECT_MAX_BYTES = 50
 Buffer.poolSize = 8192 // not used by this implementation
 
+var kMaxLength = 0x3fffffff
 var rootParent = {}
 
 /**
@@ -3898,45 +3835,32 @@ var rootParent = {}
  * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
  * Opera 11.6+, iOS 4.2+.
  *
- * Due to various browser bugs, sometimes the Object implementation will be used even
- * when the browser supports typed arrays.
- *
  * Note:
  *
- *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
- *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ * - Implementation must support adding new properties to `Uint8Array` instances.
+ *   Firefox 4-29 lacked support, fixed in Firefox 30+.
+ *   See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
  *
- *   - Safari 5-7 lacks support for changing the `Object.prototype.constructor` property
- *     on objects.
+ *  - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
  *
- *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *  - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *    incorrect length in some situations.
  *
- *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
- *     incorrect length in some situations.
-
- * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
- * get the Object implementation, which is slower but behaves correctly.
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they will
+ * get the Object implementation, which is slower but will work correctly.
  */
 Buffer.TYPED_ARRAY_SUPPORT = (function () {
-  function Bar () {}
   try {
-    var arr = new Uint8Array(1)
+    var buf = new ArrayBuffer(0)
+    var arr = new Uint8Array(buf)
     arr.foo = function () { return 42 }
-    arr.constructor = Bar
     return arr.foo() === 42 && // typed array instances can be augmented
-        arr.constructor === Bar && // constructor can be set
         typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
-        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+        new Uint8Array(1).subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
   } catch (e) {
     return false
   }
 })()
-
-function kMaxLength () {
-  return Buffer.TYPED_ARRAY_SUPPORT
-    ? 0x7fffffff
-    : 0x3fffffff
-}
 
 /**
  * Class: Buffer
@@ -4004,13 +3928,8 @@ function fromObject (that, object) {
     throw new TypeError('must start with number, buffer, array or string')
   }
 
-  if (typeof ArrayBuffer !== 'undefined') {
-    if (object.buffer instanceof ArrayBuffer) {
-      return fromTypedArray(that, object)
-    }
-    if (object instanceof ArrayBuffer) {
-      return fromArrayBuffer(that, object)
-    }
+  if (typeof ArrayBuffer !== 'undefined' && object.buffer instanceof ArrayBuffer) {
+    return fromTypedArray(that, object)
   }
 
   if (object.length) return fromArrayLike(that, object)
@@ -4043,18 +3962,6 @@ function fromTypedArray (that, array) {
   // of the old Buffer constructor.
   for (var i = 0; i < length; i += 1) {
     that[i] = array[i] & 255
-  }
-  return that
-}
-
-function fromArrayBuffer (that, array) {
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Return an augmented `Uint8Array` instance, for best performance
-    array.byteLength
-    that = Buffer._augment(new Uint8Array(array))
-  } else {
-    // Fallback: Return an object instance of the Buffer class
-    that = fromTypedArray(that, new Uint8Array(array))
   }
   return that
 }
@@ -4105,9 +4012,9 @@ function allocate (that, length) {
 function checked (length) {
   // Note: cannot use `length < kMaxLength` here because that fails when
   // length is NaN (which is otherwise coerced to zero.)
-  if (length >= kMaxLength()) {
+  if (length >= kMaxLength) {
     throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
-                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+                         'size: 0x' + kMaxLength.toString(16) + ' bytes')
   }
   return length | 0
 }
@@ -4176,6 +4083,8 @@ Buffer.concat = function concat (list, length) {
 
   if (list.length === 0) {
     return new Buffer(0)
+  } else if (list.length === 1) {
+    return list[0]
   }
 
   var i
@@ -4197,38 +4106,29 @@ Buffer.concat = function concat (list, length) {
 }
 
 function byteLength (string, encoding) {
-  if (typeof string !== 'string') string = '' + string
+  if (typeof string !== 'string') string = String(string)
 
-  var len = string.length
-  if (len === 0) return 0
+  if (string.length === 0) return 0
 
-  // Use a for loop to avoid recursion
-  var loweredCase = false
-  for (;;) {
-    switch (encoding) {
-      case 'ascii':
-      case 'binary':
-      // Deprecated
-      case 'raw':
-      case 'raws':
-        return len
-      case 'utf8':
-      case 'utf-8':
-        return utf8ToBytes(string).length
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return len * 2
-      case 'hex':
-        return len >>> 1
-      case 'base64':
-        return base64ToBytes(string).length
-      default:
-        if (loweredCase) return utf8ToBytes(string).length // assume utf8
-        encoding = ('' + encoding).toLowerCase()
-        loweredCase = true
-    }
+  switch (encoding || 'utf8') {
+    case 'ascii':
+    case 'binary':
+    case 'raw':
+      return string.length
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return string.length * 2
+    case 'hex':
+      return string.length >>> 1
+    case 'utf8':
+    case 'utf-8':
+      return utf8ToBytes(string).length
+    case 'base64':
+      return base64ToBytes(string).length
+    default:
+      return string.length
   }
 }
 Buffer.byteLength = byteLength
@@ -4237,7 +4137,8 @@ Buffer.byteLength = byteLength
 Buffer.prototype.length = undefined
 Buffer.prototype.parent = undefined
 
-function slowToString (encoding, start, end) {
+// toString(encoding, start=0, end=buffer.length)
+Buffer.prototype.toString = function toString (encoding, start, end) {
   var loweredCase = false
 
   start = start | 0
@@ -4278,13 +4179,6 @@ function slowToString (encoding, start, end) {
         loweredCase = true
     }
   }
-}
-
-Buffer.prototype.toString = function toString () {
-  var length = this.length | 0
-  if (length === 0) return ''
-  if (arguments.length === 0) return utf8Slice(this, 0, length)
-  return slowToString.apply(this, arguments)
 }
 
 Buffer.prototype.equals = function equals (b) {
@@ -4350,13 +4244,13 @@ Buffer.prototype.indexOf = function indexOf (val, byteOffset) {
   throw new TypeError('val must be string, number or Buffer')
 }
 
-// `get` is deprecated
+// `get` will be removed in Node 0.13+
 Buffer.prototype.get = function get (offset) {
   console.log('.get() is deprecated. Access using array indexes instead.')
   return this.readUInt8(offset)
 }
 
-// `set` is deprecated
+// `set` will be removed in Node 0.13+
 Buffer.prototype.set = function set (v, offset) {
   console.log('.set() is deprecated. Access using array indexes instead.')
   return this.writeUInt8(v, offset)
@@ -4497,99 +4391,20 @@ function base64Slice (buf, start, end) {
 }
 
 function utf8Slice (buf, start, end) {
-  end = Math.min(buf.length, end)
-  var res = []
-
-  var i = start
-  while (i < end) {
-    var firstByte = buf[i]
-    var codePoint = null
-    var bytesPerSequence = (firstByte > 0xEF) ? 4
-      : (firstByte > 0xDF) ? 3
-      : (firstByte > 0xBF) ? 2
-      : 1
-
-    if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint
-
-      switch (bytesPerSequence) {
-        case 1:
-          if (firstByte < 0x80) {
-            codePoint = firstByte
-          }
-          break
-        case 2:
-          secondByte = buf[i + 1]
-          if ((secondByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F)
-            if (tempCodePoint > 0x7F) {
-              codePoint = tempCodePoint
-            }
-          }
-          break
-        case 3:
-          secondByte = buf[i + 1]
-          thirdByte = buf[i + 2]
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F)
-            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
-              codePoint = tempCodePoint
-            }
-          }
-          break
-        case 4:
-          secondByte = buf[i + 1]
-          thirdByte = buf[i + 2]
-          fourthByte = buf[i + 3]
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F)
-            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
-              codePoint = tempCodePoint
-            }
-          }
-      }
-    }
-
-    if (codePoint === null) {
-      // we did not generate a valid codePoint so insert a
-      // replacement char (U+FFFD) and advance only 1 byte
-      codePoint = 0xFFFD
-      bytesPerSequence = 1
-    } else if (codePoint > 0xFFFF) {
-      // encode to utf16 (surrogate pair dance)
-      codePoint -= 0x10000
-      res.push(codePoint >>> 10 & 0x3FF | 0xD800)
-      codePoint = 0xDC00 | codePoint & 0x3FF
-    }
-
-    res.push(codePoint)
-    i += bytesPerSequence
-  }
-
-  return decodeCodePointsArray(res)
-}
-
-// Based on http://stackoverflow.com/a/22747272/680742, the browser with
-// the lowest limit is Chrome, with 0x10000 args.
-// We go 1 magnitude less, for safety
-var MAX_ARGUMENTS_LENGTH = 0x1000
-
-function decodeCodePointsArray (codePoints) {
-  var len = codePoints.length
-  if (len <= MAX_ARGUMENTS_LENGTH) {
-    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
-  }
-
-  // Decode in chunks to avoid "call stack size exceeded".
   var res = ''
-  var i = 0
-  while (i < len) {
-    res += String.fromCharCode.apply(
-      String,
-      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
-    )
+  var tmp = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    if (buf[i] <= 0x7F) {
+      res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i])
+      tmp = ''
+    } else {
+      tmp += '%' + buf[i].toString(16)
+    }
   }
-  return res
+
+  return res + decodeUtf8Char(tmp)
 }
 
 function asciiSlice (buf, start, end) {
@@ -5124,16 +4939,9 @@ Buffer.prototype.copy = function copy (target, targetStart, start, end) {
   }
 
   var len = end - start
-  var i
 
-  if (this === target && start < targetStart && targetStart < end) {
-    // descending copy from end
-    for (i = len - 1; i >= 0; i--) {
-      target[i + targetStart] = this[i + start]
-    }
-  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
-    // ascending copy from start
-    for (i = 0; i < len; i++) {
+  if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < len; i++) {
       target[i + targetStart] = this[i + start]
     }
   } else {
@@ -5209,7 +5017,7 @@ Buffer._augment = function _augment (arr) {
   // save reference to original Uint8Array set method before overwriting
   arr._set = arr.set
 
-  // deprecated
+  // deprecated, will be removed in node 0.13+
   arr.get = BP.get
   arr.set = BP.set
 
@@ -5265,7 +5073,7 @@ Buffer._augment = function _augment (arr) {
   return arr
 }
 
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g
+var INVALID_BASE64_RE = /[^+\/0-9A-z\-]/g
 
 function base64clean (str) {
   // Node strips out invalid characters like \n and \t from the string, base64-js does not
@@ -5295,15 +5103,28 @@ function utf8ToBytes (string, units) {
   var length = string.length
   var leadSurrogate = null
   var bytes = []
+  var i = 0
 
-  for (var i = 0; i < length; i++) {
+  for (; i < length; i++) {
     codePoint = string.charCodeAt(i)
 
     // is surrogate component
     if (codePoint > 0xD7FF && codePoint < 0xE000) {
       // last char was a lead
-      if (!leadSurrogate) {
+      if (leadSurrogate) {
+        // 2 leads in a row
+        if (codePoint < 0xDC00) {
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+          leadSurrogate = codePoint
+          continue
+        } else {
+          // valid surrogate pair
+          codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000
+          leadSurrogate = null
+        }
+      } else {
         // no lead yet
+
         if (codePoint > 0xDBFF) {
           // unexpected trail
           if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
@@ -5312,29 +5133,17 @@ function utf8ToBytes (string, units) {
           // unpaired lead
           if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
           continue
+        } else {
+          // valid lead
+          leadSurrogate = codePoint
+          continue
         }
-
-        // valid lead
-        leadSurrogate = codePoint
-
-        continue
       }
-
-      // 2 leads in a row
-      if (codePoint < 0xDC00) {
-        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
-        leadSurrogate = codePoint
-        continue
-      }
-
-      // valid surrogate pair
-      codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000
     } else if (leadSurrogate) {
       // valid bmp char, but last char was a lead
       if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
+      leadSurrogate = null
     }
-
-    leadSurrogate = null
 
     // encode utf8
     if (codePoint < 0x80) {
@@ -5353,7 +5162,7 @@ function utf8ToBytes (string, units) {
         codePoint >> 0x6 & 0x3F | 0x80,
         codePoint & 0x3F | 0x80
       )
-    } else if (codePoint < 0x110000) {
+    } else if (codePoint < 0x200000) {
       if ((units -= 4) < 0) break
       bytes.push(
         codePoint >> 0x12 | 0xF0,
@@ -5406,7 +5215,15 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-},{"51":51,"52":52,"53":53}],51:[function(_dereq_,module,exports){
+function decodeUtf8Char (str) {
+  try {
+    return decodeURIComponent(str)
+  } catch (err) {
+    return String.fromCharCode(0xFFFD) // UTF 8 invalid char
+  }
+}
+
+},{"31":31,"32":32,"33":33}],31:[function(_dereq_,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -5532,16 +5349,16 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],52:[function(_dereq_,module,exports){
+},{}],32:[function(_dereq_,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
-  var e, m
-  var eLen = nBytes * 8 - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var nBits = -7
-  var i = isLE ? (nBytes - 1) : 0
-  var d = isLE ? -1 : 1
-  var s = buffer[offset + i]
+  var e, m,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      nBits = -7,
+      i = isLE ? (nBytes - 1) : 0,
+      d = isLE ? -1 : 1,
+      s = buffer[offset + i]
 
   i += d
 
@@ -5567,14 +5384,14 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 }
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c
-  var eLen = nBytes * 8 - mLen - 1
-  var eMax = (1 << eLen) - 1
-  var eBias = eMax >> 1
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
-  var i = isLE ? 0 : (nBytes - 1)
-  var d = isLE ? 1 : -1
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
+  var e, m, c,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
+      i = isLE ? 0 : (nBytes - 1),
+      d = isLE ? 1 : -1,
+      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
 
   value = Math.abs(value)
 
@@ -5618,7 +5435,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],53:[function(_dereq_,module,exports){
+},{}],33:[function(_dereq_,module,exports){
 
 /**
  * isArray
@@ -5653,7 +5470,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],54:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5956,75 +5773,43 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],55:[function(_dereq_,module,exports){
+},{}],35:[function(_dereq_,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
 var queue = [];
 var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
 
 function drainQueue() {
     if (draining) {
         return;
     }
-    var timeout = setTimeout(cleanUpNextTick);
     draining = true;
-
+    var currentQueue;
     var len = queue.length;
     while(len) {
         currentQueue = queue;
         queue = [];
-        while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
         }
-        queueIndex = -1;
         len = queue.length;
     }
-    currentQueue = null;
     draining = false;
-    clearTimeout(timeout);
 }
-
 process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
+    queue.push(fun);
+    if (!draining) {
         setTimeout(drainQueue, 0);
     }
 };
 
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
 process.title = 'browser';
 process.browser = true;
 process.env = {};
@@ -6053,10 +5838,10 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],57:[function(_dereq_,module,exports){
-module.exports = _dereq_(58)
+},{}],37:[function(_dereq_,module,exports){
+module.exports = _dereq_(38)
 
-},{"58":58}],58:[function(_dereq_,module,exports){
+},{"38":38}],38:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6096,12 +5881,12 @@ var objectKeys = Object.keys || function (obj) {
 
 
 /*<replacement>*/
-var util = _dereq_(63);
-util.inherits = _dereq_(76);
+var util = _dereq_(43);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
-var Readable = _dereq_(60);
-var Writable = _dereq_(62);
+var Readable = _dereq_(40);
+var Writable = _dereq_(42);
 
 util.inherits(Duplex, Readable);
 
@@ -6148,8 +5933,8 @@ function forEach (xs, f) {
   }
 }
 
-}).call(this,_dereq_(56))
-},{"56":56,"60":60,"62":62,"63":63,"76":76}],59:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"36":36,"40":40,"42":42,"43":43,"56":56}],39:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6177,11 +5962,11 @@ function forEach (xs, f) {
 
 module.exports = PassThrough;
 
-var Transform = _dereq_(61);
+var Transform = _dereq_(41);
 
 /*<replacement>*/
-var util = _dereq_(63);
-util.inherits = _dereq_(76);
+var util = _dereq_(43);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
 util.inherits(PassThrough, Transform);
@@ -6197,7 +5982,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"61":61,"63":63,"76":76}],60:[function(_dereq_,module,exports){
+},{"41":41,"43":43,"56":56}],40:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6223,17 +6008,17 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = _dereq_(55);
+var isArray = _dereq_(35);
 /*</replacement>*/
 
 
 /*<replacement>*/
-var Buffer = _dereq_(50).Buffer;
+var Buffer = _dereq_(30).Buffer;
 /*</replacement>*/
 
 Readable.ReadableState = ReadableState;
 
-var EE = _dereq_(54).EventEmitter;
+var EE = _dereq_(34).EventEmitter;
 
 /*<replacement>*/
 if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -6241,18 +6026,18 @@ if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
 };
 /*</replacement>*/
 
-var Stream = _dereq_(68);
+var Stream = _dereq_(48);
 
 /*<replacement>*/
-var util = _dereq_(63);
-util.inherits = _dereq_(76);
+var util = _dereq_(43);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
 var StringDecoder;
 
 
 /*<replacement>*/
-var debug = _dereq_(49);
+var debug = _dereq_(29);
 if (debug && debug.debuglog) {
   debug = debug.debuglog('stream');
 } else {
@@ -6264,7 +6049,7 @@ if (debug && debug.debuglog) {
 util.inherits(Readable, Stream);
 
 function ReadableState(options, stream) {
-  var Duplex = _dereq_(58);
+  var Duplex = _dereq_(38);
 
   options = options || {};
 
@@ -6325,14 +6110,14 @@ function ReadableState(options, stream) {
   this.encoding = null;
   if (options.encoding) {
     if (!StringDecoder)
-      StringDecoder = _dereq_(69).StringDecoder;
+      StringDecoder = _dereq_(49).StringDecoder;
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
 }
 
 function Readable(options) {
-  var Duplex = _dereq_(58);
+  var Duplex = _dereq_(38);
 
   if (!(this instanceof Readable))
     return new Readable(options);
@@ -6435,7 +6220,7 @@ function needMoreData(state) {
 // backwards compatibility.
 Readable.prototype.setEncoding = function(enc) {
   if (!StringDecoder)
-    StringDecoder = _dereq_(69).StringDecoder;
+    StringDecoder = _dereq_(49).StringDecoder;
   this._readableState.decoder = new StringDecoder(enc);
   this._readableState.encoding = enc;
   return this;
@@ -7151,8 +6936,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,_dereq_(56))
-},{"49":49,"50":50,"54":54,"55":55,"56":56,"58":58,"63":63,"68":68,"69":69,"76":76}],61:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"29":29,"30":30,"34":34,"35":35,"36":36,"38":38,"43":43,"48":48,"49":49,"56":56}],41:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7219,11 +7004,11 @@ function indexOf (xs, x) {
 
 module.exports = Transform;
 
-var Duplex = _dereq_(58);
+var Duplex = _dereq_(38);
 
 /*<replacement>*/
-var util = _dereq_(63);
-util.inherits = _dereq_(76);
+var util = _dereq_(43);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
 util.inherits(Transform, Duplex);
@@ -7363,7 +7148,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"58":58,"63":63,"76":76}],62:[function(_dereq_,module,exports){
+},{"38":38,"43":43,"56":56}],42:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7393,18 +7178,18 @@ function done(stream, er) {
 module.exports = Writable;
 
 /*<replacement>*/
-var Buffer = _dereq_(50).Buffer;
+var Buffer = _dereq_(30).Buffer;
 /*</replacement>*/
 
 Writable.WritableState = WritableState;
 
 
 /*<replacement>*/
-var util = _dereq_(63);
-util.inherits = _dereq_(76);
+var util = _dereq_(43);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
-var Stream = _dereq_(68);
+var Stream = _dereq_(48);
 
 util.inherits(Writable, Stream);
 
@@ -7415,7 +7200,7 @@ function WriteReq(chunk, encoding, cb) {
 }
 
 function WritableState(options, stream) {
-  var Duplex = _dereq_(58);
+  var Duplex = _dereq_(38);
 
   options = options || {};
 
@@ -7503,7 +7288,7 @@ function WritableState(options, stream) {
 }
 
 function Writable(options) {
-  var Duplex = _dereq_(58);
+  var Duplex = _dereq_(38);
 
   // Writable ctor is applied to Duplexes, though they're not
   // instanceof Writable, they're instanceof Readable.
@@ -7843,8 +7628,8 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,_dereq_(56))
-},{"50":50,"56":56,"58":58,"63":63,"68":68,"76":76}],63:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"30":30,"36":36,"38":38,"43":43,"48":48,"56":56}],43:[function(_dereq_,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7953,26 +7738,26 @@ exports.isBuffer = isBuffer;
 function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
-}).call(this,_dereq_(50).Buffer)
-},{"50":50}],64:[function(_dereq_,module,exports){
-module.exports = _dereq_(59)
+}).call(this,_dereq_(30).Buffer)
+},{"30":30}],44:[function(_dereq_,module,exports){
+module.exports = _dereq_(39)
 
-},{"59":59}],65:[function(_dereq_,module,exports){
-exports = module.exports = _dereq_(60);
-exports.Stream = _dereq_(68);
+},{"39":39}],45:[function(_dereq_,module,exports){
+exports = module.exports = _dereq_(40);
+exports.Stream = _dereq_(48);
 exports.Readable = exports;
-exports.Writable = _dereq_(62);
-exports.Duplex = _dereq_(58);
-exports.Transform = _dereq_(61);
-exports.PassThrough = _dereq_(59);
+exports.Writable = _dereq_(42);
+exports.Duplex = _dereq_(38);
+exports.Transform = _dereq_(41);
+exports.PassThrough = _dereq_(39);
 
-},{"58":58,"59":59,"60":60,"61":61,"62":62,"68":68}],66:[function(_dereq_,module,exports){
-module.exports = _dereq_(61)
+},{"38":38,"39":39,"40":40,"41":41,"42":42,"48":48}],46:[function(_dereq_,module,exports){
+module.exports = _dereq_(41)
 
-},{"61":61}],67:[function(_dereq_,module,exports){
-module.exports = _dereq_(62)
+},{"41":41}],47:[function(_dereq_,module,exports){
+module.exports = _dereq_(42)
 
-},{"62":62}],68:[function(_dereq_,module,exports){
+},{"42":42}],48:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7996,15 +7781,15 @@ module.exports = _dereq_(62)
 
 module.exports = Stream;
 
-var EE = _dereq_(54).EventEmitter;
-var inherits = _dereq_(76);
+var EE = _dereq_(34).EventEmitter;
+var inherits = _dereq_(56);
 
 inherits(Stream, EE);
-Stream.Readable = _dereq_(65);
-Stream.Writable = _dereq_(67);
-Stream.Duplex = _dereq_(57);
-Stream.Transform = _dereq_(66);
-Stream.PassThrough = _dereq_(64);
+Stream.Readable = _dereq_(45);
+Stream.Writable = _dereq_(47);
+Stream.Duplex = _dereq_(37);
+Stream.Transform = _dereq_(46);
+Stream.PassThrough = _dereq_(44);
 
 // Backwards-compat with node 0.4.x
 Stream.Stream = Stream;
@@ -8101,7 +7886,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"54":54,"57":57,"64":64,"65":65,"66":66,"67":67,"76":76}],69:[function(_dereq_,module,exports){
+},{"34":34,"37":37,"44":44,"45":45,"46":46,"47":47,"56":56}],49:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8123,7 +7908,7 @@ Stream.prototype.pipe = function(dest, options) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var Buffer = _dereq_(50).Buffer;
+var Buffer = _dereq_(30).Buffer;
 
 var isBufferEncoding = Buffer.isEncoding
   || function(encoding) {
@@ -8324,14 +8109,14 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"50":50}],70:[function(_dereq_,module,exports){
+},{"30":30}],50:[function(_dereq_,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],71:[function(_dereq_,module,exports){
+},{}],51:[function(_dereq_,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -8368,7 +8153,7 @@ exports.format = function(f) {
   var args = arguments;
   var len = args.length;
   var str = String(f).replace(formatRegExp, function(x) {
-    if (x === '%%') return '%';
+    if (x === '%') return '%';
     if (i >= len) return x;
     switch (x) {
       case '%s': return String(args[i++]);
@@ -8858,7 +8643,7 @@ function isPrimitive(arg) {
 }
 exports.isPrimitive = isPrimitive;
 
-exports.isBuffer = _dereq_(70);
+exports.isBuffer = _dereq_(50);
 
 function objectToString(o) {
   return Object.prototype.toString.call(o);
@@ -8902,7 +8687,7 @@ exports.log = function() {
  *     prototype.
  * @param {function} superCtor Constructor function to inherit prototype from.
  */
-exports.inherits = _dereq_(76);
+exports.inherits = _dereq_(56);
 
 exports._extend = function(origin, add) {
   // Don't do anything if add isn't an object
@@ -8920,8 +8705,8 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-}).call(this,_dereq_(56),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"56":56,"70":70,"76":76}],72:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"36":36,"50":50,"56":56}],52:[function(_dereq_,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -8929,7 +8714,7 @@ function hasOwnProperty(obj, prop) {
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = _dereq_(73);
+exports = module.exports = _dereq_(53);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -9008,7 +8793,7 @@ function formatArgs() {
   var index = 0;
   var lastC = 0;
   args[0].replace(/%[a-z%]/g, function(match) {
-    if ('%%' === match) return;
+    if ('%' === match) return;
     index++;
     if ('%c' === match) {
       // we only are interested in the *last* %c
@@ -9091,7 +8876,7 @@ function localstorage(){
   } catch (e) {}
 }
 
-},{"73":73}],73:[function(_dereq_,module,exports){
+},{"53":53}],53:[function(_dereq_,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -9105,7 +8890,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = _dereq_(74);
+exports.humanize = _dereq_(54);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -9190,7 +8975,7 @@ function debug(namespace) {
     var index = 0;
     args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
       // if we encounter an escaped % then don't increase the array index
-      if (match === '%%') return match;
+      if (match === '%') return match;
       index++;
       var formatter = exports.formatters[format];
       if ('function' === typeof formatter) {
@@ -9290,7 +9075,7 @@ function coerce(val) {
   return val;
 }
 
-},{"74":74}],74:[function(_dereq_,module,exports){
+},{"54":54}],54:[function(_dereq_,module,exports){
 /**
  * Helpers.
  */
@@ -9417,7 +9202,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],75:[function(_dereq_,module,exports){
+},{}],55:[function(_dereq_,module,exports){
 /**
  * Copyright (c) 2013 Petka Antonov
  * 
@@ -9444,7 +9229,6 @@ function Deque(capacity) {
     this._capacity = getCapacity(capacity);
     this._length = 0;
     this._front = 0;
-    this._makeCapacity();
     if (isArray(capacity)) {
         var len = capacity.length;
         for (var i = 0; i < len; ++i) {
@@ -9608,9 +9392,14 @@ Deque.prototype.isEmpty = function Deque$isEmpty() {
 };
 
 Deque.prototype.clear = function Deque$clear() {
+    var len = this._length;
+    var front = this._front;
+    var capacity = this._capacity;
+    for (var j = 0; j < len; ++j) {
+        this[(front + j) & (capacity - 1)] = void 0;
+    }
     this._length = 0;
     this._front = 0;
-    this._makeCapacity();
 };
 
 Deque.prototype.toString = function Deque$toString() {
@@ -9635,13 +9424,6 @@ Object.defineProperty(Deque.prototype, "length", {
     }
 });
 
-Deque.prototype._makeCapacity = function Deque$_makeCapacity() {
-    var len = this._capacity;
-    for (var i = 0; i < len; ++i) {
-        this[i] = void 0;
-    }
-};
-
 Deque.prototype._checkCapacity = function Deque$_checkCapacity(size) {
     if (this._capacity < size) {
         this._resizeTo(getCapacity(this._capacity * 1.5 + 16));
@@ -9649,32 +9431,23 @@ Deque.prototype._checkCapacity = function Deque$_checkCapacity(size) {
 };
 
 Deque.prototype._resizeTo = function Deque$_resizeTo(capacity) {
-    var oldFront = this._front;
     var oldCapacity = this._capacity;
-    var oldDeque = new Array(oldCapacity);
-    var length = this._length;
-
-    arrayCopy(this, 0, oldDeque, 0, oldCapacity);
     this._capacity = capacity;
-    this._makeCapacity();
-    this._front = 0;
-    if (oldFront + length <= oldCapacity) {
-        arrayCopy(oldDeque, oldFront, this, 0, length);
-    } else {        var lengthBeforeWrapping =
-            length - ((oldFront + length) & (oldCapacity - 1));
-
-        arrayCopy(oldDeque, oldFront, this, 0, lengthBeforeWrapping);
-        arrayCopy(oldDeque, 0, this, lengthBeforeWrapping,
-            length - lengthBeforeWrapping);
+    var front = this._front;
+    var length = this._length;
+    if (front + length > oldCapacity) {
+        var moveItemsCount = (front + length) & (oldCapacity - 1);
+        arrayMove(this, 0, this, oldCapacity, moveItemsCount);
     }
 };
 
 
 var isArray = Array.isArray;
 
-function arrayCopy(src, srcIndex, dst, dstIndex, len) {
+function arrayMove(src, srcIndex, dst, dstIndex, len) {
     for (var j = 0; j < len; ++j) {
         dst[j + dstIndex] = src[j + srcIndex];
+        src[j + srcIndex] = void 0;
     }
 }
 
@@ -9706,7 +9479,7 @@ function getCapacity(capacity) {
 
 module.exports = Deque;
 
-},{}],76:[function(_dereq_,module,exports){
+},{}],56:[function(_dereq_,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -9731,7 +9504,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],77:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 function addOperation (type, key, value, options) {
   var operation = {
     type: type,
@@ -9771,15 +9544,15 @@ B.write = function (cb) {
 
 module.exports = Batch
 
-},{}],78:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 (function (process){
-var EventEmitter = _dereq_(54).EventEmitter
+var EventEmitter = _dereq_(34).EventEmitter
 var next         = process.nextTick
-var SubDb        = _dereq_(89)
-var Batch        = _dereq_(77)
-var fixRange     = _dereq_(79)
+var SubDb        = _dereq_(69)
+var Batch        = _dereq_(57)
+var fixRange     = _dereq_(59)
 
-var Hooks   = _dereq_(81)
+var Hooks   = _dereq_(61)
 
 module.exports   = function (_db, options) {
   function DB () {}
@@ -9864,9 +9637,9 @@ module.exports   = function (_db, options) {
 }
 
 
-}).call(this,_dereq_(56))
-},{"54":54,"56":56,"77":77,"79":79,"81":81,"89":89}],79:[function(_dereq_,module,exports){
-var clone = _dereq_(80)
+}).call(this,_dereq_(36))
+},{"34":34,"36":36,"57":57,"59":59,"61":61,"69":69}],59:[function(_dereq_,module,exports){
+var clone = _dereq_(60)
 
 module.exports = 
 function fixRange(opts) {
@@ -9891,7 +9664,7 @@ function fixRange(opts) {
   return opts
 }
 
-},{"80":80}],80:[function(_dereq_,module,exports){
+},{"60":60}],60:[function(_dereq_,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -10038,9 +9811,9 @@ clone.clonePrototype = function(parent) {
   return new c();
 };
 
-}).call(this,_dereq_(50).Buffer)
-},{"50":50}],81:[function(_dereq_,module,exports){
-var ranges = _dereq_(82)
+}).call(this,_dereq_(30).Buffer)
+},{"30":30}],61:[function(_dereq_,module,exports){
+var ranges = _dereq_(62)
 
 module.exports = function (db) {
 
@@ -10209,7 +9982,7 @@ module.exports = function (db) {
   }
 }
 
-},{"82":82}],82:[function(_dereq_,module,exports){
+},{"62":62}],62:[function(_dereq_,module,exports){
 
 //force to a valid range
 var range = exports.range = function (obj) {
@@ -10283,7 +10056,7 @@ var satifies = exports.satisfies = function (key, range) {
 
 
 
-},{}],83:[function(_dereq_,module,exports){
+},{}],63:[function(_dereq_,module,exports){
 module.exports = hasKeys
 
 function hasKeys(source) {
@@ -10292,9 +10065,9 @@ function hasKeys(source) {
         typeof source === "function")
 }
 
-},{}],84:[function(_dereq_,module,exports){
-var Keys = _dereq_(85)
-var hasKeys = _dereq_(83)
+},{}],64:[function(_dereq_,module,exports){
+var Keys = _dereq_(65)
+var hasKeys = _dereq_(63)
 
 module.exports = extend
 
@@ -10319,11 +10092,11 @@ function extend() {
     return target
 }
 
-},{"83":83,"85":85}],85:[function(_dereq_,module,exports){
-module.exports = Object.keys || _dereq_(88);
+},{"63":63,"65":65}],65:[function(_dereq_,module,exports){
+module.exports = Object.keys || _dereq_(68);
 
 
-},{"88":88}],86:[function(_dereq_,module,exports){
+},{"68":68}],66:[function(_dereq_,module,exports){
 
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
@@ -10347,7 +10120,7 @@ module.exports = function forEach (obj, fn, ctx) {
 };
 
 
-},{}],87:[function(_dereq_,module,exports){
+},{}],67:[function(_dereq_,module,exports){
 
 /**!
  * is
@@ -11051,14 +10824,14 @@ is.string = function (value) {
 };
 
 
-},{}],88:[function(_dereq_,module,exports){
+},{}],68:[function(_dereq_,module,exports){
 (function () {
 	"use strict";
 
 	// modified from https://github.com/kriskowal/es5-shim
 	var has = Object.prototype.hasOwnProperty,
-		is = _dereq_(87),
-		forEach = _dereq_(86),
+		is = _dereq_(67),
+		forEach = _dereq_(66),
 		hasDontEnumBug = !({'toString': null}).propertyIsEnumerable('toString'),
 		dontEnums = [
 			"toString",
@@ -11097,13 +10870,13 @@ is.string = function (value) {
 }());
 
 
-},{"86":86,"87":87}],89:[function(_dereq_,module,exports){
-var EventEmitter = _dereq_(54).EventEmitter
-var inherits     = _dereq_(71).inherits
-var ranges       = _dereq_(82)
-var fixRange     = _dereq_(79)
-var xtend        = _dereq_(84)
-var Batch        = _dereq_(77)
+},{"66":66,"67":67}],69:[function(_dereq_,module,exports){
+var EventEmitter = _dereq_(34).EventEmitter
+var inherits     = _dereq_(51).inherits
+var ranges       = _dereq_(62)
+var fixRange     = _dereq_(59)
+var xtend        = _dereq_(64)
+var Batch        = _dereq_(57)
 
 inherits(SubDB, EventEmitter)
 
@@ -11376,15 +11149,15 @@ SDB.post = function (range, hook) {
 var exports = module.exports = SubDB
 
 
-},{"54":54,"71":71,"77":77,"79":79,"82":82,"84":84}],90:[function(_dereq_,module,exports){
+},{"34":34,"51":51,"57":57,"59":59,"62":62,"64":64}],70:[function(_dereq_,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License
  * <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var util          = _dereq_(94)
-  , WriteError    = _dereq_(91).WriteError
+var util          = _dereq_(74)
+  , WriteError    = _dereq_(71).WriteError
 
   , getOptions    = util.getOptions
   , dispatchError = util.dispatchError
@@ -11456,14 +11229,14 @@ Batch.prototype.write = function (callback) {
 
 module.exports = Batch
 
-},{"91":91,"94":94}],91:[function(_dereq_,module,exports){
+},{"71":71,"74":74}],71:[function(_dereq_,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License
  * <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var createError   = _dereq_(102).create
+var createError   = _dereq_(82).create
   , LevelUPError  = createError('LevelUPError')
   , NotFoundError = createError('NotFoundError', LevelUPError)
 
@@ -11480,7 +11253,7 @@ module.exports = {
   , EncodingError       : createError('EncodingError', LevelUPError)
 }
 
-},{"102":102}],92:[function(_dereq_,module,exports){
+},{"82":82}],72:[function(_dereq_,module,exports){
 (function (process){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -11488,23 +11261,23 @@ module.exports = {
  * <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var EventEmitter   = _dereq_(54).EventEmitter
-  , inherits       = _dereq_(71).inherits
-  , extend         = _dereq_(113)
-  , prr            = _dereq_(103)
-  , DeferredLevelDOWN = _dereq_(97)
+var EventEmitter   = _dereq_(34).EventEmitter
+  , inherits       = _dereq_(51).inherits
+  , extend         = _dereq_(93)
+  , prr            = _dereq_(83)
+  , DeferredLevelDOWN = _dereq_(77)
 
-  , WriteError     = _dereq_(91).WriteError
-  , ReadError      = _dereq_(91).ReadError
-  , NotFoundError  = _dereq_(91).NotFoundError
-  , OpenError      = _dereq_(91).OpenError
-  , EncodingError  = _dereq_(91).EncodingError
-  , InitializationError = _dereq_(91).InitializationError
+  , WriteError     = _dereq_(71).WriteError
+  , ReadError      = _dereq_(71).ReadError
+  , NotFoundError  = _dereq_(71).NotFoundError
+  , OpenError      = _dereq_(71).OpenError
+  , EncodingError  = _dereq_(71).EncodingError
+  , InitializationError = _dereq_(71).InitializationError
 
-  , ReadStream     = _dereq_(93)
-  , WriteStream    = _dereq_(95)
-  , util           = _dereq_(94)
-  , Batch          = _dereq_(90)
+  , ReadStream     = _dereq_(73)
+  , WriteStream    = _dereq_(75)
+  , util           = _dereq_(74)
+  , Batch          = _dereq_(70)
 
   , getOptions     = util.getOptions
   , defaultOptions = util.defaultOptions
@@ -11918,8 +11691,8 @@ module.exports.destroy = utilStatic('destroy')
 // DEPRECATED: prefer accessing LevelDOWN for this: require('leveldown').repair()
 module.exports.repair  = utilStatic('repair')
 
-}).call(this,_dereq_(56))
-},{"103":103,"113":113,"54":54,"56":56,"71":71,"90":90,"91":91,"93":93,"94":94,"95":95,"97":97}],93:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"34":34,"36":36,"51":51,"70":70,"71":71,"73":73,"74":74,"75":75,"77":77,"83":83,"93":93}],73:[function(_dereq_,module,exports){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
  * MIT License <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
@@ -11927,11 +11700,11 @@ module.exports.repair  = utilStatic('repair')
 
 // NOTE: we are fixed to readable-stream@1.0.x for now
 // for pure Streams2 across Node versions
-var Readable      = _dereq_(112).Readable
-  , inherits      = _dereq_(71).inherits
-  , extend        = _dereq_(113)
-  , EncodingError = _dereq_(91).EncodingError
-  , util          = _dereq_(94)
+var Readable      = _dereq_(92).Readable
+  , inherits      = _dereq_(51).inherits
+  , extend        = _dereq_(93)
+  , EncodingError = _dereq_(71).EncodingError
+  , util          = _dereq_(74)
 
   , defaultOptions = { keys: true, values: true }
 
@@ -12047,7 +11820,7 @@ ReadStream.prototype.toString = function () {
 
 module.exports = ReadStream
 
-},{"112":112,"113":113,"71":71,"91":91,"94":94}],94:[function(_dereq_,module,exports){
+},{"51":51,"71":71,"74":74,"92":92,"93":93}],74:[function(_dereq_,module,exports){
 (function (process,Buffer){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -12055,8 +11828,8 @@ module.exports = ReadStream
  * <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var extend        = _dereq_(113)
-  , LevelUPError  = _dereq_(91).LevelUPError
+var extend        = _dereq_(93)
+  , LevelUPError  = _dereq_(71).LevelUPError
 
   , encodingNames = [
         'hex'
@@ -12150,17 +11923,17 @@ function getLevelDOWN () {
   if (leveldown)
     return leveldown
 
-  var requiredVersion       = _dereq_(114).devDependencies.leveldown
+  var requiredVersion       = _dereq_(94).devDependencies.leveldown
     , missingLevelDOWNError = 'Could not locate LevelDOWN, try `npm install leveldown`'
     , leveldownVersion
 
   try {
-    leveldownVersion = _dereq_(49).version
+    leveldownVersion = _dereq_(29).version
   } catch (e) {
     throw new LevelUPError(missingLevelDOWNError)
   }
 
-  if (!_dereq_(49).satisfies(leveldownVersion, requiredVersion)) {
+  if (!_dereq_(29).satisfies(leveldownVersion, requiredVersion)) {
     throw new LevelUPError(
         'Installed version of LevelDOWN ('
       + leveldownVersion
@@ -12171,7 +11944,7 @@ function getLevelDOWN () {
   }
 
   try {
-    return leveldown = _dereq_(49)
+    return leveldown = _dereq_(29)
   } catch (e) {
     throw new LevelUPError(missingLevelDOWNError)
   }
@@ -12232,8 +12005,8 @@ module.exports = {
   , decodeKey       : decodeKey
 }
 
-}).call(this,_dereq_(56),_dereq_(50).Buffer)
-},{"113":113,"114":114,"49":49,"50":50,"56":56,"91":91}],95:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),_dereq_(30).Buffer)
+},{"29":29,"30":30,"36":36,"71":71,"93":93,"94":94}],75:[function(_dereq_,module,exports){
 (function (process,global){
 /* Copyright (c) 2012-2014 LevelUP contributors
  * See list at <https://github.com/rvagg/node-levelup#contributing>
@@ -12241,14 +12014,14 @@ module.exports = {
  * <https://github.com/rvagg/node-levelup/blob/master/LICENSE.md>
  */
 
-var Stream       = _dereq_(68).Stream
-  , inherits     = _dereq_(71).inherits
-  , extend       = _dereq_(113)
-  , bl           = _dereq_(96)
+var Stream       = _dereq_(48).Stream
+  , inherits     = _dereq_(51).inherits
+  , extend       = _dereq_(93)
+  , bl           = _dereq_(76)
 
   , setImmediate = global.setImmediate || process.nextTick
 
-  , getOptions   = _dereq_(94).getOptions
+  , getOptions   = _dereq_(74).getOptions
 
   , defaultOptions = { type: 'put' }
 
@@ -12414,11 +12187,11 @@ WriteStream.prototype.toString = function () {
 
 module.exports = WriteStream
 
-}).call(this,_dereq_(56),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"113":113,"56":56,"68":68,"71":71,"94":94,"96":96}],96:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"36":36,"48":48,"51":51,"74":74,"76":76,"93":93}],76:[function(_dereq_,module,exports){
 (function (Buffer){
-var DuplexStream = _dereq_(112).Duplex
-  , util         = _dereq_(71)
+var DuplexStream = _dereq_(92).Duplex
+  , util         = _dereq_(51)
 
 function BufferList (callback) {
   if (!(this instanceof BufferList))
@@ -12631,11 +12404,11 @@ BufferList.prototype.destroy = function () {
 
 module.exports = BufferList
 
-}).call(this,_dereq_(50).Buffer)
-},{"112":112,"50":50,"71":71}],97:[function(_dereq_,module,exports){
+}).call(this,_dereq_(30).Buffer)
+},{"30":30,"51":51,"92":92}],77:[function(_dereq_,module,exports){
 (function (process,Buffer){
-var util              = _dereq_(71)
-  , AbstractLevelDOWN = _dereq_(100).AbstractLevelDOWN
+var util              = _dereq_(51)
+  , AbstractLevelDOWN = _dereq_(80).AbstractLevelDOWN
 
 function DeferredLevelDOWN (location) {
   AbstractLevelDOWN.call(this, typeof location == 'string' ? location : '') // optional location, who cares?
@@ -12682,8 +12455,8 @@ DeferredLevelDOWN.prototype._iterator = function () {
 
 module.exports = DeferredLevelDOWN
 
-}).call(this,_dereq_(56),_dereq_(50).Buffer)
-},{"100":100,"50":50,"56":56,"71":71}],98:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),_dereq_(30).Buffer)
+},{"30":30,"36":36,"51":51,"80":80}],78:[function(_dereq_,module,exports){
 (function (process){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
@@ -12766,8 +12539,8 @@ AbstractChainedBatch.prototype.write = function (options, callback) {
 }
 
 module.exports = AbstractChainedBatch
-}).call(this,_dereq_(56))
-},{"56":56}],99:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"36":36}],79:[function(_dereq_,module,exports){
 (function (process){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
@@ -12819,14 +12592,14 @@ AbstractIterator.prototype.end = function (callback) {
 
 module.exports = AbstractIterator
 
-}).call(this,_dereq_(56))
-},{"56":56}],100:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"36":36}],80:[function(_dereq_,module,exports){
 (function (process,Buffer){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
-var xtend                = _dereq_(113)
-  , AbstractIterator     = _dereq_(99)
-  , AbstractChainedBatch = _dereq_(98)
+var xtend                = _dereq_(93)
+  , AbstractIterator     = _dereq_(79)
+  , AbstractChainedBatch = _dereq_(78)
 
 function AbstractLevelDOWN (location) {
   if (!arguments.length || location === undefined)
@@ -13079,9 +12852,9 @@ module.exports.AbstractLevelDOWN    = AbstractLevelDOWN
 module.exports.AbstractIterator     = AbstractIterator
 module.exports.AbstractChainedBatch = AbstractChainedBatch
 
-}).call(this,_dereq_(56),_dereq_(50).Buffer)
-},{"113":113,"50":50,"56":56,"98":98,"99":99}],101:[function(_dereq_,module,exports){
-var prr = _dereq_(103)
+}).call(this,_dereq_(36),_dereq_(30).Buffer)
+},{"30":30,"36":36,"78":78,"79":79,"93":93}],81:[function(_dereq_,module,exports){
+var prr = _dereq_(83)
 
 function init (type, message, cause) {
   prr(this, {
@@ -13137,13 +12910,8 @@ module.exports = function (errno) {
   }
 }
 
-},{"103":103}],102:[function(_dereq_,module,exports){
+},{"83":83}],82:[function(_dereq_,module,exports){
 var all = module.exports.all = [
-  {
-    errno: -2,
-    code: 'ENOENT',
-    description: 'no such file or directory'
-  },
   {
     errno: -1,
     code: 'UNKNOWN',
@@ -13449,10 +13217,10 @@ all.forEach(function (error) {
   module.exports.code[error.code] = error
 })
 
-module.exports.custom = _dereq_(101)(module.exports)
+module.exports.custom = _dereq_(81)(module.exports)
 module.exports.create = module.exports.custom.createError
 
-},{"101":101}],103:[function(_dereq_,module,exports){
+},{"81":81}],83:[function(_dereq_,module,exports){
 /*!
   * prr
   * (c) 2013 Rod Vagg <rod@vagg.org>
@@ -13516,11 +13284,11 @@ module.exports.create = module.exports.custom.createError
 
   return prr
 })
-},{}],104:[function(_dereq_,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"106":106,"108":108,"109":109,"56":56,"58":58,"76":76}],105:[function(_dereq_,module,exports){
-arguments[4][59][0].apply(exports,arguments)
-},{"107":107,"109":109,"59":59,"76":76}],106:[function(_dereq_,module,exports){
+},{}],84:[function(_dereq_,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"36":36,"38":38,"56":56,"86":86,"88":88,"89":89}],85:[function(_dereq_,module,exports){
+arguments[4][39][0].apply(exports,arguments)
+},{"39":39,"56":56,"87":87,"89":89}],86:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13546,17 +13314,17 @@ arguments[4][59][0].apply(exports,arguments)
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = _dereq_(110);
+var isArray = _dereq_(90);
 /*</replacement>*/
 
 
 /*<replacement>*/
-var Buffer = _dereq_(50).Buffer;
+var Buffer = _dereq_(30).Buffer;
 /*</replacement>*/
 
 Readable.ReadableState = ReadableState;
 
-var EE = _dereq_(54).EventEmitter;
+var EE = _dereq_(34).EventEmitter;
 
 /*<replacement>*/
 if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
@@ -13564,11 +13332,11 @@ if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
 };
 /*</replacement>*/
 
-var Stream = _dereq_(68);
+var Stream = _dereq_(48);
 
 /*<replacement>*/
-var util = _dereq_(109);
-util.inherits = _dereq_(76);
+var util = _dereq_(89);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
 var StringDecoder;
@@ -13637,7 +13405,7 @@ function ReadableState(options, stream) {
   this.encoding = null;
   if (options.encoding) {
     if (!StringDecoder)
-      StringDecoder = _dereq_(111).StringDecoder;
+      StringDecoder = _dereq_(91).StringDecoder;
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
@@ -13738,7 +13506,7 @@ function needMoreData(state) {
 // backwards compatibility.
 Readable.prototype.setEncoding = function(enc) {
   if (!StringDecoder)
-    StringDecoder = _dereq_(111).StringDecoder;
+    StringDecoder = _dereq_(91).StringDecoder;
   this._readableState.decoder = new StringDecoder(enc);
   this._readableState.encoding = enc;
 };
@@ -14505,8 +14273,8 @@ function indexOf (xs, x) {
   return -1;
 }
 
-}).call(this,_dereq_(56))
-},{"109":109,"110":110,"111":111,"50":50,"54":54,"56":56,"68":68,"76":76}],107:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36))
+},{"30":30,"34":34,"36":36,"48":48,"56":56,"89":89,"90":90,"91":91}],87:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14573,11 +14341,11 @@ function indexOf (xs, x) {
 
 module.exports = Transform;
 
-var Duplex = _dereq_(104);
+var Duplex = _dereq_(84);
 
 /*<replacement>*/
-var util = _dereq_(109);
-util.inherits = _dereq_(76);
+var util = _dereq_(89);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
 util.inherits(Transform, Duplex);
@@ -14718,7 +14486,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"104":104,"109":109,"76":76}],108:[function(_dereq_,module,exports){
+},{"56":56,"84":84,"89":89}],88:[function(_dereq_,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -14748,18 +14516,18 @@ function done(stream, er) {
 module.exports = Writable;
 
 /*<replacement>*/
-var Buffer = _dereq_(50).Buffer;
+var Buffer = _dereq_(30).Buffer;
 /*</replacement>*/
 
 Writable.WritableState = WritableState;
 
 
 /*<replacement>*/
-var util = _dereq_(109);
-util.inherits = _dereq_(76);
+var util = _dereq_(89);
+util.inherits = _dereq_(56);
 /*</replacement>*/
 
-var Stream = _dereq_(68);
+var Stream = _dereq_(48);
 
 util.inherits(Writable, Stream);
 
@@ -14841,7 +14609,7 @@ function WritableState(options, stream) {
 }
 
 function Writable(options) {
-  var Duplex = _dereq_(104);
+  var Duplex = _dereq_(84);
 
   // Writable ctor is applied to Duplexes, though they're not
   // instanceof Writable, they're instanceof Readable.
@@ -15107,24 +14875,24 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-}).call(this,_dereq_(56))
-},{"104":104,"109":109,"50":50,"56":56,"68":68,"76":76}],109:[function(_dereq_,module,exports){
-arguments[4][63][0].apply(exports,arguments)
-},{"50":50,"63":63}],110:[function(_dereq_,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"55":55}],111:[function(_dereq_,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"50":50,"69":69}],112:[function(_dereq_,module,exports){
-var Stream = _dereq_(68); // hack to fix a circular dependency issue when used with browserify
-exports = module.exports = _dereq_(106);
+}).call(this,_dereq_(36))
+},{"30":30,"36":36,"48":48,"56":56,"84":84,"89":89}],89:[function(_dereq_,module,exports){
+arguments[4][43][0].apply(exports,arguments)
+},{"30":30,"43":43}],90:[function(_dereq_,module,exports){
+arguments[4][35][0].apply(exports,arguments)
+},{"35":35}],91:[function(_dereq_,module,exports){
+arguments[4][49][0].apply(exports,arguments)
+},{"30":30,"49":49}],92:[function(_dereq_,module,exports){
+var Stream = _dereq_(48); // hack to fix a circular dependency issue when used with browserify
+exports = module.exports = _dereq_(86);
 exports.Stream = Stream;
 exports.Readable = exports;
-exports.Writable = _dereq_(108);
-exports.Duplex = _dereq_(104);
-exports.Transform = _dereq_(107);
-exports.PassThrough = _dereq_(105);
+exports.Writable = _dereq_(88);
+exports.Duplex = _dereq_(84);
+exports.Transform = _dereq_(87);
+exports.PassThrough = _dereq_(85);
 
-},{"104":104,"105":105,"106":106,"107":107,"108":108,"68":68}],113:[function(_dereq_,module,exports){
+},{"48":48,"84":84,"85":85,"86":86,"87":87,"88":88}],93:[function(_dereq_,module,exports){
 module.exports = extend
 
 function extend() {
@@ -15143,7 +14911,7 @@ function extend() {
     return target
 }
 
-},{}],114:[function(_dereq_,module,exports){
+},{}],94:[function(_dereq_,module,exports){
 module.exports={
   "name": "levelup",
   "description": "Fast & simple storage - a Node.js-style LevelDB wrapper",
@@ -15217,7 +14985,7 @@ module.exports={
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rvagg/node-levelup.git"
+    "url": "https://github.com/rvagg/node-levelup.git"
   },
   "homepage": "https://github.com/rvagg/node-levelup",
   "keywords": [
@@ -15268,72 +15036,156 @@ module.exports={
     "alltests": "npm test && npm run-script functionaltests"
   },
   "license": "MIT",
-  "gitHead": "213e989e2b75273e2b44c23f84f95e35bff7ea11",
+  "readme": "LevelUP\n=======\n\n![LevelDB Logo](https://0.gravatar.com/avatar/a498b122aecb7678490a38bb593cc12d)\n\n**Fast & simple storage - a Node.js-style LevelDB wrapper**\n\n[![Build Status](https://secure.travis-ci.org/rvagg/node-levelup.png)](http://travis-ci.org/rvagg/node-levelup)\n\n[![NPM](https://nodei.co/npm/levelup.png?stars&downloads)](https://nodei.co/npm/levelup/) [![NPM](https://nodei.co/npm-dl/levelup.png)](https://nodei.co/npm/levelup/)\n\n\n  * <a href=\"#intro\">Introduction</a>\n  * <a href=\"#leveldown\">Relationship to LevelDOWN</a>\n  * <a href=\"#platforms\">Tested &amp; supported platforms</a>\n  * <a href=\"#basic\">Basic usage</a>\n  * <a href=\"#api\">API</a>\n  * <a href=\"#events\">Events</a>\n  * <a href=\"#json\">JSON data</a>\n  * <a href=\"#custom_encodings\">Custom encodings</a>\n  * <a href=\"#extending\">Extending LevelUP</a>\n  * <a href=\"#multiproc\">Multi-process access</a>\n  * <a href=\"#support\">Getting support</a>\n  * <a href=\"#contributing\">Contributing</a>\n  * <a href=\"#licence\">Licence &amp; copyright</a>\n\n<a name=\"intro\"></a>\nIntroduction\n------------\n\n**[LevelDB](http://code.google.com/p/leveldb/)** is a simple key/value data store built by Google, inspired by BigTable. It's used in Google Chrome and many other products. LevelDB supports arbitrary byte arrays as both keys and values, singular *get*, *put* and *delete* operations, *batched put and delete*, bi-directional iterators and simple compression using the very fast [Snappy](http://code.google.com/p/snappy/) algorithm.\n\n**LevelUP** aims to expose the features of LevelDB in a **Node.js-friendly way**. All standard `Buffer` encoding types are supported, as is a special JSON encoding. LevelDB's iterators are exposed as a Node.js-style **readable stream** a matching **writeable stream** converts writes to *batch* operations.\n\nLevelDB stores entries **sorted lexicographically by keys**. This makes LevelUP's <a href=\"#createReadStream\"><code>ReadStream</code></a> interface a very powerful query mechanism.\n\n**LevelUP** is an **OPEN Open Source Project**, see the <a href=\"#contributing\">Contributing</a> section to find out what this means.\n\n<a name=\"leveldown\"></a>\nRelationship to LevelDOWN\n-------------------------\n\nLevelUP is designed to be backed by **[LevelDOWN](https://github.com/rvagg/node-leveldown/)** which provides a pure C++ binding to LevelDB and can be used as a stand-alone package if required.\n\n**As of version 0.9, LevelUP no longer requires LevelDOWN as a dependency so you must `npm install leveldown` when you install LevelUP.**\n\nLevelDOWN is now optional because LevelUP can be used with alternative backends, such as **[level.js](https://github.com/maxogden/level.js)** in the browser or [MemDOWN](https://github.com/rvagg/node-memdown) for a pure in-memory store.\n\nLevelUP will look for LevelDOWN and throw an error if it can't find it in its Node `require()` path. It will also tell you if the installed version of LevelDOWN is incompatible.\n\n**The [level](https://github.com/level/level) package is available as an alternative installation mechanism.** Install it instead to automatically get both LevelUP & LevelDOWN. It exposes LevelUP on its export (i.e. you can `var leveldb = require('level')`).\n\n\n<a name=\"platforms\"></a>\nTested & supported platforms\n----------------------------\n\n  * **Linux**: including ARM platforms such as Raspberry Pi *and Kindle!*\n  * **Mac OS**\n  * **Solaris**: including Joyent's SmartOS & Nodejitsu\n  * **Windows**: Node 0.10 and above only. See installation instructions for *node-gyp's* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.\n\n<a name=\"basic\"></a>\nBasic usage\n-----------\n\nFirst you need to install LevelUP!\n\n```sh\n$ npm install levelup leveldown\n```\n\nOr\n\n```sh\n$ npm install level\n```\n\n*(this second option requires you to use LevelUP by calling `var levelup = require('level')`)*\n\n\nAll operations are asynchronous although they don't necessarily require a callback if you don't need to know when the operation was performed.\n\n```js\nvar levelup = require('levelup')\n\n// 1) Create our database, supply location and options.\n//    This will create or open the underlying LevelDB store.\nvar db = levelup('./mydb')\n\n// 2) put a key & value\ndb.put('name', 'LevelUP', function (err) {\n  if (err) return console.log('Ooops!', err) // some kind of I/O error\n\n  // 3) fetch by key\n  db.get('name', function (err, value) {\n    if (err) return console.log('Ooops!', err) // likely the key was not found\n\n    // ta da!\n    console.log('name=' + value)\n  })\n})\n```\n\n<a name=\"api\"></a>\n## API\n\n  * <a href=\"#ctor\"><code><b>levelup()</b></code></a>\n  * <a href=\"#open\"><code>db.<b>open()</b></code></a>\n  * <a href=\"#close\"><code>db.<b>close()</b></code></a>\n  * <a href=\"#put\"><code>db.<b>put()</b></code></a>\n  * <a href=\"#get\"><code>db.<b>get()</b></code></a>\n  * <a href=\"#del\"><code>db.<b>del()</b></code></a>\n  * <a href=\"#batch\"><code>db.<b>batch()</b></code> *(array form)*</a>\n  * <a href=\"#batch_chained\"><code>db.<b>batch()</b></code> *(chained form)*</a>\n  * <a href=\"#isOpen\"><code>db.<b>isOpen()</b></code></a>\n  * <a href=\"#isClosed\"><code>db.<b>isClosed()</b></code></a>\n  * <a href=\"#createReadStream\"><code>db.<b>createReadStream()</b></code></a>\n  * <a href=\"#createKeyStream\"><code>db.<b>createKeyStream()</b></code></a>\n  * <a href=\"#createValueStream\"><code>db.<b>createValueStream()</b></code></a>\n  * <a href=\"#createWriteStream\"><code>db.<b>createWriteStream()</b></code></a>\n\n### Special operations exposed by LevelDOWN\n\n  * <a href=\"#approximateSize\"><code>db.db.<b>approximateSize()</b></code></a>\n  * <a href=\"#getProperty\"><code>db.db.<b>getProperty()</b></code></a>\n  * <a href=\"#destroy\"><code><b>leveldown.destroy()</b></code></a>\n  * <a href=\"#repair\"><code><b>leveldown.repair()</b></code></a>\n\n\n--------------------------------------------------------\n<a name=\"ctor\"></a>\n### levelup(location[, options[, callback]])\n### levelup(options[, callback ])\n### levelup(db[, callback ])\n<code>levelup()</code> is the main entry point for creating a new LevelUP instance and opening the underlying store with LevelDB.\n\nThis function returns a new instance of LevelUP and will also initiate an <a href=\"#open\"><code>open()</code></a> operation. Opening the database is an asynchronous operation which will trigger your callback if you provide one. The callback should take the form: `function (err, db) {}` where the `db` is the LevelUP instance. If you don't provide a callback, any read & write operations are simply queued internally until the database is fully opened.\n\nThis leads to two alternative ways of managing a new LevelUP instance:\n\n```js\nlevelup(location, options, function (err, db) {\n  if (err) throw err\n  db.get('foo', function (err, value) {\n    if (err) return console.log('foo does not exist')\n    console.log('got foo =', value)\n  })\n})\n\n// vs the equivalent:\n\nvar db = levelup(location, options) // will throw if an error occurs\ndb.get('foo', function (err, value) {\n  if (err) return console.log('foo does not exist')\n  console.log('got foo =', value)\n})\n```\n\nThe `location` argument is available as a read-only property on the returned LevelUP instance.\n\nThe `levelup(options, callback)` form (with optional `callback`) is only available where you provide a valid `'db'` property on the options object (see below). Only for back-ends that don't require a `location` argument, such as [MemDOWN](https://github.com/rvagg/memdown).\n\nFor example:\n\n```js\nvar levelup = require('levelup')\nvar memdown = require('memdown')\nvar db = levelup({ db: memdown })\n```\n\nThe `levelup(db, callback)` form (with optional `callback`) is only available where `db` is a factory function, as would be provided as a `'db'` property on an `options` object (see below). Only for back-ends that don't require a `location` argument, such as [MemDOWN](https://github.com/rvagg/memdown).\n\nFor example:\n\n```js\nvar levelup = require('levelup')\nvar memdown = require('memdown')\nvar db = levelup(memdown)\n```\n\n#### `options`\n\n`levelup()` takes an optional options object as its second argument; the following properties are accepted:\n\n* `'createIfMissing'` *(boolean, default: `true`)*: If `true`, will initialise an empty database at the specified location if one doesn't already exist. If `false` and a database doesn't exist you will receive an error in your `open()` callback and your database won't open.\n\n* `'errorIfExists'` *(boolean, default: `false`)*: If `true`, you will receive an error in your `open()` callback if the database exists at the specified location.\n\n* `'compression'` *(boolean, default: `true`)*: If `true`, all *compressible* data will be run through the Snappy compression algorithm before being stored. Snappy is very fast and shouldn't gain much speed by disabling so leave this on unless you have good reason to turn it off.\n\n* `'cacheSize'` *(number, default: `8 * 1024 * 1024`)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents. \n\n* `'keyEncoding'` and `'valueEncoding'` *(string, default: `'utf8'`)*: The encoding of the keys and values passed through Node.js' `Buffer` implementation (see [Buffer#toString()](http://nodejs.org/docs/latest/api/buffer.html#buffer_buf_tostring_encoding_start_end)).\n  <p><code>'utf8'</code> is the default encoding for both keys and values so you can simply pass in strings and expect strings from your <code>get()</code> operations. You can also pass <code>Buffer</code> objects as keys and/or values and conversion will be performed.</p>\n  <p>Supported encodings are: hex, utf8, ascii, binary, base64, ucs2, utf16le.</p>\n  <p><code>'json'</code> encoding is also supported, see below.</p>\n\n* `'db'` *(object, default: LevelDOWN)*: LevelUP is backed by [LevelDOWN](https://github.com/rvagg/node-leveldown/) to provide an interface to LevelDB. You can completely replace the use of LevelDOWN by providing a \"factory\" function that will return a LevelDOWN API compatible object given a `location` argument. For further information, see [MemDOWN](https://github.com/rvagg/node-memdown/), a fully LevelDOWN API compatible replacement that uses a memory store rather than LevelDB. Also see [Abstract LevelDOWN](http://github.com/rvagg/node-abstract-leveldown), a partial implementation of the LevelDOWN API that can be used as a base prototype for a LevelDOWN substitute.\n\nAdditionally, each of the main interface methods accept an optional options object that can be used to override `'keyEncoding'` and `'valueEncoding'`.\n\n--------------------------------------------------------\n<a name=\"open\"></a>\n### db.open([callback])\n<code>open()</code> opens the underlying LevelDB store. In general **you should never need to call this method directly** as it's automatically called by <a href=\"#ctor\"><code>levelup()</code></a>.\n\nHowever, it is possible to *reopen* a database after it has been closed with <a href=\"#close\"><code>close()</code></a>, although this is not generally advised.\n\n--------------------------------------------------------\n<a name=\"close\"></a>\n### db.close([callback])\n<code>close()</code> closes the underlying LevelDB store. The callback will receive any error encountered during closing as the first argument.\n\nYou should always clean up your LevelUP instance by calling `close()` when you no longer need it to free up resources. A LevelDB store cannot be opened by multiple instances of LevelDB/LevelUP simultaneously.\n\n--------------------------------------------------------\n<a name=\"put\"></a>\n### db.put(key, value[, options][, callback])\n<code>put()</code> is the primary method for inserting data into the store. Both the `key` and `value` can be arbitrary data objects.\n\nThe callback argument is optional but if you don't provide one and an error occurs then expect the error to be thrown.\n\n#### `options`\n\nEncoding of the `key` and `value` objects will adhere to `'keyEncoding'` and `'valueEncoding'` options provided to <a href=\"#ctor\"><code>levelup()</code></a>, although you can provide alternative encoding settings in the options for `put()` (it's recommended that you stay consistent in your encoding of keys and values in a single store).\n\nIf you provide a `'sync'` value of `true` in your `options` object, LevelDB will perform a synchronous write of the data; although the operation will be asynchronous as far as Node is concerned. Normally, LevelDB passes the data to the operating system for writing and returns immediately, however a synchronous write will use `fsync()` or equivalent so your callback won't be triggered until the data is actually on disk. Synchronous filesystem writes are **significantly** slower than asynchronous writes but if you want to be absolutely sure that the data is flushed then you can use `'sync': true`.\n\n--------------------------------------------------------\n<a name=\"get\"></a>\n### db.get(key[, options][, callback])\n<code>get()</code> is the primary method for fetching data from the store. The `key` can be an arbitrary data object. If it doesn't exist in the store then the callback will receive an error as its first argument. A not-found err object will be of type `'NotFoundError'` so you can `err.type == 'NotFoundError'` or you can perform a truthy test on the property `err.notFound`.\n\n```js\ndb.get('foo', function (err, value) {\n  if (err) {\n    if (err.notFound) {\n      // handle a 'NotFoundError' here\n      return\n    }\n    // I/O or other error, pass it up the callback chain\n    return callback(err)\n  }\n\n  // .. handle `value` here\n})\n```\n\n#### `options`\n\nEncoding of the `key` object will adhere to the `'keyEncoding'` option provided to <a href=\"#ctor\"><code>levelup()</code></a>, although you can provide alternative encoding settings in the options for `get()` (it's recommended that you stay consistent in your encoding of keys and values in a single store).\n\nLevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`. \n\n--------------------------------------------------------\n<a name=\"del\"></a>\n### db.del(key[, options][, callback])\n<code>del()</code> is the primary method for removing data from the store.\n\n#### `options`\n\nEncoding of the `key` object will adhere to the `'keyEncoding'` option provided to <a href=\"#ctor\"><code>levelup()</code></a>, although you can provide alternative encoding settings in the options for `del()` (it's recommended that you stay consistent in your encoding of keys and values in a single store).\n\nA `'sync'` option can also be passed, see <a href=\"#put\"><code>put()</code></a> for details on how this works.\n\n--------------------------------------------------------\n<a name=\"batch\"></a>\n### db.batch(array[, options][, callback]) *(array form)*\n<code>batch()</code> can be used for very fast bulk-write operations (both *put* and *delete*). The `array` argument should contain a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback` and any `'type': 'put'` entry with a `'value'` of `null` or `undefined` will return an error.\n\n```js\nvar ops = [\n    { type: 'del', key: 'father' }\n  , { type: 'put', key: 'name', value: 'Yuri Irsenovich Kim' }\n  , { type: 'put', key: 'dob', value: '16 February 1941' }\n  , { type: 'put', key: 'spouse', value: 'Kim Young-sook' }\n  , { type: 'put', key: 'occupation', value: 'Clown' }\n]\n\ndb.batch(ops, function (err) {\n  if (err) return console.log('Ooops!', err)\n  console.log('Great success dear leader!')\n})\n```\n\n#### `options`\n\nSee <a href=\"#put\"><code>put()</code></a> for a discussion on the `options` object. You can overwrite default `'keyEncoding'` and `'valueEncoding'` and also specify the use of `sync` filesystem operations.\n\nIn addition to encoding options for the whole batch you can also overwrite the encoding per operation, like:\n\n```js\nvar ops = [{\n    type          : 'put'\n  , key           : new Buffer([1, 2, 3])\n  , value         : { some: 'json' }\n  , keyEncoding   : 'binary'\n  , valueEncoding : 'json'\n}]\n```\n\n--------------------------------------------------------\n<a name=\"batch_chained\"></a>\n### db.batch() *(chained form)*\n<code>batch()</code>, when called with no arguments will return a `Batch` object which can be used to build, and eventually commit, an atomic LevelDB batch operation. Depending on how it's used, it is possible to obtain greater performance when using the chained form of `batch()` over the array form.\n\n```js\ndb.batch()\n  .del('father')\n  .put('name', 'Yuri Irsenovich Kim')\n  .put('dob', '16 February 1941')\n  .put('spouse', 'Kim Young-sook')\n  .put('occupation', 'Clown')\n  .write(function () { console.log('Done!') })\n```\n\n<b><code>batch.put(key, value[, options])</code></b>\n\nQueue a *put* operation on the current batch, not committed until a `write()` is called on the batch.\n\nThe optional `options` argument can be used to override the default `'keyEncoding'` and/or `'valueEncoding'`.\n\nThis method may `throw` a `WriteError` if there is a problem with your put (such as the `value` being `null` or `undefined`).\n\n<b><code>batch.del(key[, options])</code></b>\n\nQueue a *del* operation on the current batch, not committed until a `write()` is called on the batch.\n\nThe optional `options` argument can be used to override the default `'keyEncoding'`.\n\nThis method may `throw` a `WriteError` if there is a problem with your delete.\n\n<b><code>batch.clear()</code></b>\n\nClear all queued operations on the current batch, any previous operations will be discarded.\n\n<b><code>batch.write([callback])</code></b>\n\nCommit the queued operations for this batch. All operations not *cleared* will be written to the database atomically, that is, they will either all succeed or fail with no partial commits. The optional `callback` will be called when the operation has completed with an *error* argument if an error has occurred; if no `callback` is supplied and an error occurs then this method will `throw` a `WriteError`.\n\n\n--------------------------------------------------------\n<a name=\"isOpen\"></a>\n### db.isOpen()\n\nA LevelUP object can be in one of the following states:\n\n  * *\"new\"*     - newly created, not opened or closed\n  * *\"opening\"* - waiting for the database to be opened\n  * *\"open\"*    - successfully opened the database, available for use\n  * *\"closing\"* - waiting for the database to be closed\n  * *\"closed\"*  - database has been successfully closed, should not be used\n\n`isOpen()` will return `true` only when the state is \"open\".\n\n--------------------------------------------------------\n<a name=\"isClosed\"></a>\n### db.isClosed()\n\n*See <a href=\"#put\"><code>isOpen()</code></a>*\n\n`isClosed()` will return `true` only when the state is \"closing\" *or* \"closed\", it can be useful for determining if read and write operations are permissible.\n\n--------------------------------------------------------\n<a name=\"createReadStream\"></a>\n### db.createReadStream([options])\n\nYou can obtain a **ReadStream** of the full database by calling the `createReadStream()` method. The resulting stream is a complete Node.js-style [Readable Stream](http://nodejs.org/docs/latest/api/stream.html#stream_readable_stream) where `'data'` events emit objects with `'key'` and `'value'` pairs. You can also use the `start`, `end` and `limit` options to control the range of keys that are streamed.\n\n```js\ndb.createReadStream()\n  .on('data', function (data) {\n    console.log(data.key, '=', data.value)\n  })\n  .on('error', function (err) {\n    console.log('Oh my!', err)\n  })\n  .on('close', function () {\n    console.log('Stream closed')\n  })\n  .on('end', function () {\n    console.log('Stream closed')\n  })\n```\n\nThe standard `pause()`, `resume()` and `destroy()` methods are implemented on the ReadStream, as is `pipe()` (see below). `'data'`, '`error'`, `'end'` and `'close'` events are emitted.\n\nAdditionally, you can supply an options object as the first parameter to `createReadStream()` with the following options:\n\n* `'start'`: the key you wish to start the read at. By default it will start at the beginning of the store. Note that the *start* doesn't have to be an actual key that exists, LevelDB will simply find the *next* key, greater than the key you provide.\n\n* `'end'`: the key you wish to end the read on. By default it will continue until the end of the store. Again, the *end* doesn't have to be an actual key as an (inclusive) `<=`-type operation is performed to detect the end. You can also use the `destroy()` method instead of supplying an `'end'` parameter to achieve the same effect.\n\n* `'reverse'` *(boolean, default: `false`)*: a boolean, set to true if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.\n\n* `'keys'` *(boolean, default: `true`)*: whether the `'data'` event should contain keys. If set to `true` and `'values'` set to `false` then `'data'` events will simply be keys, rather than objects with a `'key'` property. Used internally by the `createKeyStream()` method.\n\n* `'values'` *(boolean, default: `true`)*: whether the `'data'` event should contain values. If set to `true` and `'keys'` set to `false` then `'data'` events will simply be values, rather than objects with a `'value'` property. Used internally by the `createValueStream()` method.\n\n* `'limit'` *(number, default: `-1`)*: limit the number of results collected by this stream. This number represents a *maximum* number of results and may not be reached if you get to the end of the store or your `'end'` value first. A value of `-1` means there is no limit.\n\n* `'fillCache'` *(boolean, default: `false`)*: wheather LevelDB's LRU-cache should be filled with data read.\n\n* `'keyEncoding'` / `'valueEncoding'` *(string)*: the encoding applied to each read piece of data.\n\n--------------------------------------------------------\n<a name=\"createKeyStream\"></a>\n### db.createKeyStream([options])\n\nA **KeyStream** is a **ReadStream** where the `'data'` events are simply the keys from the database so it can be used like a traditional stream rather than an object stream.\n\nYou can obtain a KeyStream either by calling the `createKeyStream()` method on a LevelUP object or by passing passing an options object to `createReadStream()` with `keys` set to `true` and `values` set to `false`.\n\n```js\ndb.createKeyStream()\n  .on('data', function (data) {\n    console.log('key=', data)\n  })\n\n// same as:\ndb.createReadStream({ keys: true, values: false })\n  .on('data', function (data) {\n    console.log('key=', data)\n  })\n```\n\n--------------------------------------------------------\n<a name=\"createValueStream\"></a>\n### db.createValueStream([options])\n\nA **ValueStream** is a **ReadStream** where the `'data'` events are simply the values from the database so it can be used like a traditional stream rather than an object stream.\n\nYou can obtain a ValueStream either by calling the `createValueStream()` method on a LevelUP object or by passing passing an options object to `createReadStream()` with `values` set to `true` and `keys` set to `false`.\n\n```js\ndb.createValueStream()\n  .on('data', function (data) {\n    console.log('value=', data)\n  })\n\n// same as:\ndb.createReadStream({ keys: false, values: true })\n  .on('data', function (data) {\n    console.log('value=', data)\n  })\n```\n\n--------------------------------------------------------\n<a name=\"createWriteStream\"></a>\n### db.createWriteStream([options])\n\nA **WriteStream** can be obtained by calling the `createWriteStream()` method. The resulting stream is a complete Node.js-style [Writable Stream](http://nodejs.org/docs/latest/api/stream.html#stream_writable_stream) which accepts objects with `'key'` and `'value'` pairs on its `write()` method.\n\nThe WriteStream will buffer writes and submit them as a `batch()` operations where writes occur *within the same tick*.\n\n```js\nvar ws = db.createWriteStream()\n\nws.on('error', function (err) {\n  console.log('Oh my!', err)\n})\nws.on('close', function () {\n  console.log('Stream closed')\n})\n\nws.write({ key: 'name', value: 'Yuri Irsenovich Kim' })\nws.write({ key: 'dob', value: '16 February 1941' })\nws.write({ key: 'spouse', value: 'Kim Young-sook' })\nws.write({ key: 'occupation', value: 'Clown' })\nws.end()\n```\n\nThe standard `write()`, `end()`, `destroy()` and `destroySoon()` methods are implemented on the WriteStream. `'drain'`, `'error'`, `'close'` and `'pipe'` events are emitted.\n\nYou can specify encodings both for the whole stream and individual entries:\n\nTo set the encoding for the whole stream, provide an options object as the first parameter to `createWriteStream()` with `'keyEncoding'` and/or `'valueEncoding'`.\n\nTo set the encoding for an individual entry:\n\n```js\nwriteStream.write({\n    key           : new Buffer([1, 2, 3])\n  , value         : { some: 'json' }\n  , keyEncoding   : 'binary'\n  , valueEncoding : 'json'\n})\n```\n\n#### write({ type: 'put' })\n\nIf individual `write()` operations are performed with a `'type'` property of `'del'`, they will be passed on as `'del'` operations to the batch.\n\n```js\nvar ws = db.createWriteStream()\n\nws.on('error', function (err) {\n  console.log('Oh my!', err)\n})\nws.on('close', function () {\n  console.log('Stream closed')\n})\n\nws.write({ type: 'del', key: 'name' })\nws.write({ type: 'del', key: 'dob' })\nws.write({ type: 'put', key: 'spouse' })\nws.write({ type: 'del', key: 'occupation' })\nws.end()\n```\n\n#### db.createWriteStream({ type: 'del' })\n\nIf the *WriteStream* is created with a `'type'` option of `'del'`, all `write()` operations will be interpreted as `'del'`, unless explicitly specified as `'put'`.\n\n```js\nvar ws = db.createWriteStream({ type: 'del' })\n\nws.on('error', function (err) {\n  console.log('Oh my!', err)\n})\nws.on('close', function () {\n  console.log('Stream closed')\n})\n\nws.write({ key: 'name' })\nws.write({ key: 'dob' })\n// but it can be overridden\nws.write({ type: 'put', key: 'spouse', value: 'Ri Sol-ju' })\nws.write({ key: 'occupation' })\nws.end()\n```\n\n#### Pipes and Node Stream compatibility\n\nA ReadStream can be piped directly to a WriteStream, allowing for easy copying of an entire database. A simple `copy()` operation is included in LevelUP that performs exactly this on two open databases:\n\n```js\nfunction copy (srcdb, dstdb, callback) {\n  srcdb.createReadStream().pipe(dstdb.createWriteStream()).on('close', callback)\n}\n```\n\nThe ReadStream is also [fstream](https://github.com/isaacs/fstream)-compatible which means you should be able to pipe to and from fstreams. So you can serialize and deserialize an entire database to a directory where keys are filenames and values are their contents, or even into a *tar* file using [node-tar](https://github.com/isaacs/node-tar). See the [fstream functional test](https://github.com/rvagg/node-levelup/blob/master/test/functional/fstream-test.js) for an example. *(Note: I'm not really sure there's a great use-case for this but it's a fun example and it helps to harden the stream implementations.)*\n\nKeyStreams and ValueStreams can be treated like standard streams of raw data. If `'keyEncoding'` or `'valueEncoding'` is set to `'binary'` the `'data'` events will simply be standard Node `Buffer` objects straight out of the data store.\n\n\n--------------------------------------------------------\n<a name='approximateSize'></a>\n### db.db.approximateSize(start, end, callback)\n<code>approximateSize()</code> can used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.\n\n```js\nvar db = require('level')('./huge.db')\n\ndb.db.approximateSize('a', 'c', function (err, size) {\n  if (err) return console.error('Ooops!', err)\n  console.log('Approximate size of range is %d', size)\n})\n```\n\n**Note:** `approximateSize()` is available via [LevelDOWN](https://github.com/rvagg/node-leveldown/), which by default is accessible as the `db` property of your LevelUP instance. This is a specific LevelDB operation and is not likely to be available where you replace LevelDOWN with an alternative back-end via the `'db'` option.\n\n\n--------------------------------------------------------\n<a name='getProperty'></a>\n### db.db.getProperty(property)\n<code>getProperty</code> can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).\n\nCurrently, the only valid properties are:\n\n* <b><code>'leveldb.num-files-at-levelN'</code></b>: returns the number of files at level *N*, where N is an integer representing a valid level (e.g. \"0\").\n\n* <b><code>'leveldb.stats'</code></b>: returns a multi-line string describing statistics about LevelDB's internal operation.\n\n* <b><code>'leveldb.sstables'</code></b>: returns a multi-line string describing all of the *sstables* that make up contents of the current database.\n\n\n```js\nvar db = require('level')('./huge.db')\nconsole.log(db.db.getProperty('leveldb.num-files-at-level3'))\n// → '243'\n```\n\n**Note:** `getProperty()` is available via [LevelDOWN](https://github.com/rvagg/node-leveldown/), which by default is accessible as the `db` property of your LevelUP instance. This is a specific LevelDB operation and is not likely to be available where you replace LevelDOWN with an alternative back-end via the `'db'` option.\n\n\n--------------------------------------------------------\n<a name=\"destroy\"></a>\n### leveldown.destroy(location, callback)\n<code>destroy()</code> is used to completely remove an existing LevelDB database directory. You can use this function in place of a full directory *rm* if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.\n\nThe callback will be called when the destroy operation is complete, with a possible `error` argument.\n\n**Note:** `destroy()` is available via [LevelDOWN](https://github.com/rvagg/node-leveldown/) which you will have to install seperately, e.g.:\n\n```js\nrequire('leveldown').destroy('./huge.db', function (err) { console.log('done!') })\n```\n\n--------------------------------------------------------\n<a name=\"repair\"></a>\n### leveldown.repair(location, callback)\n<code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:\n\n> If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.\n\nYou will find information on the *repair* operation in the *LOG* file inside the store directory. \n\nA `repair()` can also be used to perform a compaction of the LevelDB log into table files.\n\nThe callback will be called when the repair operation is complete, with a possible `error` argument.\n\n**Note:** `repair()` is available via [LevelDOWN](https://github.com/rvagg/node-leveldown/) which you will have to install seperately, e.g.:\n\n```js\nrequire('leveldown').repair('./huge.db', function (err) { console.log('done!') })\n```\n\n--------------------------------------------------------\n\n<a name=\"events\"></a>\nEvents\n------\n\nLevelUP emits events when the callbacks to the corresponding methods are called.\n\n* `db.emit('put', key, value)` emitted when a new value is `'put'`\n* `db.emit('del', key)` emitted when a value is deleted\n* `db.emit('batch', ary)` emitted when a batch operation has executed\n* `db.emit('ready')` emitted when the database has opened (`'open'` is synonym)\n* `db.emit('closed')` emitted when the database has closed\n* `db.emit('opening')` emitted when the database is opening\n* `db.emit('closing')` emitted when the database is closing\n\nIf you do not pass a callback to an async function, and there is an error, LevelUP will `emit('error', err)` instead.\n\n<a name=\"json\"></a>\nJSON data\n---------\n\nYou specify `'json'` encoding for both keys and/or values, you can then supply JavaScript objects to LevelUP and receive them from all fetch operations, including ReadStreams. LevelUP will automatically *stringify* your objects and store them as *utf8* and parse the strings back into objects before passing them back to you.\n\n<a name=\"custom_encodings\"></a>\nCustom encodings\n----------------\n\nA custom encoding may be provided by passing in an object as an value for `keyEncoding` or `valueEncoding` (wherever accepted), it must have the following properties:\n\n```js\n{\n    encode : function (val) { ... }\n  , decode : function (val) { ... }\n  , buffer : boolean // encode returns a buffer-like and decode accepts a buffer\n  , type   : String  // name of this encoding type.\n}\n```\n\n*\"buffer-like\"* means either a `Buffer` if running in Node, or a Uint8Array if in a browser. Use [bops](https://github.com/chrisdickinson/bops) to get portable binary operations.\n\n<a name=\"extending\"></a>\nExtending LevelUP\n-----------------\n\nA list of <a href=\"https://github.com/rvagg/node-levelup/wiki/Modules\"><b>Node.js LevelDB modules and projects</b></a> can be found in the wiki.\n\nWhen attempting to extend the functionality of LevelUP, it is recommended that you consider using [level-hooks](https://github.com/dominictarr/level-hooks) and/or [level-sublevel](https://github.com/dominictarr/level-sublevel). **level-sublevel** is particularly helpful for keeping additional, extension-specific, data in a LevelDB store. It allows you to partition a LevelUP instance into multiple sub-instances that each correspond to discrete namespaced key ranges.\n\n<a name=\"multiproc\"></a>\nMulti-process access\n--------------------\n\nLevelDB is thread-safe but is **not** suitable for accessing with multiple processes. You should only ever have a LevelDB database open from a single Node.js process. Node.js clusters are made up of multiple processes so a LevelUP instance cannot be shared between them either.\n\nSee the <a href=\"https://github.com/rvagg/node-levelup/wiki/Modules\"><b>wiki</b></a> for some LevelUP extensions, including [multilevel](https://github.com/juliangruber/multilevel), that may help if you require a single data store to be shared across processes.\n\n<a name=\"support\"></a>\nGetting support\n---------------\n\nThere are multiple ways you can find help in using LevelDB in Node.js:\n\n * **IRC:** you'll find an active group of LevelUP users in the **##leveldb** channel on Freenode, including most of the contributors to this project.\n * **Mailing list:** there is an active [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.\n * **GitHub:** you're welcome to open an issue here on this GitHub repository if you have a question.\n\n<a name=\"contributing\"></a>\nContributing\n------------\n\nLevelUP is an **OPEN Open Source Project**. This means that:\n\n> Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.\n\nSee the [CONTRIBUTING.md](https://github.com/rvagg/node-levelup/blob/master/CONTRIBUTING.md) file for more details.\n\n### Contributors\n\nLevelUP is only possible due to the excellent work of the following contributors:\n\n<table><tbody>\n<tr><th align=\"left\">Rod Vagg</th><td><a href=\"https://github.com/rvagg\">GitHub/rvagg</a></td><td><a href=\"http://twitter.com/rvagg\">Twitter/@rvagg</a></td></tr>\n<tr><th align=\"left\">John Chesley</th><td><a href=\"https://github.com/chesles/\">GitHub/chesles</a></td><td><a href=\"http://twitter.com/chesles\">Twitter/@chesles</a></td></tr>\n<tr><th align=\"left\">Jake Verbaten</th><td><a href=\"https://github.com/raynos\">GitHub/raynos</a></td><td><a href=\"http://twitter.com/raynos2\">Twitter/@raynos2</a></td></tr>\n<tr><th align=\"left\">Dominic Tarr</th><td><a href=\"https://github.com/dominictarr\">GitHub/dominictarr</a></td><td><a href=\"http://twitter.com/dominictarr\">Twitter/@dominictarr</a></td></tr>\n<tr><th align=\"left\">Max Ogden</th><td><a href=\"https://github.com/maxogden\">GitHub/maxogden</a></td><td><a href=\"http://twitter.com/maxogden\">Twitter/@maxogden</a></td></tr>\n<tr><th align=\"left\">Lars-Magnus Skog</th><td><a href=\"https://github.com/ralphtheninja\">GitHub/ralphtheninja</a></td><td><a href=\"http://twitter.com/ralphtheninja\">Twitter/@ralphtheninja</a></td></tr>\n<tr><th align=\"left\">David Björklund</th><td><a href=\"https://github.com/kesla\">GitHub/kesla</a></td><td><a href=\"http://twitter.com/david_bjorklund\">Twitter/@david_bjorklund</a></td></tr>\n<tr><th align=\"left\">Julian Gruber</th><td><a href=\"https://github.com/juliangruber\">GitHub/juliangruber</a></td><td><a href=\"http://twitter.com/juliangruber\">Twitter/@juliangruber</a></td></tr>\n<tr><th align=\"left\">Paolo Fragomeni</th><td><a href=\"https://github.com/hij1nx\">GitHub/hij1nx</a></td><td><a href=\"http://twitter.com/hij1nx\">Twitter/@hij1nx</a></td></tr>\n<tr><th align=\"left\">Anton Whalley</th><td><a href=\"https://github.com/No9\">GitHub/No9</a></td><td><a href=\"https://twitter.com/antonwhalley\">Twitter/@antonwhalley</a></td></tr>\n<tr><th align=\"left\">Matteo Collina</th><td><a href=\"https://github.com/mcollina\">GitHub/mcollina</a></td><td><a href=\"https://twitter.com/matteocollina\">Twitter/@matteocollina</a></td></tr>\n<tr><th align=\"left\">Pedro Teixeira</th><td><a href=\"https://github.com/pgte\">GitHub/pgte</a></td><td><a href=\"https://twitter.com/pgte\">Twitter/@pgte</a></td></tr>\n<tr><th align=\"left\">James Halliday</th><td><a href=\"https://github.com/substack\">GitHub/substack</a></td><td><a href=\"https://twitter.com/substack\">Twitter/@substack</a></td></tr>\n</tbody></table>\n\n### Windows\n\nA large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!\n\n\n<a name=\"license\"></a>\nLicense &amp; copyright\n-------------------\n\nCopyright (c) 2012-2014 LevelUP contributors (listed above).\n\nLevelUP is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.\n\n=======\n*LevelUP builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*\n",
+  "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/rvagg/node-levelup/issues"
   },
   "_id": "levelup@0.18.6",
-  "_shasum": "e6a01cb089616c8ecc0291c2a9bd3f0c44e3e5eb",
-  "_from": "levelup@>=0.18.4 <0.19.0",
-  "_npmVersion": "1.4.14",
-  "_npmUser": {
-    "name": "rvagg",
-    "email": "rod@vagg.org"
-  },
-  "maintainers": [
-    {
-      "name": "rvagg",
-      "email": "rod@vagg.org"
-    }
-  ],
-  "dist": {
-    "shasum": "e6a01cb089616c8ecc0291c2a9bd3f0c44e3e5eb",
-    "tarball": "http://registry.npmjs.org/levelup/-/levelup-0.18.6.tgz"
-  },
-  "directories": {},
-  "_resolved": "https://registry.npmjs.org/levelup/-/levelup-0.18.6.tgz",
-  "readme": "ERROR: No README data found!"
+  "_from": "levelup@~0.18.4"
 }
 
-},{}],115:[function(_dereq_,module,exports){
+},{}],95:[function(_dereq_,module,exports){
 'use strict';
-var immediate = _dereq_(116);
 
-/* istanbul ignore next */
+module.exports = INTERNAL;
+
 function INTERNAL() {}
+},{}],96:[function(_dereq_,module,exports){
+'use strict';
+var Promise = _dereq_(99);
+var reject = _dereq_(102);
+var resolve = _dereq_(103);
+var INTERNAL = _dereq_(95);
+var handlers = _dereq_(97);
+module.exports = all;
+function all(iterable) {
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return reject(new TypeError('must be an array'));
+  }
 
-var handlers = {};
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return resolve([]);
+  }
 
-var REJECTED = ['REJECTED'];
-var FULFILLED = ['FULFILLED'];
-var PENDING = ['PENDING'];
-var UNHANDLED;
+  var values = new Array(len);
+  var resolved = 0;
+  var i = -1;
+  var promise = new Promise(INTERNAL);
+  
+  while (++i < len) {
+    allResolver(iterable[i], i);
+  }
+  return promise;
+  function allResolver(value, i) {
+    resolve(value).then(resolveFromAll, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
+    function resolveFromAll(outValue) {
+      values[i] = outValue;
+      if (++resolved === len & !called) {
+        called = true;
+        handlers.resolve(promise, values);
+      }
+    }
+  }
+}
+},{"102":102,"103":103,"95":95,"97":97,"99":99}],97:[function(_dereq_,module,exports){
+'use strict';
+var tryCatch = _dereq_(106);
+var resolveThenable = _dereq_(104);
+var states = _dereq_(105);
 
-module.exports = exports = Promise;
+exports.resolve = function (self, value) {
+  var result = tryCatch(getThen, value);
+  if (result.status === 'error') {
+    return exports.reject(self, result.value);
+  }
+  var thenable = result.value;
 
+  if (thenable) {
+    resolveThenable.safely(self, thenable);
+  } else {
+    self.state = states.FULFILLED;
+    self.outcome = value;
+    var i = -1;
+    var len = self.queue.length;
+    while (++i < len) {
+      self.queue[i].callFulfilled(value);
+    }
+  }
+  return self;
+};
+exports.reject = function (self, error) {
+  self.state = states.REJECTED;
+  self.outcome = error;
+  var i = -1;
+  var len = self.queue.length;
+  while (++i < len) {
+    self.queue[i].callRejected(error);
+  }
+  return self;
+};
+
+function getThen(obj) {
+  // Make sure we only access the accessor once as required by the spec
+  var then = obj && obj.then;
+  if (obj && typeof obj === 'object' && typeof then === 'function') {
+    return function appyThen() {
+      then.apply(obj, arguments);
+    };
+  }
+}
+
+},{"104":104,"105":105,"106":106}],98:[function(_dereq_,module,exports){
+module.exports = exports = _dereq_(99);
+
+exports.resolve = _dereq_(103);
+exports.reject = _dereq_(102);
+exports.all = _dereq_(96);
+exports.race = _dereq_(101);
+
+},{"101":101,"102":102,"103":103,"96":96,"99":99}],99:[function(_dereq_,module,exports){
+'use strict';
+
+var unwrap = _dereq_(107);
+var INTERNAL = _dereq_(95);
+var resolveThenable = _dereq_(104);
+var states = _dereq_(105);
+var QueueItem = _dereq_(100);
+
+module.exports = Promise;
 function Promise(resolver) {
+  if (!(this instanceof Promise)) {
+    return new Promise(resolver);
+  }
   if (typeof resolver !== 'function') {
     throw new TypeError('resolver must be a function');
   }
-  this.state = PENDING;
+  this.state = states.PENDING;
   this.queue = [];
   this.outcome = void 0;
   if (resolver !== INTERNAL) {
-    safelyResolveThenable(this, resolver);
+    resolveThenable.safely(this, resolver);
   }
 }
 
-Promise.prototype["catch"] = function (onRejected) {
+Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 };
 Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
-    typeof onRejected !== 'function' && this.state === REJECTED) {
+  if (typeof onFulfilled !== 'function' && this.state === states.FULFILLED ||
+    typeof onRejected !== 'function' && this.state === states.REJECTED) {
     return this;
   }
-  var promise = new this.constructor(INTERNAL);
-  if (this.state !== PENDING) {
-    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
+  var promise = new Promise(INTERNAL);
+  if (this.state !== states.PENDING) {
+    var resolver = this.state === states.FULFILLED ? onFulfilled : onRejected;
     unwrap(promise, resolver, this.outcome);
   } else {
     this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
@@ -15341,6 +15193,13 @@ Promise.prototype.then = function (onFulfilled, onRejected) {
 
   return promise;
 };
+
+},{"100":100,"104":104,"105":105,"107":107,"95":95}],100:[function(_dereq_,module,exports){
+'use strict';
+var handlers = _dereq_(97);
+var unwrap = _dereq_(107);
+
+module.exports = QueueItem;
 function QueueItem(promise, onFulfilled, onRejected) {
   this.promise = promise;
   if (typeof onFulfilled === 'function') {
@@ -15365,63 +15224,98 @@ QueueItem.prototype.otherCallRejected = function (value) {
   unwrap(this.promise, this.onRejected, value);
 };
 
-function unwrap(promise, func, value) {
-  immediate(function () {
-    var returnValue;
-    try {
-      returnValue = func(value);
-    } catch (e) {
-      return handlers.reject(promise, e);
-    }
-    if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
-    } else {
-      handlers.resolve(promise, returnValue);
-    }
-  });
-}
-
-handlers.resolve = function (self, value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return handlers.reject(self, result.value);
+},{"107":107,"97":97}],101:[function(_dereq_,module,exports){
+'use strict';
+var Promise = _dereq_(99);
+var reject = _dereq_(102);
+var resolve = _dereq_(103);
+var INTERNAL = _dereq_(95);
+var handlers = _dereq_(97);
+module.exports = race;
+function race(iterable) {
+  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
+    return reject(new TypeError('must be an array'));
   }
-  var thenable = result.value;
 
-  if (thenable) {
-    safelyResolveThenable(self, thenable);
-  } else {
-    self.state = FULFILLED;
-    self.outcome = value;
-    var i = -1;
-    var len = self.queue.length;
-    while (++i < len) {
-      self.queue[i].callFulfilled(value);
-    }
+  var len = iterable.length;
+  var called = false;
+  if (!len) {
+    return resolve([]);
   }
-  return self;
-};
-handlers.reject = function (self, error) {
-  self.state = REJECTED;
-  self.outcome = error;
+
   var i = -1;
-  var len = self.queue.length;
-  while (++i < len) {
-    self.queue[i].callRejected(error);
-  }
-  return self;
-};
+  var promise = new Promise(INTERNAL);
 
-function getThen(obj) {
-  // Make sure we only access the accessor once as required by the spec
-  var then = obj && obj.then;
-  if (obj && typeof obj === 'object' && typeof then === 'function') {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
+  while (++i < len) {
+    resolver(iterable[i]);
+  }
+  return promise;
+  function resolver(value) {
+    resolve(value).then(function (response) {
+      if (!called) {
+        called = true;
+        handlers.resolve(promise, response);
+      }
+    }, function (error) {
+      if (!called) {
+        called = true;
+        handlers.reject(promise, error);
+      }
+    });
   }
 }
 
+},{"102":102,"103":103,"95":95,"97":97,"99":99}],102:[function(_dereq_,module,exports){
+'use strict';
+
+var Promise = _dereq_(99);
+var INTERNAL = _dereq_(95);
+var handlers = _dereq_(97);
+module.exports = reject;
+
+function reject(reason) {
+	var promise = new Promise(INTERNAL);
+	return handlers.reject(promise, reason);
+}
+},{"95":95,"97":97,"99":99}],103:[function(_dereq_,module,exports){
+'use strict';
+
+var Promise = _dereq_(99);
+var INTERNAL = _dereq_(95);
+var handlers = _dereq_(97);
+module.exports = resolve;
+
+var FALSE = handlers.resolve(new Promise(INTERNAL), false);
+var NULL = handlers.resolve(new Promise(INTERNAL), null);
+var UNDEFINED = handlers.resolve(new Promise(INTERNAL), void 0);
+var ZERO = handlers.resolve(new Promise(INTERNAL), 0);
+var EMPTYSTRING = handlers.resolve(new Promise(INTERNAL), '');
+
+function resolve(value) {
+  if (value) {
+    if (value instanceof Promise) {
+      return value;
+    }
+    return handlers.resolve(new Promise(INTERNAL), value);
+  }
+  var valueType = typeof value;
+  switch (valueType) {
+    case 'boolean':
+      return FALSE;
+    case 'undefined':
+      return UNDEFINED;
+    case 'object':
+      return NULL;
+    case 'number':
+      return ZERO;
+    case 'string':
+      return EMPTYSTRING;
+  }
+}
+},{"95":95,"97":97,"99":99}],104:[function(_dereq_,module,exports){
+'use strict';
+var handlers = _dereq_(97);
+var tryCatch = _dereq_(106);
 function safelyResolveThenable(self, thenable) {
   // Either fulfill, reject or reject with error
   var called = false;
@@ -15444,12 +15338,24 @@ function safelyResolveThenable(self, thenable) {
   function tryToUnwrap() {
     thenable(onSuccess, onError);
   }
-
+  
   var result = tryCatch(tryToUnwrap);
   if (result.status === 'error') {
     onError(result.value);
   }
 }
+exports.safely = safelyResolveThenable;
+},{"106":106,"97":97}],105:[function(_dereq_,module,exports){
+// Lazy man's symbols for states
+
+exports.REJECTED = ['REJECTED'];
+exports.FULFILLED = ['FULFILLED'];
+exports.PENDING = ['PENDING'];
+
+},{}],106:[function(_dereq_,module,exports){
+'use strict';
+
+module.exports = tryCatch;
 
 function tryCatch(func, value) {
   var out = {};
@@ -15462,141 +15368,37 @@ function tryCatch(func, value) {
   }
   return out;
 }
-
-exports.resolve = resolve;
-function resolve(value) {
-  if (value instanceof this) {
-    return value;
-  }
-  return handlers.resolve(new this(INTERNAL), value);
-}
-
-exports.reject = reject;
-function reject(reason) {
-  var promise = new this(INTERNAL);
-  return handlers.reject(promise, reason);
-}
-
-exports.all = all;
-function all(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var values = new Array(len);
-  var resolved = 0;
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    allResolver(iterable[i], i);
-  }
-  return promise;
-  function allResolver(value, i) {
-    self.resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
-      values[i] = outValue;
-      if (++resolved === len && !called) {
-        called = true;
-        handlers.resolve(promise, values);
-      }
-    }
-  }
-}
-
-exports.race = race;
-function race(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    resolver(iterable[i]);
-  }
-  return promise;
-  function resolver(value) {
-    self.resolve(value).then(function (response) {
-      if (!called) {
-        called = true;
-        handlers.resolve(promise, response);
-      }
-    }, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-  }
-}
-
-},{"116":116}],116:[function(_dereq_,module,exports){
-(function (global){
+},{}],107:[function(_dereq_,module,exports){
 'use strict';
-var Mutation = global.MutationObserver || global.WebKitMutationObserver;
 
-var scheduleDrain;
+var immediate = _dereq_(108);
+var handlers = _dereq_(97);
+module.exports = unwrap;
 
-{
-  if (Mutation) {
-    var called = 0;
-    var observer = new Mutation(nextTick);
-    var element = global.document.createTextNode('');
-    observer.observe(element, {
-      characterData: true
-    });
-    scheduleDrain = function () {
-      element.data = (called = ++called % 2);
-    };
-  } else if (!global.setImmediate && typeof global.MessageChannel !== 'undefined') {
-    var channel = new global.MessageChannel();
-    channel.port1.onmessage = nextTick;
-    scheduleDrain = function () {
-      channel.port2.postMessage(0);
-    };
-  } else if ('document' in global && 'onreadystatechange' in global.document.createElement('script')) {
-    scheduleDrain = function () {
-
-      // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-      // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-      var scriptEl = global.document.createElement('script');
-      scriptEl.onreadystatechange = function () {
-        nextTick();
-
-        scriptEl.onreadystatechange = null;
-        scriptEl.parentNode.removeChild(scriptEl);
-        scriptEl = null;
-      };
-      global.document.documentElement.appendChild(scriptEl);
-    };
-  } else {
-    scheduleDrain = function () {
-      setTimeout(nextTick, 0);
-    };
-  }
+function unwrap(promise, func, value) {
+  immediate(function () {
+    var returnValue;
+    try {
+      returnValue = func(value);
+    } catch (e) {
+      return handlers.reject(promise, e);
+    }
+    if (returnValue === promise) {
+      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
+    } else {
+      handlers.resolve(promise, returnValue);
+    }
+  });
 }
-
+},{"108":108,"97":97}],108:[function(_dereq_,module,exports){
+'use strict';
+var types = [
+  _dereq_(29),
+  _dereq_(110),
+  _dereq_(109),
+  _dereq_(111),
+  _dereq_(112)
+];
 var draining;
 var queue = [];
 //named nextTick for less confusing stack traces
@@ -15615,26 +15417,116 @@ function nextTick() {
   }
   draining = false;
 }
-
+var scheduleDrain;
+var i = -1;
+var len = types.length;
+while (++ i < len) {
+  if (types[i] && types[i].test && types[i].test()) {
+    scheduleDrain = types[i].install(nextTick);
+    break;
+  }
+}
 module.exports = immediate;
 function immediate(task) {
   if (queue.push(task) === 1 && !draining) {
     scheduleDrain();
   }
 }
+},{"109":109,"110":110,"111":111,"112":112,"29":29}],109:[function(_dereq_,module,exports){
+(function (global){
+'use strict';
 
+exports.test = function () {
+  if (global.setImmediate) {
+    // we can only get here in IE10
+    // which doesn't handel postMessage well
+    return false;
+  }
+  return typeof global.MessageChannel !== 'undefined';
+};
+
+exports.install = function (func) {
+  var channel = new global.MessageChannel();
+  channel.port1.onmessage = func;
+  return function () {
+    channel.port2.postMessage(0);
+  };
+};
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],117:[function(_dereq_,module,exports){
+},{}],110:[function(_dereq_,module,exports){
+(function (global){
+'use strict';
+//based off rsvp https://github.com/tildeio/rsvp.js
+//license https://github.com/tildeio/rsvp.js/blob/master/LICENSE
+//https://github.com/tildeio/rsvp.js/blob/master/lib/rsvp/asap.js
+
+var Mutation = global.MutationObserver || global.WebKitMutationObserver;
+
+exports.test = function () {
+  return Mutation;
+};
+
+exports.install = function (handle) {
+  var called = 0;
+  var observer = new Mutation(handle);
+  var element = global.document.createTextNode('');
+  observer.observe(element, {
+    characterData: true
+  });
+  return function () {
+    element.data = (called = ++called % 2);
+  };
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],111:[function(_dereq_,module,exports){
+(function (global){
+'use strict';
+
+exports.test = function () {
+  return 'document' in global && 'onreadystatechange' in global.document.createElement('script');
+};
+
+exports.install = function (handle) {
+  return function () {
+
+    // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+    // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+    var scriptEl = global.document.createElement('script');
+    scriptEl.onreadystatechange = function () {
+      handle();
+
+      scriptEl.onreadystatechange = null;
+      scriptEl.parentNode.removeChild(scriptEl);
+      scriptEl = null;
+    };
+    global.document.documentElement.appendChild(scriptEl);
+
+    return handle;
+  };
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],112:[function(_dereq_,module,exports){
+'use strict';
+exports.test = function () {
+  return true;
+};
+
+exports.install = function (t) {
+  return function () {
+    setTimeout(t, 0);
+  };
+};
+},{}],113:[function(_dereq_,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
-var inherits = _dereq_(76);
-var AbstractLevelDOWN = _dereq_(122).AbstractLevelDOWN;
-var AbstractIterator = _dereq_(122).AbstractIterator;
+var inherits = _dereq_(56);
+var AbstractLevelDOWN = _dereq_(118).AbstractLevelDOWN;
+var AbstractIterator = _dereq_(118).AbstractIterator;
 
-var LocalStorage = _dereq_(119).LocalStorage;
-var LocalStorageCore = _dereq_(118);
-var utils = _dereq_(127);
+var LocalStorage = _dereq_(115).LocalStorage;
+var LocalStorageCore = _dereq_(114);
+var utils = _dereq_(123);
 
 // see http://stackoverflow.com/a/15349865/680742
 var nextTick = global.setImmediate || process.nextTick;
@@ -15926,8 +15818,8 @@ function checkKeyValue(obj, type) {
 
 module.exports = LD;
 
-}).call(this,_dereq_(56),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_(50).Buffer)
-},{"118":118,"119":119,"122":122,"127":127,"50":50,"56":56,"76":76}],118:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_(30).Buffer)
+},{"114":114,"115":115,"118":118,"123":123,"30":30,"36":36,"56":56}],114:[function(_dereq_,module,exports){
 (function (process,global){
 'use strict';
 
@@ -16014,8 +15906,8 @@ LocalStorageCore.destroy = function (dbname, callback) {
 };
 
 module.exports = LocalStorageCore;
-}).call(this,_dereq_(56),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"56":56}],119:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"36":36}],115:[function(_dereq_,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -16030,10 +15922,10 @@ var uintRegex = new RegExp('^' + uintPrefix);
 var bufferPrefix = 'Buff:';
 var bufferRegex = new RegExp('^' + bufferPrefix);
 
-var utils = _dereq_(127);
-var LocalStorageCore = _dereq_(118);
-var TaskQueue = _dereq_(126);
-var d64 = _dereq_(124);
+var utils = _dereq_(123);
+var LocalStorageCore = _dereq_(114);
+var TaskQueue = _dereq_(122);
+var d64 = _dereq_(120);
 
 function LocalStorage(dbname) {
   this._store = new LocalStorageCore(dbname);
@@ -16144,18 +16036,18 @@ LocalStorage.prototype.length = function (callback) {
 
 exports.LocalStorage = LocalStorage;
 
-}).call(this,_dereq_(50).Buffer)
-},{"118":118,"124":124,"126":126,"127":127,"50":50}],120:[function(_dereq_,module,exports){
-arguments[4][98][0].apply(exports,arguments)
-},{"56":56,"98":98}],121:[function(_dereq_,module,exports){
-arguments[4][99][0].apply(exports,arguments)
-},{"56":56,"99":99}],122:[function(_dereq_,module,exports){
+}).call(this,_dereq_(30).Buffer)
+},{"114":114,"120":120,"122":122,"123":123,"30":30}],116:[function(_dereq_,module,exports){
+arguments[4][78][0].apply(exports,arguments)
+},{"36":36,"78":78}],117:[function(_dereq_,module,exports){
+arguments[4][79][0].apply(exports,arguments)
+},{"36":36,"79":79}],118:[function(_dereq_,module,exports){
 (function (process,Buffer){
 /* Copyright (c) 2013 Rod Vagg, MIT License */
 
-var xtend                = _dereq_(123)
-  , AbstractIterator     = _dereq_(121)
-  , AbstractChainedBatch = _dereq_(120)
+var xtend                = _dereq_(119)
+  , AbstractIterator     = _dereq_(117)
+  , AbstractChainedBatch = _dereq_(116)
 
 function AbstractLevelDOWN (location) {
   if (!arguments.length || location === undefined)
@@ -16410,11 +16302,11 @@ module.exports.AbstractLevelDOWN    = AbstractLevelDOWN
 module.exports.AbstractIterator     = AbstractIterator
 module.exports.AbstractChainedBatch = AbstractChainedBatch
 
-}).call(this,_dereq_(56),_dereq_(50).Buffer)
-},{"120":120,"121":121,"123":123,"50":50,"56":56}],123:[function(_dereq_,module,exports){
-arguments[4][113][0].apply(exports,arguments)
-},{"113":113}],124:[function(_dereq_,module,exports){
-var Buffer = _dereq_(50).Buffer
+}).call(this,_dereq_(36),_dereq_(30).Buffer)
+},{"116":116,"117":117,"119":119,"30":30,"36":36}],119:[function(_dereq_,module,exports){
+arguments[4][93][0].apply(exports,arguments)
+},{"93":93}],120:[function(_dereq_,module,exports){
+var Buffer = _dereq_(30).Buffer
 
 var CHARS = '.PYFGCRLAOEUIDHTNSQJKXBMWVZ_pyfgcrlaoeuidhtnsqjkxbmwvz1234567890'
   .split('').sort().join('')
@@ -16490,7 +16382,7 @@ module.exports = function (chars, exports) {
 module.exports(CHARS, module.exports)
 
 
-},{"50":50}],125:[function(_dereq_,module,exports){
+},{"30":30}],121:[function(_dereq_,module,exports){
 'use strict';
 
 // Simple FIFO queue implementation to avoid having to do shift()
@@ -16540,12 +16432,12 @@ Queue.prototype.slice = function (start, end) {
 
 module.exports = Queue;
 
-},{}],126:[function(_dereq_,module,exports){
+},{}],122:[function(_dereq_,module,exports){
 (function (process,global){
 'use strict';
 
-var argsarray = _dereq_(48);
-var Queue = _dereq_(125);
+var argsarray = _dereq_(28);
+var Queue = _dereq_(121);
 
 // see http://stackoverflow.com/a/15349865/680742
 var nextTick = global.setImmediate || process.nextTick;
@@ -16579,8 +16471,8 @@ TaskQueue.prototype.processNext = function () {
 
 module.exports = TaskQueue;
 
-}).call(this,_dereq_(56),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"125":125,"48":48,"56":56}],127:[function(_dereq_,module,exports){
+}).call(this,_dereq_(36),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"121":121,"28":28,"36":36}],123:[function(_dereq_,module,exports){
 'use strict';
 // taken from rvagg/memdown commit 2078b40
 exports.sortedIndexOf = function(arr, item) {
@@ -16598,7 +16490,7 @@ exports.sortedIndexOf = function(arr, item) {
   return low;
 };
 
-},{}],128:[function(_dereq_,module,exports){
+},{}],124:[function(_dereq_,module,exports){
 'use strict';
 exports.Map = LazyMap; // TODO: use ES6 map
 exports.Set = LazySet; // TODO: use ES6 set
@@ -16619,8 +16511,9 @@ LazyMap.prototype.get = function (key) {
   var mangled = this.mangle(key);
   if (mangled in this.store) {
     return this.store[mangled];
+  } else {
+    return void 0;
   }
-  return void 0;
 };
 LazyMap.prototype.set = function (key, value) {
   var mangled = this.mangle(key);
@@ -16640,13 +16533,13 @@ LazyMap.prototype["delete"] = function (key) {
   return false;
 };
 LazyMap.prototype.forEach = function (cb) {
-  var keys = Object.keys(this.store);
-  for (var i = 0, len = keys.length; i < len; i++) {
-    var key = keys[i];
-    var value = this.store[key];
-    key = this.unmangle(key);
+  var self = this;
+  var keys = Object.keys(self.store);
+  keys.forEach(function (key) {
+    var value = self.store[key];
+    key = self.unmangle(key);
     cb(value, key);
-  }
+  });
 };
 
 function LazySet(array) {
@@ -16669,7 +16562,188 @@ LazySet.prototype["delete"] = function (key) {
   return this.store["delete"](key);
 };
 
-},{}],129:[function(_dereq_,module,exports){
+},{}],125:[function(_dereq_,module,exports){
+"use strict";
+
+// Extends method
+// (taken from http://code.jquery.com/jquery-1.9.0.js)
+// Populate the class2type map
+var class2type = {};
+
+var types = [
+  "Boolean", "Number", "String", "Function", "Array",
+  "Date", "RegExp", "Object", "Error"
+];
+for (var i = 0; i < types.length; i++) {
+  var typename = types[i];
+  class2type["[object " + typename + "]"] = typename.toLowerCase();
+}
+
+var core_toString = class2type.toString;
+var core_hasOwn = class2type.hasOwnProperty;
+
+function type(obj) {
+  if (obj === null) {
+    return String(obj);
+  }
+  return typeof obj === "object" || typeof obj === "function" ?
+    class2type[core_toString.call(obj)] || "object" :
+    typeof obj;
+}
+
+function isWindow(obj) {
+  return obj !== null && obj === obj.window;
+}
+
+function isPlainObject(obj) {
+  // Must be an Object.
+  // Because of IE, we also have to check the presence of
+  // the constructor property.
+  // Make sure that DOM nodes and window objects don't pass through, as well
+  if (!obj || type(obj) !== "object" || obj.nodeType || isWindow(obj)) {
+    return false;
+  }
+
+  try {
+    // Not own constructor property must be Object
+    if (obj.constructor &&
+      !core_hasOwn.call(obj, "constructor") &&
+      !core_hasOwn.call(obj.constructor.prototype, "isPrototypeOf")) {
+      return false;
+    }
+  } catch ( e ) {
+    // IE8,9 Will throw exceptions on certain host objects #9897
+    return false;
+  }
+
+  // Own properties are enumerated firstly, so to speed up,
+  // if last one is own, then all properties are own.
+  var key;
+  for (key in obj) {}
+
+  return key === undefined || core_hasOwn.call(obj, key);
+}
+
+
+function isFunction(obj) {
+  return type(obj) === "function";
+}
+
+var isArray = Array.isArray || function (obj) {
+  return type(obj) === "array";
+};
+
+function extend() {
+  // originally extend() was recursive, but this ended up giving us
+  // "call stack exceeded", so it's been unrolled to use a literal stack
+  // (see https://github.com/pouchdb/pouchdb/issues/2543)
+  var stack = [];
+  var i = -1;
+  var len = arguments.length;
+  var args = new Array(len);
+  while (++i < len) {
+    args[i] = arguments[i];
+  }
+  var container = {};
+  stack.push({args: args, result: {container: container, key: 'key'}});
+  var next;
+  while ((next = stack.pop())) {
+    extendInner(stack, next.args, next.result);
+  }
+  return container.key;
+}
+
+function extendInner(stack, args, result) {
+  var options, name, src, copy, copyIsArray, clone,
+    target = args[0] || {},
+    i = 1,
+    length = args.length,
+    deep = false,
+    numericStringRegex = /\d+/,
+    optionsIsArray;
+
+  // Handle a deep copy situation
+  if (typeof target === "boolean") {
+    deep = target;
+    target = args[1] || {};
+    // skip the boolean and the target
+    i = 2;
+  }
+
+  // Handle case when target is a string or something (possible in deep copy)
+  if (typeof target !== "object" && !isFunction(target)) {
+    target = {};
+  }
+
+  // extend jQuery itself if only one argument is passed
+  if (length === i) {
+    /* jshint validthis: true */
+    target = this;
+    --i;
+  }
+
+  for (; i < length; i++) {
+    // Only deal with non-null/undefined values
+    if ((options = args[i]) != null) {
+      optionsIsArray = isArray(options);
+      // Extend the base object
+      for (name in options) {
+        //if (options.hasOwnProperty(name)) {
+        if (!(name in Object.prototype)) {
+          if (optionsIsArray && !numericStringRegex.test(name)) {
+            continue;
+          }
+
+          src = target[name];
+          copy = options[name];
+
+          // Prevent never-ending loop
+          if (target === copy) {
+            continue;
+          }
+
+          // Recurse if we're merging plain objects or arrays
+          if (deep && copy && (isPlainObject(copy) ||
+              (copyIsArray = isArray(copy)))) {
+            if (copyIsArray) {
+              copyIsArray = false;
+              clone = src && isArray(src) ? src : [];
+
+            } else {
+              clone = src && isPlainObject(src) ? src : {};
+            }
+
+            // Never move original objects, clone them
+            stack.push({
+              args: [deep, clone, copy],
+              result: {
+                container: target,
+                key: name
+              }
+            });
+
+          // Don't bring in undefined values
+          } else if (copy !== undefined) {
+            if (!(isArray(options) && isFunction(copy))) {
+              target[name] = copy;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // "Return" the modified object by setting the key
+  // on the given container
+  result.container[result.key] = target;
+}
+
+
+module.exports = extend;
+
+
+
+},{}],126:[function(_dereq_,module,exports){
 /*jshint bitwise:false*/
 /*global unescape*/
 
@@ -17270,27 +17344,27 @@ LazySet.prototype["delete"] = function (key) {
     return SparkMD5;
 }));
 
-},{}],130:[function(_dereq_,module,exports){
-arguments[4][58][0].apply(exports,arguments)
-},{"131":131,"133":133,"134":134,"56":56,"58":58,"76":76}],131:[function(_dereq_,module,exports){
-arguments[4][106][0].apply(exports,arguments)
-},{"106":106,"134":134,"135":135,"136":136,"50":50,"54":54,"56":56,"68":68,"76":76}],132:[function(_dereq_,module,exports){
-arguments[4][107][0].apply(exports,arguments)
-},{"107":107,"130":130,"134":134,"76":76}],133:[function(_dereq_,module,exports){
-arguments[4][108][0].apply(exports,arguments)
-},{"108":108,"130":130,"134":134,"50":50,"56":56,"68":68,"76":76}],134:[function(_dereq_,module,exports){
+},{}],127:[function(_dereq_,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"128":128,"130":130,"131":131,"36":36,"38":38,"56":56}],128:[function(_dereq_,module,exports){
+arguments[4][86][0].apply(exports,arguments)
+},{"131":131,"132":132,"133":133,"30":30,"34":34,"36":36,"48":48,"56":56,"86":86}],129:[function(_dereq_,module,exports){
+arguments[4][87][0].apply(exports,arguments)
+},{"127":127,"131":131,"56":56,"87":87}],130:[function(_dereq_,module,exports){
+arguments[4][88][0].apply(exports,arguments)
+},{"127":127,"131":131,"30":30,"36":36,"48":48,"56":56,"88":88}],131:[function(_dereq_,module,exports){
+arguments[4][43][0].apply(exports,arguments)
+},{"30":30,"43":43}],132:[function(_dereq_,module,exports){
+arguments[4][35][0].apply(exports,arguments)
+},{"35":35}],133:[function(_dereq_,module,exports){
+arguments[4][49][0].apply(exports,arguments)
+},{"30":30,"49":49}],134:[function(_dereq_,module,exports){
+arguments[4][46][0].apply(exports,arguments)
+},{"129":129,"46":46}],135:[function(_dereq_,module,exports){
 arguments[4][63][0].apply(exports,arguments)
-},{"50":50,"63":63}],135:[function(_dereq_,module,exports){
-arguments[4][55][0].apply(exports,arguments)
-},{"55":55}],136:[function(_dereq_,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"50":50,"69":69}],137:[function(_dereq_,module,exports){
-arguments[4][66][0].apply(exports,arguments)
-},{"132":132,"66":66}],138:[function(_dereq_,module,exports){
-arguments[4][83][0].apply(exports,arguments)
-},{"83":83}],139:[function(_dereq_,module,exports){
-arguments[4][84][0].apply(exports,arguments)
-},{"138":138,"141":141,"84":84}],140:[function(_dereq_,module,exports){
+},{"63":63}],136:[function(_dereq_,module,exports){
+arguments[4][64][0].apply(exports,arguments)
+},{"135":135,"138":138,"64":64}],137:[function(_dereq_,module,exports){
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
 
@@ -17332,9 +17406,9 @@ module.exports = function forEach(obj, fn) {
 };
 
 
-},{}],141:[function(_dereq_,module,exports){
-arguments[4][85][0].apply(exports,arguments)
-},{"143":143,"85":85}],142:[function(_dereq_,module,exports){
+},{}],138:[function(_dereq_,module,exports){
+arguments[4][65][0].apply(exports,arguments)
+},{"140":140,"65":65}],139:[function(_dereq_,module,exports){
 var toString = Object.prototype.toString;
 
 module.exports = function isArguments(value) {
@@ -17352,15 +17426,15 @@ module.exports = function isArguments(value) {
 };
 
 
-},{}],143:[function(_dereq_,module,exports){
+},{}],140:[function(_dereq_,module,exports){
 (function () {
 	"use strict";
 
 	// modified from https://github.com/kriskowal/es5-shim
 	var has = Object.prototype.hasOwnProperty,
 		toString = Object.prototype.toString,
-		forEach = _dereq_(140),
-		isArgs = _dereq_(142),
+		forEach = _dereq_(137),
+		isArgs = _dereq_(139),
 		hasDontEnumBug = !({'toString': null}).propertyIsEnumerable('toString'),
 		hasProtoEnumBug = (function () {}).propertyIsEnumerable('prototype'),
 		dontEnums = [
@@ -17416,10 +17490,10 @@ module.exports = function isArguments(value) {
 }());
 
 
-},{"140":140,"142":142}],144:[function(_dereq_,module,exports){
-var Transform = _dereq_(137)
-  , inherits  = _dereq_(71).inherits
-  , xtend     = _dereq_(139)
+},{"137":137,"139":139}],141:[function(_dereq_,module,exports){
+var Transform = _dereq_(134)
+  , inherits  = _dereq_(51).inherits
+  , xtend     = _dereq_(136)
 
 
 // a noop _transform function
@@ -17496,7 +17570,7 @@ module.exports.obj = through2(function (options, transform, flush) {
   return t2
 })
 
-},{"137":137,"139":139,"71":71}],145:[function(_dereq_,module,exports){
+},{"134":134,"136":136,"51":51}],142:[function(_dereq_,module,exports){
 'use strict';
 
 /**
@@ -17672,3 +17746,4 @@ exports.parse = function (str) {
 };
 
 },{}]},{},[1]);
+

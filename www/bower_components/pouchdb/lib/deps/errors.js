@@ -219,10 +219,17 @@ exports.generateErrorFromResponse = function (res) {
     errMsg = errReason;
   } else if (errName === 'bad_request' && errType.message !== errReason) {
     // if bad_request error already found based on reason don't override.
-    errType = errors.BAD_REQUEST;
+
+    // attachment errors.
+    if (errReason.indexOf('unknown stub attachment') === 0) {
+      errType = errors.MISSING_STUB;
+      errMsg = errReason;
+    } else {
+      errType = errors.BAD_REQUEST;
+    }
   }
 
-  // fallback to error by status or unknown error.
+  // fallback to error by statys or unknown error.
   if (!errType) {
     errType = errors.getErrorTypeByProp('status', res.status, errReason) ||
                 errors.UNKNOWN_ERROR;
@@ -241,6 +248,9 @@ exports.generateErrorFromResponse = function (res) {
   }
   if (res.status) {
     error.status = res.status;
+  }
+  if (res.statusText) {
+    error.name = res.statusText;
   }
   if (res.missing) {
     error.missing = res.missing;
