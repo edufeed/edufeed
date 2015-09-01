@@ -9,6 +9,15 @@ RegisterActivity {
     this.fire 'close-taskfinished', this
   ready: ->
     self = this
+    skipsharescreen <- getBoolParam('skipsharescreen')
+    if skipsharescreen
+      self.style.opacity = 0.0
+      setTimeout ->
+        self.fire 'close-taskfinished', this
+      , 0
+      return
+    else
+      self.style.opacity = 1.0
     setTimeout ->
       #play_success_sound ->
       self.$$('#sharemessage').playSentence()

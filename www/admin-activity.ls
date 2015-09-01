@@ -14,8 +14,10 @@ RegisterActivity {
     self.S('#datainput').val jsyaml.safeDump({word: 'cat'}).trim()
     self.S('#socialinput').val jsyaml.safeDump({poster: username}).trim()
     self.S('#targetinput').val username.trim()
+    skipsharescreen <- getBoolParam('skipsharescreen')
     hidesharebutton <- getBoolParam('hidesharebutton')
     hidehelpbutton <- getBoolParam('hidehelpbutton')
+    self.S('#skipsharescreen').prop('checked', skipsharescreen)
     self.S('#hidesharebutton').prop('checked', hidesharebutton)
     self.S('#hidehelpbutton').prop('checked', hidehelpbutton)
     all_users <- getAllUsers()
@@ -82,6 +84,11 @@ RegisterActivity {
     console.log 'hideAdminActivity'
     this.fire 'hide-admin-activity', this
     this.fire 'task-left', this
+  skipsharescreen_changed: (evt) ->
+    checked = false
+    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
+      checked = true
+    setParam 'skipsharescreen', checked
   hidesharebutton_changed: (evt) ->
     checked = false
     if evt? and evt.target? and evt.target.checked? and evt.target.checked == true

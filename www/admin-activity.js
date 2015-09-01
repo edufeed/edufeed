@@ -21,27 +21,30 @@
               poster: username
             }).trim());
             self.S('#targetinput').val(username.trim());
-            return getBoolParam('hidesharebutton', function(hidesharebutton){
-              return getBoolParam('hidehelpbutton', function(hidehelpbutton){
-                self.S('#hidesharebutton').prop('checked', hidesharebutton);
-                self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
-                return getAllUsers(function(all_users){
-                  var fastlogin_buttons, i$, len$, results$ = [];
-                  fastlogin_buttons = $(self).find('#fastlogin_buttons');
-                  for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
-                    results$.push((fn$.call(this, all_users[i$])));
-                  }
-                  return results$;
-                  function fn$(current_user){
-                    var new_fastlogin_button;
-                    new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
-                      self.S('#usernameinput').val(current_user);
-                      self.S('#passwordinput').val(current_user);
-                      return self.setUsername();
-                    });
-                    new_fastlogin_button.appendTo(fastlogin_buttons);
-                    return fastlogin_buttons.append(' ');
-                  }
+            return getBoolParam('skipsharescreen', function(skipsharescreen){
+              return getBoolParam('hidesharebutton', function(hidesharebutton){
+                return getBoolParam('hidehelpbutton', function(hidehelpbutton){
+                  self.S('#skipsharescreen').prop('checked', skipsharescreen);
+                  self.S('#hidesharebutton').prop('checked', hidesharebutton);
+                  self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
+                  return getAllUsers(function(all_users){
+                    var fastlogin_buttons, i$, len$, results$ = [];
+                    fastlogin_buttons = $(self).find('#fastlogin_buttons');
+                    for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                      results$.push((fn$.call(this, all_users[i$])));
+                    }
+                    return results$;
+                    function fn$(current_user){
+                      var new_fastlogin_button;
+                      new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                        self.S('#usernameinput').val(current_user);
+                        self.S('#passwordinput').val(current_user);
+                        return self.setUsername();
+                      });
+                      new_fastlogin_button.appendTo(fastlogin_buttons);
+                      return fastlogin_buttons.append(' ');
+                    }
+                  });
                 });
               });
             });
@@ -140,6 +143,14 @@
       console.log('hideAdminActivity');
       this.fire('hide-admin-activity', this);
       return this.fire('task-left', this);
+    },
+    skipsharescreen_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      return setParam('skipsharescreen', checked);
     },
     hidesharebutton_changed: function(evt){
       var checked;
