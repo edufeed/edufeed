@@ -57,7 +57,6 @@
         var dragremovecoin10;
         var dragremovecoin100;
 
-        DefinePatterns();
         DefineCoinDragEvents();
         SetDefaultPosition();
         RotateBeam();
@@ -65,4 +64,4 @@
         todoVal = params.number;
 
 
-        //AnimateToOne();
+        //AnimateOnes();

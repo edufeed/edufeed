@@ -94,12 +94,12 @@ function DefineCoinDragEvents() {
     dragcoin1 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag1x = d3.event.x;
-            mousedrag1y = d3.event.y;
+            mousedrag1x = d3.event.x * scale;
+            mousedrag1y = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -125,12 +125,12 @@ function DefineCoinDragEvents() {
     dragremovecoin1 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove1x = d3.event.x;
-            mousedragremove1y = d3.event.y;
+            mousedragremove1x = d3.event.x * scale;
+            mousedragremove1y = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -153,12 +153,12 @@ function DefineCoinDragEvents() {
     dragcoin10 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag10x = d3.event.x;
-            mousedrag10y = d3.event.y;
+            mousedrag10x = d3.event.x * scale;
+            mousedrag10y = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -184,12 +184,12 @@ function DefineCoinDragEvents() {
     dragremovecoin10 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove10x = d3.event.x;
-            mousedragremove10y = d3.event.y;
+            mousedragremove10x = d3.event.x * scale;
+            mousedragremove10y = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -212,8 +212,8 @@ function DefineCoinDragEvents() {
     dragcoin100 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag100x = d3.event.x;
-            mousedrag100y = d3.event.y;
+            mousedrag100x = d3.event.x * scale;
+            mousedrag100y = d3.event.y * scale;
 
             d3.select(this)
                 .attr("x", Math.max(0, Math.min(width - 20, mousedrag100x)))
@@ -243,12 +243,12 @@ function DefineCoinDragEvents() {
     dragremovecoin100 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove100x = d3.event.x;
-            mousedragremove100y = d3.event.y;
+            mousedragremove100x = d3.event.x * scale;
+            mousedragremove100y = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -357,7 +357,10 @@ function RotateBeam()
     var correct = document.getElementById("correct");
     if (diff == 0) {
         correct.attributes["visibility"].value = "visible";
-        document.getElementById("tada").play();
+        //document.getElementById("tada").play();
+        play_sound('audio/tada.mp3', function() {
+            finishActivity();
+        });
     }
     else
         correct.attributes["visibility"].value = "hidden";
@@ -426,7 +429,10 @@ function AddToTen(animate) {
 
 function AddToHundred(animate) {
     if (hundred >= 9) {
-        document.getElementById("boink").play();
+        //document.getElementById("boink").play();
+        play_sound('audio/boink.mp3', function() {
+            finishActivity();
+        });
     }
     else {
         hundred++;
