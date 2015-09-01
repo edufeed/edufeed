@@ -48,6 +48,9 @@ RegisterActivity {
   keyTyped: (evt, key) ->
     keyboard = this.$$('#keyboard')
     letter = key.keytext
+    letter_sound = key.sound
+    if not letter_sound? or letter_sound.length == 0
+      letter_sound = letter
     next_letter = this.nextLetter()
     if letter != next_letter
       #keyboard.shownkeys = next_letter
@@ -56,7 +59,7 @@ RegisterActivity {
       play_multiple_sounds [
         {sound: 'wrong'}
         'you typed the letter'
-        {letter: letter}
+        {letter: letter_sound}
         'instead type the letter'
         {letter: next_letter}
       ], ~>
@@ -70,13 +73,13 @@ RegisterActivity {
           this.difficulty += 1
           this.shownKeysChanged()
           this.disableKeyboard()
-          play_multiple_sounds ([{letter}, {sound: 'success'}] ++ this.get_instruction_playlist()), ~>
+          play_multiple_sounds ([{letter: letter_sound}, {sound: 'success'}] ++ this.get_instruction_playlist()), ~>
             this.enableKeyboard()
         else
           #window.location = 'https://www.google.com/search?site=&tbm=isch&q=' + this.word
           this.disableKeyboard()
           play_multiple_sounds [
-            {letter: letter}
+            {letter: letter_sound}
             {sound: 'success'}
             'you typed the word'
             this.word
@@ -85,7 +88,7 @@ RegisterActivity {
             this.fire 'task-finished', this
         this.partialword = ''
       else
-        play_letter_sound letter
+        play_letter_sound letter_sound
         this.partialword = this.partialword + letter
   nextLetter: ->
     if this.word == this.partialword or not this.word? or not this.partialword?
