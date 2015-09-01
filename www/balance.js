@@ -331,7 +331,10 @@ function RotateBeam()
     var curVal = hundred * 100 + ten * 10 + one;
 
     var diff = Math.abs(curVal - todoVal);
-    var percentDiff = diff / todoVal;
+    var percentDiff = 0;
+    if (todoVal > 0) {
+        percentDiff = diff / todoVal;
+    }
 
     //var h = Math.floor(diff / 100);
     //var t = Math.floor((diff % 100) / 10);
