@@ -431,7 +431,7 @@ function AddToHundred(animate) {
     if (hundred >= 9) {
         //document.getElementById("boink").play();
         play_sound('audio/boink.mp3', function() {
-            finishActivity();
+            //finishActivity();
         });
     }
     else {
