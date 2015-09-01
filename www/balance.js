@@ -1,54 +1,25 @@
-﻿function DefinePatterns() {
-
-    coin1pattern = defs.append("pattern")
-		.attr("id", "coin1pattern")
-		.attr("height", iconH)
-		.attr("width", iconW);
-    coin1pattern.append("image")
-		.attr("height", iconH)
-		.attr("width", iconW)
-		.attr("xlink:href", "../icons/coin1pattern.png");
-    coin10pattern = defs.append("pattern")
-		.attr("id", "coin10pattern")
-		.attr("height", iconH)
-		.attr("width", iconW);
-    coin10pattern.append("image")
-        .attr("height", iconH)
-        .attr("width", iconW)
-        .attr("xlink:href", "../icons/coin10pattern.png");
-    coin100pattern = defs.append("pattern")
-		.attr("id", "coin100pattern")
-		.attr("height", iconH)
-		.attr("width", iconW);
-    coin100pattern.append("image")
-        .attr("height", iconH)
-        .attr("width", iconW)
-        .attr("xlink:href", "../icons/coin100pattern.png");
-}
-
-function SetDefaultPosition() {
-
+﻿function SetDefaultPosition() {
     // coin icons
     pane_g.append("rect")
-                .attr("x", iconX + 2 * 25)
-                .attr("y", iconY)
+                .attr("x", iconX + 120)
+                .attr("y", iconY + 10)
                 .attr("width", iconW)
                 .attr("height", iconH)
-                .attr("class", "coin1")
+                .attr("class", "coin1icon")
                 .call(dragcoin1);
     pane_g.append("rect")
-                .attr("x", iconX + 25)
-                .attr("y", iconY)
-                .attr("width", iconW)
-                .attr("height", iconH)
-                .attr("class", "coin10")
+                .attr("x", iconX + 60)
+                .attr("y", iconY + 5)
+                .attr("width", iconW + 10)
+                .attr("height", iconH + 10)
+                .attr("class", "coin10icon")
                 .call(dragcoin10);
     pane_g.append("rect")
                 .attr("x", iconX)
                 .attr("y", iconY)
-                .attr("width", iconW)
-                .attr("height", iconH)
-                .attr("class", "coin100")
+                .attr("width", iconW + 20)
+                .attr("height", iconH + 20)
+                .attr("class", "coin100icon")
                 .call(dragcoin100);
 
     // line
@@ -123,18 +94,18 @@ function DefineCoinDragEvents() {
     dragcoin1 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag1x = d3.event.x * scale;
-            mousedrag1y = d3.event.y * scale;
+            mousedrag1x = d3.event.x;
+            mousedrag1y = d3.event.y;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
         })
         .on("dragend", function () {
 
             d3.select(this)
-                .attr("x", iconX + 2 * 25)
-                .attr("y", iconY);
+                .attr("x", iconX + 120)
+                .attr("y", iconY + 10);
 
             var newPoint = ComputeRotatedCoordinates(rotationX, rotationY, mousedrag1x, mousedrag1y, -1 * rotationDeg);
             var newMouseX = newPoint[0];
@@ -154,12 +125,12 @@ function DefineCoinDragEvents() {
     dragremovecoin1 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove1x = d3.event.x * scale;
-            mousedragremove1y = d3.event.y * scale;
+            mousedragremove1x = d3.event.x;
+            mousedragremove1y = d3.event.y;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
         })
         .on("dragend", function () {
 
@@ -182,18 +153,18 @@ function DefineCoinDragEvents() {
     dragcoin10 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag10x = d3.event.x * scale;
-            mousedrag10y = d3.event.y * scale;
+            mousedrag10x = d3.event.x;
+            mousedrag10y = d3.event.y;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
         })
         .on("dragend", function () {
 
             d3.select(this)
-                .attr("x", iconX + 25)
-                .attr("y", iconY);
+                .attr("x", iconX + 60)
+                .attr("y", iconY + 5);
 
             var newPoint = ComputeRotatedCoordinates(rotationX, rotationY, mousedrag10x, mousedrag10y, -1 * rotationDeg);
             var newMouseX = newPoint[0];
@@ -213,12 +184,12 @@ function DefineCoinDragEvents() {
     dragremovecoin10 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove10x = d3.event.x * scale;
-            mousedragremove10y = d3.event.y * scale;
+            mousedragremove10x = d3.event.x;
+            mousedragremove10y = d3.event.y;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
         })
         .on("dragend", function () {
 
@@ -241,8 +212,8 @@ function DefineCoinDragEvents() {
     dragcoin100 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag100x = d3.event.x * scale;
-            mousedrag100y = d3.event.y * scale;
+            mousedrag100x = d3.event.x;
+            mousedrag100y = d3.event.y;
 
             d3.select(this)
                 .attr("x", Math.max(0, Math.min(width - 20, mousedrag100x)))
@@ -272,12 +243,12 @@ function DefineCoinDragEvents() {
     dragremovecoin100 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragremove100x = d3.event.x * scale;
-            mousedragremove100y = d3.event.y * scale;
+            mousedragremove100x = d3.event.x;
+            mousedragremove100y = d3.event.y;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
         })
         .on("dragend", function () {
 
@@ -386,26 +357,21 @@ function RotateBeam()
     var correct = document.getElementById("correct");
     if (diff == 0) {
         correct.attributes["visibility"].value = "visible";
-        //document.getElementById("tada").play();
-        play_sound('audio/tada.mp3', function() {
-            finishActivity();
-        });
+        document.getElementById("tada").play();
     }
     else
         correct.attributes["visibility"].value = "hidden";
 }
 
 function AddToOne() {
-    one++;
-    if (one >= 10) {
+    if (one >= 9) {
         d3.selectAll("#c1").remove();
         one = 0;
-        AddToTen();
+        AddToTen(true);
     }
     else {
-        //document.getElementById("ones").textContent = one;
+        one++;
         var p = SnapCoinToPosition(bagX + 2 * (bagW + 10), bagY, one);
-        // add to bag
         balacebeam_g.append("rect")
             .attr("x", p[0])
             .attr("y", p[1])
@@ -419,52 +385,78 @@ function AddToOne() {
     }
 }
 
-function AddToTen() {
-    ten++;
-    if (ten >= 10) {
+function AddToTen(animate) {
+    if (ten >= 9) {
         d3.selectAll("#c10").remove();
         ten = 0;
-        AddToHundred();
+        AddToHundred(true);
     }
     else {
-        //document.getElementById("tens").textContent = ten;
-        var p = SnapCoinToPosition(bagX + bagW + 10, bagY, ten);
-        // add to bag
-        balacebeam_g.append("rect")
-            .attr("x", p[0])
-            .attr("y", p[1])
-            .attr("width", iconW)
-            .attr("height", iconH)
-            .attr("class", "coin10")
-            .attr("id", "c10")
-            .call(dragremovecoin10);
+        ten++;
+        if (typeof animate === "undefined" || animate == false) {
+            var p = SnapCoinToPosition(bagX + bagW + 10, bagY, ten);
+            balacebeam_g.append("rect")
+                .attr("x", p[0])
+                .attr("y", p[1])
+                .attr("width", iconW)
+                .attr("height", iconH)
+                .attr("class", "coin10")
+                .attr("id", "c10")
+                .call(dragremovecoin10);
+        } else {
+            // animate 10 going from 1's to 10's
+            var p0 = SnapCoinToPosition(bagX + 2 * (bagW + 10), bagY, 5);
+            var o = balacebeam_g.append("rect")
+                .attr("x", p0[0])
+                .attr("y", p0[1])
+                .attr("width", iconW)
+                .attr("height", iconH)
+                .attr("class", "coin10")
+                .attr("id", "c10");
 
+            var p = SnapCoinToPosition(bagX + bagW + 10, bagY, ten);
+            o.transition()
+                    .attr("x", p[0])
+                    .attr("y", p[1])
+                    .duration(2000);
+        }
         RotateBeam();
     }
 }
 
-function AddToHundred() {
+function AddToHundred(animate) {
     if (hundred >= 9) {
-        //document.getElementById("boink").play();
-        play_sound('audio/boink.mp3', function() {
-            finishActivity();
-        });
-        //ClearAll();
+        document.getElementById("boink").play();
     }
     else {
         hundred++;
-        var p = SnapCoinToPosition(bagX, bagY, hundred);
+        if (typeof animate === "undefined" || animate == false) {
+            var p = SnapCoinToPosition(bagX, bagY, hundred);
+            balacebeam_g.append("rect")
+                .attr("x", p[0])
+                .attr("y", p[1])
+                .attr("width", iconW)
+                .attr("height", iconH)
+                .attr("class", "coin100")
+                .attr("id", "c100")
+                .call(dragremovecoin100);
+        } else {
+            // animate 100 going from 10's to 100's
+            var p0 = SnapCoinToPosition(bagX + bagW + 10, bagY, 5);
+            var o = balacebeam_g.append("rect")
+                .attr("x", p0[0])
+                .attr("y", p0[1])
+                .attr("width", iconW)
+                .attr("height", iconH)
+                .attr("class", "coin100")
+                .attr("id", "c100");
 
-        // add to bag
-        balacebeam_g.append("rect")
-            .attr("x", p[0])
-            .attr("y", p[1])
-            .attr("width", iconW)
-            .attr("height", iconH)
-            .attr("class", "coin100")
-            .attr("id", "c100")
-            .call(dragremovecoin100);
-
+            var p = SnapCoinToPosition(bagX, bagY, hundred);
+            o.transition()
+                    .attr("x", p[0])
+                    .attr("y", p[1])
+                    .duration(2000);
+        }
         RotateBeam();
     }
 }
@@ -540,14 +532,19 @@ function ClearAll()
 }
 
 
-function AnimateToOne()
+function AnimateOnes()
 {
     one = 0;
-
-    one++;
-    var p = SnapCoinToPosition(bagX + 2 * (bagW + 10), bagY, one);
+    while (one < 9) {
+        one++;
+        setTimeout("foo("+one+");", 1000*one);
+    }
+}
+function foo(myone)
+{
+    var p = SnapCoinToPosition(bagX + 2 * (bagW + 10), bagY, myone);
     var o = balacebeam_g.append("rect")
-        .attr("x", iconX + 2 * 45)
+        .attr("x", iconX + 2 * 25)
         .attr("y", iconY)
         .attr("width", iconW)
         .attr("height", iconH)
@@ -557,6 +554,5 @@ function AnimateToOne()
     o.transition()
             .attr("x", p[0])
             .attr("y", p[1])
-            .duration(2000);
-
+            .duration(1000);
 }
