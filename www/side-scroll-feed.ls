@@ -28,16 +28,19 @@ Polymer {
     itemtype = this.current_item.itemtype
     this.openTutorial(itemtype)
   openTutorial: (itemtype) ->
+    stop_sound()
     this.SM('.mainscreen').hide()
     this.S('#tutorial').show()
     tutorial_dom = Polymer.dom(this.$$('#tutorial'))
     tutorial_dom.innerHTML = "<tutorial-display tutorial='#{itemtype}'></tutorial-display>"
   closeTutorial: ->
+    stop_sound()
     this.SM('.mainscreen').hide()
     tutorial_dom = Polymer.dom(this.$$('#tutorial'))
     tutorial_dom.innerHTML = ''
     this.S('#activityscreen').show()
   openTaskFinished: (item) ->
+    stop_sound()
     addlog {event: 'task-finished', item: item}
     this.itemFinished item
     #this.closeActivity()
@@ -48,11 +51,13 @@ Polymer {
     taskfinished_dom = Polymer.dom(this.$$('#taskfinished'))
     taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>"
   closeTaskFinished: ->
+    stop_sound()
     this.SM('.mainscreen').hide()
     tutorial_dom = Polymer.dom(this.$$('#taskfinished'))
     tutorial_dom.innerHTML = ''
     this.S('#thumbnails').show()
   closeActivity: ->
+    stop_sound()
     this.SM('.mainscreen').hide()
     this.S('#activity').html('')
     this.S('#thumbnails').show()

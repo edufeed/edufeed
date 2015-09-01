@@ -1,11 +1,15 @@
 (function(){
-  var current_play_id, get_new_play_id, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, synthesize_word_real, synthesize_multiple_words, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this;
+  var current_play_id, get_new_play_id, stop_sound, play_sound, play_sound_real, synthesize_word_uncached, synthesize_word_uncached_real, synthesize_word, synthesize_word_real, synthesize_multiple_words, synthesize_multiple_words_real, play_multiple_sounds, play_wrong_sound, play_wrong_sound_real, play_success_sound, play_success_sound_real, play_letter_sound, play_letter_sound_real, out$ = typeof exports != 'undefined' && exports || this;
   current_play_id = null;
   get_new_play_id = function(){
     var play_id;
     play_id = Math.floor(Math.random() * 9999999999);
     current_play_id = play_id;
     return play_id;
+  };
+  out$.stop_sound = stop_sound = function(){
+    get_new_play_id();
+    return $('#soundtags').html('');
   };
   out$.play_sound = play_sound = function(wordpath, callback){
     return play_sound_real(get_new_play_id(), wordpath, callback);

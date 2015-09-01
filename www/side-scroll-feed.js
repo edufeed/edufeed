@@ -42,6 +42,7 @@
     },
     openTutorial: function(itemtype){
       var tutorial_dom;
+      stop_sound();
       this.SM('.mainscreen').hide();
       this.S('#tutorial').show();
       tutorial_dom = Polymer.dom(this.$$('#tutorial'));
@@ -49,6 +50,7 @@
     },
     closeTutorial: function(){
       var tutorial_dom;
+      stop_sound();
       this.SM('.mainscreen').hide();
       tutorial_dom = Polymer.dom(this.$$('#tutorial'));
       tutorial_dom.innerHTML = '';
@@ -56,6 +58,7 @@
     },
     openTaskFinished: function(item){
       var taskfinished_dom;
+      stop_sound();
       addlog({
         event: 'task-finished',
         item: item
@@ -70,12 +73,14 @@
     },
     closeTaskFinished: function(){
       var tutorial_dom;
+      stop_sound();
       this.SM('.mainscreen').hide();
       tutorial_dom = Polymer.dom(this.$$('#taskfinished'));
       tutorial_dom.innerHTML = '';
       return this.S('#thumbnails').show();
     },
     closeActivity: function(){
+      stop_sound();
       this.SM('.mainscreen').hide();
       this.S('#activity').html('');
       this.S('#thumbnails').show();

@@ -5,6 +5,10 @@ get_new_play_id = ->
   current_play_id := play_id
   return play_id
 
+export stop_sound = ->
+  get_new_play_id()
+  $('#soundtags').html('')
+
 export play_sound = (wordpath, callback) ->
   play_sound_real(get_new_play_id(), wordpath, callback)
 
