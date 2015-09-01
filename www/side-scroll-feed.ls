@@ -140,7 +140,8 @@ Polymer {
     if not username?
       console.log 'no username'
       return
-    {itemtype, data, social} = self.S('#activity').children()[0].getalldata()
+    # {itemtype, data} = self.S('#activity').children()[0].getalldata()
+    {itemtype, data} = self.current_item
     if not itemtype?
       console.log 'do not have itemtype'
       return

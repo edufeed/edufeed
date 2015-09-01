@@ -204,12 +204,12 @@
       self = this;
       username = evt.detail.username;
       return getUsername(function(local_username){
-        var ref$, itemtype, data, social;
+        var ref$, itemtype, data;
         if (username == null) {
           console.log('no username');
           return;
         }
-        ref$ = self.S('#activity').children()[0].getalldata(), itemtype = ref$.itemtype, data = ref$.data, social = ref$.social;
+        ref$ = self.current_item, itemtype = ref$.itemtype, data = ref$.data;
         if (itemtype == null) {
           console.log('do not have itemtype');
           return;
