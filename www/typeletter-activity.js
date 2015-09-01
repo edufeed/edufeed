@@ -23,7 +23,7 @@
       return [
         'the word', this.word, 'starts with the letter', {
           letter: this.letter
-        }, 'type the lettter', {
+        }, 'type the letter', {
           letter: this.letter
         }
       ];
