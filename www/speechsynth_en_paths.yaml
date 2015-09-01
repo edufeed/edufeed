@@ -141,6 +141,7 @@ instead type the letter: speechsynth_en/instead type the letter.mp3
 is: speechsynth_en/is.mp3
 job: speechsynth_en/job.mp3
 kelsey: speechsynth_en/kelsey.mp3
+letter: speechsynth_en/letter.mp3
 like: speechsynth_en/like.mp3
 lion: speechsynth_en/lion.mp3
 mice: speechsynth_en/mice.mp3
@@ -159,9 +160,12 @@ shared with: speechsynth_en/shared with.mp3
 six: speechsynth_en/six.mp3
 snail: speechsynth_en/snail.mp3
 spelled: speechsynth_en/spelled.mp3
+starts with the letter: speechsynth_en/starts with the letter.mp3
+starts: speechsynth_en/starts.mp3
 strongest: speechsynth_en/strongest.mp3
 talkie: speechsynth_en/talkie.mp3
 tells: speechsynth_en/tells.mp3
+the word: speechsynth_en/the word.mp3
 the: speechsynth_en/the.mp3
 them: speechsynth_en/them.mp3
 this: speechsynth_en/this.mp3
@@ -171,6 +175,7 @@ to: speechsynth_en/to.mp3
 tree: speechsynth_en/tree.mp3
 type the letter: speechsynth_en/type the letter.mp3
 type the word: speechsynth_en/type the word.mp3
+type: speechsynth_en/type.mp3
 walkie: speechsynth_en/walkie.mp3
 want: speechsynth_en/want.mp3
 what: speechsynth_en/what.mp3
@@ -180,6 +185,7 @@ who would you like to share this with: speechsynth_en/who would you like to shar
 who: speechsynth_en/who.mp3
 why: speechsynth_en/why.mp3
 with: speechsynth_en/with.mp3
+word: speechsynth_en/word.mp3
 would: speechsynth_en/would.mp3
 you typed the letter: speechsynth_en/you typed the letter.mp3
 you typed the word: speechsynth_en/you typed the word.mp3

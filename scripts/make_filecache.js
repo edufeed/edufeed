@@ -9,5 +9,5 @@
     file = files[i$];
     output[file] = 'data:audio/mpeg;base64,' + new Buffer(fs.readFileSync(file)).toString('base64');
   }
-  fs.writeFileSync('filecache.js', 'filecache = ' + JSON.stringify(output));
+  fs.writeFileSync('filecache.js', 'filecache = ' + JSON.stringify(output, null, 2));
 }).call(this);

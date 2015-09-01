@@ -21,9 +21,11 @@
     },
     get_instruction_playlist: function(){
       return [
-        'type the letter', {
+        'the word', this.word, 'starts with the letter', {
           letter: this.letter
-        }, 'in', this.word
+        }, 'type the lettter', {
+          letter: this.letter
+        }
       ];
     },
     playword: function(success, callback){
@@ -31,11 +33,7 @@
       if (this.word == null || this.word.length === 0) {
         return;
       }
-      playlist = [
-        'type the letter', {
-          letter: this.letter
-        }, 'in', this.word
-      ];
+      playlist = this.get_instruction_playlist();
       if (success != null && success === true) {
         playlist.unshift({
           sound: 'success'

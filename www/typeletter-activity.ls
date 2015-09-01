@@ -20,21 +20,18 @@ RegisterActivity {
     this.playword(false)
   get_instruction_playlist: ->
     return [
-      'type the letter'
-      {letter: this.letter}
-      'in'
+      'the word'
       this.word
+      'starts with the letter'
+      {letter: this.letter}
+      'type the lettter'
+      {letter: this.letter}
     ]
   playword: (success, callback) ->
     if not this.word? or this.word.length == 0
       return
     #synthesize_word this.word
-    playlist = [
-      'type the letter'
-      {letter: this.letter}
-      'in'
-      this.word
-    ]
+    playlist = this.get_instruction_playlist()
     if success? and success == true
       playlist.unshift {sound: 'success'}
     play_multiple_sounds playlist, ~>
