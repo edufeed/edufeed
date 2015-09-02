@@ -35,18 +35,18 @@ RegisterActivity {
       product: this.target_product
     }
   finished: ->
-    #console.log 'done! task=' + this.task
+    if this.finished_fired? and this.finished_fired
+      return
+    this.finished_fired = true
     $('#dotsgrid').prop('ignoretouch', true)
-    setTimeout ~>
-      play_success_sound ~>
-        this.fire 'task-finished', this
-    , 2000
-  selectedDotsChanged: (obj, data) ->
-    {xdim, ydim} = data
-    term1 = xdim
-    term2 = ydim
+    play_success_sound ~>
+      this.fire 'task-finished', this
+  updateFormula: (term1, term2, is_released) ->
+    if not is_released?
+      is_released = false
     product = term1 * term2
-    synthesize_word(product.toString())
+    if not is_released
+      synthesize_word(product.toString())
     if this.task == ''
       this.S('#formuladisplay').prop {
         term1: term1
@@ -64,7 +64,8 @@ RegisterActivity {
       if product == this.target_product
         this.S('#formuladisplay')[0].showterm('product')
         this.S('#formuladisplay')[0].animateProduct()
-        this.finished()
+        if is_released
+          this.finished()
     if this.task == 'both_terms'
       if product == this.target_product
         this.S('#formuladisplay').prop {
@@ -73,15 +74,34 @@ RegisterActivity {
         }
         this.S('#formuladisplay')[0].showterm('term1')
         this.S('#formuladisplay')[0].showterm('term2')
-        this.finished()
+        if is_released
+          this.finished()
     if this.task == 'first_term'
       if product == this.target_product and (this.target_terms.indexOf(term1) != -1 or this.target_terms.indexOf(term2) != -1)
         this.S('#formuladisplay')[0].showterm('term1')
-        this.finished()
+        if is_released
+          this.finished()
     if this.task == 'second_term'
       if product == this.target_product and (this.target_terms.indexOf(term1) != -1 or this.target_terms.indexOf(term2) != -1)
         this.S('#formuladisplay')[0].showterm('term2')
-        this.finished()
+        if is_released
+          this.finished()
+  selectedDotsChanged: (obj, data) ->
+    if not data?
+      return
+    {xdim, ydim} = data
+    if not xdim? or not ydim?
+      return
+    console.log 'selectedDotsChanged'
+    console.log data
+    this.updateFormula(xdim, ydim, false)
+  pointerReleasedDimensions: (obj, data) ->
+    if not data?
+      return
+    {xdim, ydim} = data
+    if not xdim? or not ydim?
+      return
+    this.updateFormula(xdim, ydim, true)
   ready: ->
     width = Math.min $(window).height(), $(window).width()
     this.S('#dotsgrid').prop 'width', width

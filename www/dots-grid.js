@@ -231,14 +231,22 @@
           return;
         }
         self.drawing = false;
-        return self.hideSelectionRectangle();
+        self.hideSelectionRectangle();
+        return self.fire('pointer-released-dimensions', {
+          xdim: this.prev_xdim,
+          ydim: this.prev_ydim
+        });
       });
       $(this).on('pointerup', function(evt){
         if (self.ignoretouch) {
           return;
         }
         self.drawing = false;
-        return self.hideSelectionRectangle();
+        self.hideSelectionRectangle();
+        return self.fire('pointer-released-dimensions', {
+          xdim: this.prev_xdim,
+          ydim: this.prev_ydim
+        });
       });
       return console.log('activity started');
     }

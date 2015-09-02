@@ -162,10 +162,12 @@ Polymer {
         return
       self.drawing = false
       self.hideSelectionRectangle()
+      self.fire 'pointer-released-dimensions', {xdim: this.prev_xdim, ydim: this.prev_ydim}
     $(this).on 'pointerup', (evt) ->
       if self.ignoretouch
         return
       self.drawing = false
       self.hideSelectionRectangle()
+      self.fire 'pointer-released-dimensions', {xdim: this.prev_xdim, ydim: this.prev_ydim}
     console.log 'activity started'
 }

@@ -48,6 +48,10 @@ Visit the feed page, and open the admin console (it should be the first feed ite
 
 ## Offline Caching and Customization
 
+## Customizing Classes
+
+Users who are in the same class will be able to share activities with each other. The lsit of classes can be edited at [classes.yaml](https://github.com/edufeed/edufeed/blob/master/www/classes.yaml)
+
 ### Customizing Profile Pictures
 
 By default, the profile pic shown will be the first Bing images search result for the username. If you want a different profile pic, add an image in either png or jpg format, to the [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics) folder, and edit the [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml) file to add an entry from the username to the profile pic (or use the [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) script, instructions below).
@@ -100,6 +104,10 @@ An example of adding a new activity consisting of a video playlist is shown [her
 
 Visit COUCHROOT/_utils/ and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
 
+## Sample Feed Items
+
+See [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls) for the list of activities, and the algorithm that recommends the next task.
+
 ## Development Details
 
 The frontend is built using [HTML5 Web Components](http://webcomponents.org/) and [Polymer](https://www.polymer-project.org/).
@@ -126,22 +134,24 @@ To add a new activity, create the activity and thumbnail html file, and add it t
 
 The feed is located in [side-scroll-feed.html](https://github.com/edufeed/edufeed/blob/master/www/side-scroll-feed.html). The logic that inserts items into the feed is in [feed-items.ls](https://github.com/edufeed/edufeed/blob/master/www/feed-items.ls).
 
-To insert items into the feed, use the addItemToFeed method, passing in a dictionary where `itemtype` is the unprefixed form of the activity/thumbnail (ie, `example`, `typeword`), and `keys` is a dictionary with the properties that should be set on the activity and thumbnail.
+To insert items into the feed, use the addItemToFeed method, passing in a dictionary where `itemtype` is the unprefixed form of the activity/thumbnail (ie, `example`, `typeword`), and `data` is a dictionary with the properties that should be set on the activity and thumbnail, and `social` is a dictionary that can contain a string `poster` and an array `finishedby`.
 
 Here is an example for the `typeword` activity:
 
 ```
-{itemtype: 'typeword', data: {word: 'dog'}}
+{itemtype: 'typeword', data: {word: 'dog'}, social: {poster: 'dog', finishedby: ['zebra']}}
 ```
 
 Here is an example for the `example` activity:
 
 ```
-{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}}
+{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}
 ```
+
+See [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls) for more examples.
 
 ## Backend Architecture
 
-Entry point is in [app.ls](https://github.com/edufeed/edufeed/blob/master/app.ls) and [resources/express/init.ls](https://github.com/edufeed/edufeed/blob/master/resources/express/init.ls)
+Entry point is in [app.ls](https://github.com/edufeed/edufeed/blob/master/app.ls)
 
 

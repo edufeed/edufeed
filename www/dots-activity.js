@@ -41,20 +41,24 @@
     },
     finished: function(){
       var this$ = this;
+      if (this.finished_fired != null && this.finished_fired) {
+        return;
+      }
+      this.finished_fired = true;
       $('#dotsgrid').prop('ignoretouch', true);
-      return setTimeout(function(){
-        return play_success_sound(function(){
-          return this$.fire('task-finished', this$);
-        });
-      }, 2000);
+      return play_success_sound(function(){
+        return this$.fire('task-finished', this$);
+      });
     },
-    selectedDotsChanged: function(obj, data){
-      var xdim, ydim, term1, term2, product, terms;
-      xdim = data.xdim, ydim = data.ydim;
-      term1 = xdim;
-      term2 = ydim;
+    updateFormula: function(term1, term2, is_released){
+      var product, terms;
+      if (is_released == null) {
+        is_released = false;
+      }
       product = term1 * term2;
-      synthesize_word(product.toString());
+      if (!is_released) {
+        synthesize_word(product.toString());
+      }
       if (this.task === '') {
         this.S('#formuladisplay').prop({
           term1: term1,
@@ -74,7 +78,9 @@
         if (product === this.target_product) {
           this.S('#formuladisplay')[0].showterm('product');
           this.S('#formuladisplay')[0].animateProduct();
-          this.finished();
+          if (is_released) {
+            this.finished();
+          }
         }
       }
       if (this.task === 'both_terms') {
@@ -85,21 +91,51 @@
           });
           this.S('#formuladisplay')[0].showterm('term1');
           this.S('#formuladisplay')[0].showterm('term2');
-          this.finished();
+          if (is_released) {
+            this.finished();
+          }
         }
       }
       if (this.task === 'first_term') {
         if (product === this.target_product && (this.target_terms.indexOf(term1) !== -1 || this.target_terms.indexOf(term2) !== -1)) {
           this.S('#formuladisplay')[0].showterm('term1');
-          this.finished();
+          if (is_released) {
+            this.finished();
+          }
         }
       }
       if (this.task === 'second_term') {
         if (product === this.target_product && (this.target_terms.indexOf(term1) !== -1 || this.target_terms.indexOf(term2) !== -1)) {
           this.S('#formuladisplay')[0].showterm('term2');
-          return this.finished();
+          if (is_released) {
+            return this.finished();
+          }
         }
       }
+    },
+    selectedDotsChanged: function(obj, data){
+      var xdim, ydim;
+      if (data == null) {
+        return;
+      }
+      xdim = data.xdim, ydim = data.ydim;
+      if (xdim == null || ydim == null) {
+        return;
+      }
+      console.log('selectedDotsChanged');
+      console.log(data);
+      return this.updateFormula(xdim, ydim, false);
+    },
+    pointerReleasedDimensions: function(obj, data){
+      var xdim, ydim;
+      if (data == null) {
+        return;
+      }
+      xdim = data.xdim, ydim = data.ydim;
+      if (xdim == null || ydim == null) {
+        return;
+      }
+      return this.updateFormula(xdim, ydim, true);
     },
     ready: function(){
       var width;

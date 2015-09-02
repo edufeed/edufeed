@@ -36,7 +36,7 @@
     */
   </style>
   <template>
-    <dots-grid id="dotsgrid" numdots="{{numdots}}" on-selected-dots-changed="selectedDotsChanged"></dots-grid>
+    <dots-grid id="dotsgrid" numdots="{{numdots}}" on-selected-dots-changed="selectedDotsChanged" on-pointer-released-dimensions="pointerReleasedDimensions"></dots-grid>
     <multiply-formula-display id="formuladisplay"></multiply-formula-display>
   </template>
   <script src="dots-common.js"></script>
