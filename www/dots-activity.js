@@ -67,10 +67,6 @@
         });
       }
       terms = [term1, term2];
-      console.log(this.target_terms);
-      console.log(this.task);
-      console.log('product:' + product);
-      console.log(this.target_product);
       if (this.task === '') {
         this.S('#formuladisplay')[0].animateProduct();
       }
@@ -122,8 +118,6 @@
       if (xdim == null || ydim == null) {
         return;
       }
-      console.log('selectedDotsChanged');
-      console.log(data);
       return this.updateFormula(xdim, ydim, false);
     },
     pointerReleasedDimensions: function(obj, data){

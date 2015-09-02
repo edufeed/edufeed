@@ -112,7 +112,7 @@ See [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sa
 
 The frontend is built using [HTML5 Web Components](http://webcomponents.org/) and [Polymer](https://www.polymer-project.org/).
 
-The backend is powered by [node.js](https://nodejs.org/), [express](http://expressjs.com/), and [deployd](http://deployd.com/)
+The backend is powered by [node.js](https://nodejs.org/), [express](http://expressjs.com/), [couchdb](http://couchdb.apache.org/) and [pouchdb](http://pouchdb.com/)
 
 Code is written in [LiveScript](http://livescript.net/).
 
