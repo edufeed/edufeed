@@ -34,6 +34,7 @@ export getFeedReadingList = ->
 export getFeedVideoLists = ->
   {
     lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']
+    numbervideo: ['pbRU3lsGS0M', 'IiwqgDfJyXQ', 'VW2MREqE-_I', 'eyi0179wpE0', 'dpMP78dU5gQ', 'aKZlJ-tZo1Y', 'sXhM7AfctNU', 'X5A9PKY2FYk', 'upx7UwL4Pws', 'whHJ-WTEu_4']
   }
 
 all_feed_items_cache = null
@@ -74,6 +75,9 @@ export getAllFeedItems = ->
   lettervideo =
     [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
 
+  numbervideo =
+    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.numbervideo]
+
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
 
@@ -89,6 +93,7 @@ export getAllFeedItems = ->
     readaloud
     balance
     lettervideo
+    numbervideo
     admin
     example
     iframe
@@ -162,11 +167,14 @@ export getSampleFeedItems = ->
   lettervideo =
     [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
 
+  numbervideo =
+    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.numbervideo]
+
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
 
   defaults =
-    dots[0 to 1] ++ typeletter[0 to 1] ++ typeword[0 to 1] ++ balance[0 to 1] ++ lettervideo[0 to 1] ++ readaloud[0 to 1]
+    dots[0 to 1] ++ typeletter[0 to 1] ++ typeword[0 to 1] ++ balance[0 to 1] ++ lettervideo[0 to 1] ++ numbervideo[0 to 1] ++ readaloud[0 to 1]
 
   feed_items_cache := {
     defaults
@@ -177,6 +185,7 @@ export getSampleFeedItems = ->
     readaloud
     balance
     lettervideo
+    numbervideo
     admin
     example
     iframe

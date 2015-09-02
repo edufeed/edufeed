@@ -8,12 +8,13 @@
   };
   out$.getFeedVideoLists = getFeedVideoLists = function(){
     return {
-      lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']
+      lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI'],
+      numbervideo: ['pbRU3lsGS0M', 'IiwqgDfJyXQ', 'VW2MREqE-_I', 'eyi0179wpE0', 'dpMP78dU5gQ', 'aKZlJ-tZo1Y', 'sXhM7AfctNU', 'X5A9PKY2FYk', 'upx7UwL4Pws', 'whHJ-WTEu_4']
     };
   };
   all_feed_items_cache = null;
   out$.getAllFeedItems = getAllFeedItems = function(){
-    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, readaloud, sentences, defaults;
+    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, defaults;
     if (all_feed_items_cache != null) {
       return all_feed_items_cache;
     }
@@ -155,6 +156,21 @@
     }
     lettervideo = res$;
     res$ = [];
+    for (i$ = 0, len$ = (ref$ = videolists.numbervideo).length; i$ < len$; ++i$) {
+      videoid = ref$[i$];
+      res$.push({
+        itemtype: 'video',
+        data: {
+          itemcategory: 'numbervideo',
+          videoid: videoid
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    numbervideo = res$;
+    res$ = [];
     for (i$ = 0, len$ = readinglist.length; i$ < len$; ++i$) {
       sentences = readinglist[i$];
       res$.push({
@@ -178,6 +194,7 @@
       readaloud: readaloud,
       balance: balance,
       lettervideo: lettervideo,
+      numbervideo: numbervideo,
       admin: admin,
       example: example,
       iframe: iframe
@@ -232,7 +249,7 @@
   };
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, readaloud, sentences, defaults;
+    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
@@ -374,6 +391,21 @@
     }
     lettervideo = res$;
     res$ = [];
+    for (i$ = 0, len$ = (ref$ = videolists.numbervideo).length; i$ < len$; ++i$) {
+      videoid = ref$[i$];
+      res$.push({
+        itemtype: 'video',
+        data: {
+          itemcategory: 'numbervideo',
+          videoid: videoid
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    numbervideo = res$;
+    res$ = [];
     for (i$ = 0, len$ = readinglist.length; i$ < len$; ++i$) {
       sentences = readinglist[i$];
       res$.push({
@@ -387,7 +419,7 @@
       });
     }
     readaloud = res$;
-    defaults = [dots[0], dots[1]].concat([typeletter[0], typeletter[1]], [typeword[0], typeword[1]], [balance[0], balance[1]], [lettervideo[0], lettervideo[1]], [readaloud[0], readaloud[1]]);
+    defaults = [dots[0], dots[1]].concat([typeletter[0], typeletter[1]], [typeword[0], typeword[1]], [balance[0], balance[1]], [lettervideo[0], lettervideo[1]], [numbervideo[0], numbervideo[1]], [readaloud[0], readaloud[1]]);
     feed_items_cache = {
       defaults: defaults,
       bars: bars,
@@ -397,6 +429,7 @@
       readaloud: readaloud,
       balance: balance,
       lettervideo: lettervideo,
+      numbervideo: numbervideo,
       admin: admin,
       example: example,
       iframe: iframe
