@@ -24,11 +24,7 @@
       return console.log(error);
     },
     videosrc_changed: function(videosrc){
-      var self;
-      self = this;
-      return fetchAsDataURL(videosrc, function(dataurl){
-        return self.$$('#activityvideo').src = dataurl;
-      });
+      return this.$$('#activityvideo').src = fixMediaURL(videosrc);
     }
   });
 }).call(this);

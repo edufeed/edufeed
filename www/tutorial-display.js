@@ -28,11 +28,7 @@
       return "videos/" + tutorial + "-tutorial.mp4";
     },
     videosrc_changed: function(videosrc){
-      var self;
-      self = this;
-      return fetchAsDataURL(videosrc, function(dataurl){
-        return self.$$('#tutorialvideo').src = dataurl;
-      });
+      return this.$$('#tutorialvideo').src = fixMediaURL(videosrc);
     },
     closeTutorial: function(){
       return this.fire('close-tutorial', this);

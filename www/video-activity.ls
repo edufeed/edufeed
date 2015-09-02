@@ -20,7 +20,7 @@ RegisterActivity {
     this.S('#activityvideo_alttext').show()
     console.log error
   videosrc_changed: (videosrc) ->
-    self = this
-    fetchAsDataURL videosrc, (dataurl) ->
-      self.$$('#activityvideo').src = dataurl
+    this.$$('#activityvideo').src = fixMediaURL(videosrc)
+    #fetchAsDataURL videosrc, (dataurl) ->
+    #  self.$$('#activityvideo').src = dataurl
 }

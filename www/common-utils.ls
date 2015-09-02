@@ -4,6 +4,11 @@ export isChromeApp = ->
 export isMobileChromeApp = ->
   return chrome? and chrome.app? and chrome.app.runtime? and chrome.mobile?
 
+export fixMediaURL = (url) ->
+  if isMobileChromeApp()
+    return 'file:///android_asset/www/' + url
+  return url
+
 export getLocalStorage = ->
   if isChromeApp() and not isMobileChromeApp()
     return {

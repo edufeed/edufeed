@@ -1,10 +1,16 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, fixMediaURL, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
   out$.isMobileChromeApp = isMobileChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null && chrome.mobile != null;
+  };
+  out$.fixMediaURL = fixMediaURL = function(url){
+    if (isMobileChromeApp()) {
+      return 'file:///android_asset/www/' + url;
+    }
+    return url;
   };
   out$.getLocalStorage = getLocalStorage = function(){
     if (isChromeApp() && !isMobileChromeApp()) {

@@ -23,9 +23,9 @@ Polymer {
   compute_videosrc: (tutorial) ->
     return "videos/#{tutorial}-tutorial.mp4"
   videosrc_changed: (videosrc) ->
-    self = this
-    fetchAsDataURL videosrc, (dataurl) ->
-      self.$$('#tutorialvideo').src = dataurl
+    this.$$('#tutorialvideo').src = fixMediaURL(videosrc)
+    #fetchAsDataURL videosrc, (dataurl) ->
+    #  self.$$('#tutorialvideo').src = dataurl
   closeTutorial: ->
     this.fire 'close-tutorial', this
 }
