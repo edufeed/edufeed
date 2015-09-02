@@ -152,6 +152,7 @@ Polymer {
         poster: local_username
       }
     }
+    addlog {event: 'shareactivity', targetuser: username, item: self.current_item}
   ready: ->
     self = this
     this.addEventListener 'hide-admin-activity', ->

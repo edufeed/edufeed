@@ -214,12 +214,17 @@
           console.log('do not have itemtype');
           return;
         }
-        return postItemToTarget(username, {
+        postItemToTarget(username, {
           itemtype: itemtype,
           data: data,
           social: {
             poster: local_username
           }
+        });
+        return addlog({
+          event: 'shareactivity',
+          targetuser: username,
+          item: self.current_item
         });
       });
     },
