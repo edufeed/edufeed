@@ -17,7 +17,7 @@ get_ffmpegcmd = ->
   console.log 'could not find ffmpeg command - please install ffmpeg'
   process.exit()
 
-make_thumbnail = (videoid) ->
+make_thumbnail = (videoid, offset_time) ->
   if not fs.existsSync 'www/videos/youtube_thumbnails'
     fs.mkdirSync 'www/videos/youtube_thumbnails'
   thumbnailfile = "www/videos/youtube_thumbnails/#{videoid}.png"
@@ -27,8 +27,10 @@ make_thumbnail = (videoid) ->
   videofile = "www/videos/youtube/#{videoid}.mp4"
   if not fs.existsSync videofile
     console.log "video file does not exist: #{videofile}"
+  if not offset_time?
+    offset_time = 4
   ffmpegcmd = get_ffmpegcmd()
-  exec "#{ffmpegcmd} -itsoffset -4 -i \"#{videofile}\" -vcodec png -vframes 1 -an -f rawvideo -s 350x350 -y \"#{thumbnailfile}\""
+  exec "#{ffmpegcmd} -itsoffset -#{offset_time} -i \"#{videofile}\" -vcodec png -vframes 1 -an -f rawvideo -s 350x350 -y \"#{thumbnailfile}\""
 
 get_pipcmd = ->
   if which 'pip3'
@@ -63,7 +65,8 @@ download_youtube = (videoid) ->
     return
   install_you_get()
   cleanup_tmpdir()
-  exec "you-get --output-dir tmpdir 'https://www.youtube.com/watch?v=#{videoid}'"
+  console.log "downloading https://www.youtube.com/watch?v=#{videoid}"
+  exec "you-get -F 18 --output-dir tmpdir \"https://www.youtube.com/watch?v=#{videoid}\""
   outfiles = ls 'tmpdir/*.mp4'
   if outfiles.length == 0
     console.log "failed to download: #{videoid}"
@@ -83,9 +86,14 @@ main = ->
     python_scripts_dir = ls('C:/Python3*').sort().reverse()[0] + '/Scripts'
     if fs.existsSync(python_scripts_dir)
       process.env.PATH += ';' + python_scripts_dir.split('/').join(path.sep)
+  #exec('you-get --info https://www.youtube.com/watch?v=VW2MREqE')
+  #return
   for listname,videolist of videolists
+    offset_time = 4
+    if listname == 'numbervideo'
+      offset_time = 45
     for videoid in videolist
       download_youtube videoid
-      make_thumbnail videoid
+      make_thumbnail videoid, offset_time
 
 main()

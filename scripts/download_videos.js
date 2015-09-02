@@ -17,7 +17,7 @@
     console.log('could not find ffmpeg command - please install ffmpeg');
     return process.exit();
   };
-  make_thumbnail = function(videoid){
+  make_thumbnail = function(videoid, offset_time){
     var thumbnailfile, videofile, ffmpegcmd;
     if (!fs.existsSync('www/videos/youtube_thumbnails')) {
       fs.mkdirSync('www/videos/youtube_thumbnails');
@@ -31,8 +31,11 @@
     if (!fs.existsSync(videofile)) {
       console.log("video file does not exist: " + videofile);
     }
+    if (offset_time == null) {
+      offset_time = 4;
+    }
     ffmpegcmd = get_ffmpegcmd();
-    return exec(ffmpegcmd + " -itsoffset -4 -i \"" + videofile + "\" -vcodec png -vframes 1 -an -f rawvideo -s 350x350 -y \"" + thumbnailfile + "\"");
+    return exec(ffmpegcmd + " -itsoffset -" + offset_time + " -i \"" + videofile + "\" -vcodec png -vframes 1 -an -f rawvideo -s 350x350 -y \"" + thumbnailfile + "\"");
   };
   get_pipcmd = function(){
     if (which('pip3')) {
@@ -76,7 +79,8 @@
     }
     install_you_get();
     cleanup_tmpdir();
-    exec("you-get --output-dir tmpdir 'https://www.youtube.com/watch?v=" + videoid + "'");
+    console.log("downloading https://www.youtube.com/watch?v=" + videoid);
+    exec("you-get -F 18 --output-dir tmpdir \"https://www.youtube.com/watch?v=" + videoid + "\"");
     outfiles = ls('tmpdir/*.mp4');
     if (outfiles.length === 0) {
       console.log("failed to download: " + videoid);
@@ -91,7 +95,7 @@
     return cleanup_tmpdir();
   };
   main = function(){
-    var python_scripts_dir, listname, ref$, videolist, lresult$, i$, len$, videoid, results$ = [];
+    var python_scripts_dir, listname, ref$, videolist, lresult$, offset_time, i$, len$, videoid, results$ = [];
     if (!fs.existsSync('www/videos')) {
       console.log('must be run from the root edufeed directory - cannot find www/videos');
       return;
@@ -105,10 +109,14 @@
     for (listname in ref$ = videolists) {
       videolist = ref$[listname];
       lresult$ = [];
+      offset_time = 4;
+      if (listname === 'numbervideo') {
+        offset_time = 45;
+      }
       for (i$ = 0, len$ = videolist.length; i$ < len$; ++i$) {
         videoid = videolist[i$];
         download_youtube(videoid);
-        lresult$.push(make_thumbnail(videoid));
+        lresult$.push(make_thumbnail(videoid, offset_time));
       }
       results$.push(lresult$);
     }
