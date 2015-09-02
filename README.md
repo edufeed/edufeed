@@ -86,7 +86,7 @@ node scripts/make_directory_listings.js
 
 The videos are specified as youtube video IDs in the `getFeedVideoLists` function of [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls)
 
-The videos are not in this repository to conserve space. Running the following scripts will download the videos to the directory www/videos/youtube and generate thumbnails in www/videos/youtube_thumbnails (if you are not satisfied with the thumbnail for a video, edit [scripts/download_videos.ls](https://github.com/edufeed/edufeed/blob/master/scripts/download_videos.ls) to adjust the point the thumbnail is taken from)
+The videos are not in this repository to conserve space. Running the following scripts will download the videos to the directory `www/videos/youtube` and generate thumbnails in `www/videos/youtube_thumbnails` (if you are not satisfied with the thumbnail for a video, edit [scripts/download_videos.ls](https://github.com/edufeed/edufeed/blob/master/scripts/download_videos.ls) to adjust the point the thumbnail is taken from)
 
 ```
 node scripts/download_videos.js
