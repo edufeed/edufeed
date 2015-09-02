@@ -82,7 +82,7 @@ The script [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/
 node scripts/make_directory_listings.js
 ```
 
-## Downloading Videos and Adding Video Playlist Activities
+## Downloading Videos and Making Video Playlists
 
 The videos are specified as youtube video IDs in the `getFeedVideoLists` function of [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls)
 
