@@ -1,5 +1,4 @@
 <link rel="import" href="polymer-utils.html">
-<link rel="import" href="bower_components/google-youtube/google-youtube.html">
 
 <dom-module id="video-activity">
   <style>
@@ -8,30 +7,24 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      white-space: normal;
+    }
+    #activityvideo {
+      display: block;
+      width: auto;
+      height: 100%;
+      margin: 0 auto;
+      text-align: center;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    #activityvideo_alttext {
+      display: none;
     }
   </style>
   <template>
-  <google-youtube
-    video-id="{{videoid}}"
-    autoplay="1"
-    controls="0"
-    modestbranding="1"
-    showinfo="0"
-    iv_load_policy="3"
-    rel="0"
-    fluid="1"
-    on-google-youtube-state-change="youtubeVideoStateChanged"
-    >
-  </google-youtube>
-  <!--
-    <iframe
-      type="text/html"
-      width="100%"
-      height="100%"
-      src="{{videosrc}}"
-      frameborder="0">
-  </iframe>
-  -->
+    <span id="activityvideo_alttext"></span>
+    <video id="activityvideo" on-ended="activityVideoEnded" on-error="activityVideoError" autoplay="true"></video>
   </template>
   <script src="video-activity.js"></script>  
 </dom-module>

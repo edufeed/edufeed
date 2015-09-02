@@ -1,0 +1,45 @@
+<link rel="import" href="polymer-utils.html">
+<link rel="import" href="bower_components/google-youtube/google-youtube.html">
+
+<dom-module id="youtube-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+      vertical-align: top;
+      width: 350px;
+      height: 350px;
+      background-color: #FFFFFF;
+    }
+    #vidoverlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+  </style>
+  <template>
+    <div id="vidoverlay"></div>
+    <!--
+    <iframe
+      type="text/html"
+      width="100%"
+      height="100%"
+      src="{{videosrc}}"
+      frameborder="0">
+    </iframe>
+    -->
+    <google-youtube
+      video-id="{{videoid}}"
+      autoplay="0"
+      controls="0"
+      modestbranding="1"
+      showinfo="0"
+      iv_load_policy="3"
+      rel="0"
+      width="350px"
+      height="350px"
+    >
+  </google-youtube>
+  </template>
+  <script src="youtube-thumbnail.js"></script>  
+</dom-module>

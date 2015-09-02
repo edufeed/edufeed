@@ -1,5 +1,5 @@
 (function(){
-  RegisterActivity({
+  Polymer({
     is: 'tutorial-display',
     properties: {
       tutorial: {

@@ -1,13 +1,34 @@
 require! {
   fs
+  os
+  path
   child_process
 }
 
+is_windows = os.platform() == 'win32'
 videolists = require('../www/sample_feed_items').getFeedVideoLists()
 {which, exec, rm, ls, mv} = require 'shelljs'
 
-if fs.existsSync('C:\\Python34\\Scripts')
-  process.env.PATH += ';C:\\Python34\\Scripts'
+get_ffmpegcmd = ->
+  if is_windows
+    return 'windows_binaries\\ffmpeg.exe'
+  if which 'ffmpeg'
+    return 'ffmpeg'
+  console.log 'could not find ffmpeg command - please install ffmpeg'
+  process.exit()
+
+make_thumbnail = (videoid) ->
+  if not fs.existsSync 'www/videos/youtube_thumbnails'
+    fs.mkdirSync 'www/videos/youtube_thumbnails'
+  thumbnailfile = "www/videos/youtube_thumbnails/#{videoid}.png"
+  if fs.existsSync thumbnailfile
+    console.log "thumbnail already exists: #{thumbnailfile}"
+    return
+  videofile = "www/videos/youtube/#{videoid}.mp4"
+  if not fs.existsSync videofile
+    console.log "video file does not exist: #{videofile}"
+  ffmpegcmd = get_ffmpegcmd()
+  exec "#{ffmpegcmd} -itsoffset -4 -i \"#{videofile}\" -vcodec png -vframes 1 -an -f rawvideo -s 350x350 -y \"#{thumbnailfile}\""
 
 get_pipcmd = ->
   if which 'pip3'
@@ -16,7 +37,7 @@ get_pipcmd = ->
     return 'python3 -m pip'
   if which 'py'
     return 'py -3 '
-  console.log 'could not find pip command - is python 3 installed?'
+  console.log 'could not find pip for python 3 - please install python 3'
   process.exit()
 
 install_you_get = ->
@@ -35,12 +56,14 @@ cleanup_tmpdir = ->
 
 download_youtube = (videoid) ->
   targetfile = "www/videos/youtube/#{videoid}.mp4"
+  if not fs.existsSync 'www/videos/youtube'
+    fs.mkdirSync 'www/videos/youtube'
   if fs.existsSync targetfile
     console.log "already downloaded: #{targetfile}"
     return
   install_you_get()
   cleanup_tmpdir()
-  exec "you-get --output-dir tmpdir https://www.youtube.com/watch?v=#{videoid}"
+  exec "you-get --output-dir tmpdir 'https://www.youtube.com/watch?v=#{videoid}'"
   outfiles = ls 'tmpdir/*.mp4'
   if outfiles.length == 0
     console.log "failed to download: #{videoid}"
@@ -56,10 +79,13 @@ main = ->
   if not fs.existsSync 'www/videos'
     console.log 'must be run from the root edufeed directory - cannot find www/videos'
     return
-  if not fs.existsSync 'www/videos/youtube'
-    fs.mkdirSync 'www/videos/youtube'
+  if is_windows
+    python_scripts_dir = ls('C:/Python3*').sort().reverse()[0] + '/Scripts'
+    if fs.existsSync(python_scripts_dir)
+      process.env.PATH += ';' + python_scripts_dir.split('/').join(path.sep)
   for listname,videolist of videolists
     for videoid in videolist
       download_youtube videoid
+      make_thumbnail videoid
 
 main()

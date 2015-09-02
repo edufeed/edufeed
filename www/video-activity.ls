@@ -1,31 +1,26 @@
 RegisterActivity {
   is: 'video-activity'
   properties: {
-    #videosrc: {
-    #  type: String
-    #  value: ''
-    #}
+    videosrc: {
+      type: String
+      computed: 'computevideosrc(videoid)'
+      observer: 'videosrc_changed'
+    }
     videoid: {
       type: String
-      #computed: 'computevideoid(videosrc)'
     }
   }
-  youtubeVideoStateChanged: (newstate) ->
-    console.log 'videoStateChanged: '
-    console.log newstate
-    if newstate? and newstate.detail? and newstate.detail.data? and newstate.detail.data == 0
-      this.fire 'task-finished', this
-  #computevideoid: (videosrc) ->
-  #  return videosrc.split('http://www.youtube.com/embed/').join('')
-  /*
-  S: (pattern) ->
-    $(this.$$(pattern))
-  ready: ->
-    this.S('#hoverspan').hover ->
-      $(this).css 'background-color', 'yellow'
-  showAlert: ->
-    alert 'button has been clicked'
-  finishTask: ->
+  computevideosrc: (videoid) ->
+    return "videos/youtube/#{videoid}.mp4"
+  activityVideoEnded: ->
     this.fire 'task-finished', this
-  */
+  activityVideoError: (error) ->
+    this.S('#activityvideo').hide()
+    this.S('#activityvideo_alttext').text('error occurred while playing tutorial: ' + this.videosrc)
+    this.S('#activityvideo_alttext').show()
+    console.log error
+  videosrc_changed: (videosrc) ->
+    self = this
+    fetchAsDataURL videosrc, (dataurl) ->
+      self.$$('#activityvideo').src = dataurl
 }

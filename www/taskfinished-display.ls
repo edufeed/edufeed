@@ -1,4 +1,4 @@
-RegisterActivity {
+Polymer {
   is: 'taskfinished-display'
   properties: {
   }

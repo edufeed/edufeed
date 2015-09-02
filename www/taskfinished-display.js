@@ -1,5 +1,5 @@
 (function(){
-  RegisterActivity({
+  Polymer({
     is: 'taskfinished-display',
     properties: {},
     S: function(pattern){

@@ -1,4 +1,4 @@
-RegisterActivity {
+Polymer {
   is: 'readaloud-text'
   properties: {
     text: {
