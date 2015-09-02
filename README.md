@@ -6,40 +6,22 @@ See WEBROOT for a demo (chrome only - other browsers don't yet support the Web C
 
 ## Installing and Running (Web Version)
 
-First install [git](http://www.git-scm.com/) and [node.js](https://nodejs.org/) and [mongoDB](https://www.mongodb.org/)
-
-Then clone the repository and install prerequisites:
-
-```
-git clone https://github.com/edufeed/edufeed
-cd edufeed
-npm install
-npm install -g node-dev mongosrv
-```
-
-Now register for the [Bing Search API](https://datamarket.azure.com/dataset/bing/search), go to [Account Information](https://datamarket.azure.com/account), see your Primary Account Key on that page, and paste it into a file `.getsecret.yaml` inside the `edufeed` directory:
-
-```
-bing_api_key: your_primary_account_key_goes_here
-```
-
-Now you can start up mongo and run the app:
-
-```
-mongosrv &
-node-dev app.ls
-```
-
-You will now be able to access the site by visiting [http://localhost:8080](http://localhost:8080)
+See [server-setup.md](https://github.com/edufeed/edufeed/blob/master/server-setup.md)
 
 ## Installing and Running (Android Version)
 
 This is a Mobile Chrome App - the [Mobile Chrome Apps](https://github.com/MobileChromeApps/mobile-chrome-apps/blob/master/docs/Develop.md) site has more detailed deployment instructions.
 
-First, install [git](http://www.git-scm.com/) and clone the repository:
+First, install [git](http://www.git-scm.com/), [nodejs](https://nodejs.org/) and [python 3](https://www.python.org/) and clone the repository:
 
 ```
 git clone https://github.com/edufeed/edufeed
+```
+
+Now run the following command to download the video files (from the edufeed directory):
+
+```
+node scripts/download_videos.js
 ```
 
 Then, install the [Android SDK](http://developer.android.com/sdk/installing/index.html) (comes with Android Studio) on your desktop.
