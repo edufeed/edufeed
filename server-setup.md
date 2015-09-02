@@ -52,3 +52,29 @@ Visit localhost:8080 and ip_address:8080 (where ip_address is what you got from 
 
 Now open the app on your tablet, visit the admin console, enter the IP address under the `CouchDB Server` section along with a username, and click login.
 
+## Setting up Mongo and Bing API Keys
+
+These were originally are required for fetching images from the bing API. However, these instructions should no longer be required, as we're storing all the images locally now. However, if you do want to use the bing image functionality, you will also need to do the following (after running the instructions above)
+
+First install [mongoDB](https://www.mongodb.org/)
+
+Then install the mongosrv wrapper:
+
+```
+npm install -g node-dev mongosrv
+```
+
+Now register for the [Bing Search API](https://datamarket.azure.com/dataset/bing/search), go to [Account Information](https://datamarket.azure.com/account), see your Primary Account Key on that page, and paste it into a file `.getsecret.yaml` inside the `edufeed` directory:
+
+```
+bing_api_key: your_primary_account_key_goes_here
+```
+
+Now you can start up mongo and run the app:
+
+```
+mongosrv
+./runserver
+```
+
+You will now be able to access the site by visiting [http://localhost:8080](http://localhost:8080)
