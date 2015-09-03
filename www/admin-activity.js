@@ -24,26 +24,29 @@
             return getBoolParam('skipsharescreen', function(skipsharescreen){
               return getBoolParam('hidesharebutton', function(hidesharebutton){
                 return getBoolParam('hidehelpbutton', function(hidehelpbutton){
-                  self.S('#skipsharescreen').prop('checked', skipsharescreen);
-                  self.S('#hidesharebutton').prop('checked', hidesharebutton);
-                  self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
-                  return getAllUsers(function(all_users){
-                    var fastlogin_buttons, i$, len$, results$ = [];
-                    fastlogin_buttons = $(self).find('#fastlogin_buttons');
-                    for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
-                      results$.push((fn$.call(this, all_users[i$])));
-                    }
-                    return results$;
-                    function fn$(current_user){
-                      var new_fastlogin_button;
-                      new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
-                        self.S('#usernameinput').val(current_user);
-                        self.S('#passwordinput').val(current_user);
-                        return self.setUsername();
-                      });
-                      new_fastlogin_button.appendTo(fastlogin_buttons);
-                      return fastlogin_buttons.append(' ');
-                    }
+                  return getBoolParam('maketransparentbutton', function(maketransparentbutton){
+                    self.S('#skipsharescreen').prop('checked', skipsharescreen);
+                    self.S('#hidesharebutton').prop('checked', hidesharebutton);
+                    self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
+                    self.S('#maketransparentbutton').prop('checked', maketransparentbutton);
+                    return getAllUsers(function(all_users){
+                      var fastlogin_buttons, i$, len$, results$ = [];
+                      fastlogin_buttons = $(self).find('#fastlogin_buttons');
+                      for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                        results$.push((fn$.call(this, all_users[i$])));
+                      }
+                      return results$;
+                      function fn$(current_user){
+                        var new_fastlogin_button;
+                        new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                          self.S('#usernameinput').val(current_user);
+                          self.S('#passwordinput').val(current_user);
+                          return self.setUsername();
+                        });
+                        new_fastlogin_button.appendTo(fastlogin_buttons);
+                        return fastlogin_buttons.append(' ');
+                      }
+                    });
                   });
                 });
               });
@@ -178,9 +181,18 @@
       }
       return setParam('hidehelpbutton', checked);
     },
-    makeAllButtonsTransparent: function(){
-      this.fire('make-all-buttons-transparent', this);
-      return this.fire('task-left', this);
+    maketransparentbutton_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        this.fire('make-all-buttons-transparent', this);
+      } else {
+        this.fire('make-all-buttons-opaque', this);
+      }
+      return setParam('maketransparentbutton', checked);
     },
     setUsername: function(){
       var self, username, password, couchserver;

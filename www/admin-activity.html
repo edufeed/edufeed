@@ -31,14 +31,12 @@
     <br><br>
     <div>Fast Login:</div>
     <div id="fastlogin_buttons"></div>
-    <br><br>
-    <div>End-of-Task Sharing:</div>
-    <label><input type="checkbox" id="skipsharescreen" on-click="skipsharescreen_changed"> Skip end-of-task sharing screen</label><br>
-    <br><br>
-    <div>Shown and Hidden buttons:</div>
-    <label><input type="checkbox" id="hidesharebutton" on-click="hidesharebutton_changed"> Hide Share button</label><br>
-    <label><input type="checkbox" id="hidehelpbutton" on-click="hidehelpbutton_changed"> Hide Help button</label><br>
-    <button class="btn btn-lg btn-primary" on-click="makeAllButtonsTransparent">Temporarily make all buttons transparent</button>
+    <br>
+    <div>Add sample feed items:</div>
+    <template is="dom-repeat" items="{{getSampleFeedItemCategories()}}">
+      <button class="btn btn-lg btn-primary" data-item="{{item}}" on-click="addSampleItems">{{item}}</button>
+    </template>
+    <!--<button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>-->
     <br><br>
     <div>Add custom item:</div>
     <div>itemtype:</div>
@@ -52,11 +50,13 @@
     <br>
     <button class="btn btn-lg btn-primary" on-click="addCustomItem">Add custom feed item</button>
     <br><br>
-    <div>Add sample feed items:</div>
-    <template is="dom-repeat" items="{{getSampleFeedItemCategories()}}">
-      <button class="btn btn-lg btn-primary" data-item="{{item}}" on-click="addSampleItems">{{item}}</button>
-    </template>
-    <!--<button class="btn btn-lg btn-primary" on-click="addSampleItems">Add sample feed items</button>-->
+    <div>End-of-Task Sharing:</div>
+    <label><input type="checkbox" id="skipsharescreen" on-click="skipsharescreen_changed"> Skip end-of-task sharing screen</label><br>
+    <br>
+    <div>Shown and Hidden buttons:</div>
+    <label><input type="checkbox" id="hidesharebutton" on-click="hidesharebutton_changed"> Hide Share button</label><br>
+    <label><input type="checkbox" id="hidehelpbutton" on-click="hidehelpbutton_changed"> Hide Help button</label><br>
+    <label><input type="checkbox" id="maketransparentbutton" on-click="maketransparentbutton_changed"> Make all buttons transparent</label><br>
     <br><br>
     <button class="btn btn-lg btn-primary" on-click="clearItems">Clear all feed items for user (local and remote)</button><br>
     <br>

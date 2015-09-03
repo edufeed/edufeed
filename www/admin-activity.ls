@@ -17,9 +17,11 @@ RegisterActivity {
     skipsharescreen <- getBoolParam('skipsharescreen')
     hidesharebutton <- getBoolParam('hidesharebutton')
     hidehelpbutton <- getBoolParam('hidehelpbutton')
+    maketransparentbutton <- getBoolParam('maketransparentbutton')
     self.S('#skipsharescreen').prop('checked', skipsharescreen)
     self.S('#hidesharebutton').prop('checked', hidesharebutton)
     self.S('#hidehelpbutton').prop('checked', hidehelpbutton)
+    self.S('#maketransparentbutton').prop('checked', maketransparentbutton)
     all_users <- getAllUsers()
     fastlogin_buttons = $(self).find('#fastlogin_buttons')
     for let current_user in all_users
@@ -107,9 +109,15 @@ RegisterActivity {
     else
       this.fire 'show-help-button', this
     setParam 'hidehelpbutton', checked
-  makeAllButtonsTransparent: ->
-    this.fire 'make-all-buttons-transparent', this
-    this.fire 'task-left', this
+  maketransparentbutton_changed: (evt) ->
+    checked = false
+    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
+      checked = true
+    if checked
+      this.fire 'make-all-buttons-transparent', this
+    else
+      this.fire 'make-all-buttons-opaque', this
+    setParam 'maketransparentbutton', checked
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()

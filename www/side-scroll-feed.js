@@ -256,6 +256,9 @@
       this.addEventListener('make-all-buttons-transparent', function(){
         return self.S('#activitybuttons').css('opacity', 0);
       });
+      this.addEventListener('make-all-buttons-opaque', function(){
+        return self.S('#activitybuttons').css('opacity', 1);
+      });
       this.addEventListener('hide-share-button', function(){
         return self.S('#sharingbutton').hide();
       });

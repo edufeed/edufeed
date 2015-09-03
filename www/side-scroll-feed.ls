@@ -171,6 +171,8 @@ Polymer {
       self.updateItems()
     this.addEventListener 'make-all-buttons-transparent', ->
       self.S('#activitybuttons').css('opacity', 0)
+    this.addEventListener 'make-all-buttons-opaque', ->
+      self.S('#activitybuttons').css('opacity', 1)
     this.addEventListener 'hide-share-button', ->
       self.S('#sharingbutton').hide()
     this.addEventListener 'show-share-button', ->
