@@ -101,33 +101,6 @@ export getAllFeedItems = ->
 
   return all_feed_items_cache
 
-getItemsFinishedByUser = (username, all_finished_items) ->
-  return all_finished_items.filter (item) ->
-    item? and item.social? and item.social.finishedby? and item.social.finishedby.indexOf(username) != -1
-
-itemNotInList = (item, itemlist) ->
-  return [x for x in itemlist when itemtype_and_data_matches(item, x)].length == 0
-
-export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
-  username <- getUsername()
-  itemtype = finished_item.itemtype
-  if itemtype == 'video' and finished_item.data? and finished_item.data.itemcategory?
-    itemtype = finished_item.data.itemcategory
-  available_items = getAllFeedItems()[itemtype]
-  if not available_items?
-    if callback?
-      callback()
-    return
-  items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
-  new_available_items = available_items.filter (item) ->
-    itemNotInList(item, items_finished_by_user) and itemNotInList(item, current_feed_items)
-  if new_available_items.length == 0
-    if callback?
-      callback()
-    return
-  newitem = new_available_items[0]
-  postItemToSelf newitem, callback
-
 feed_items_cache = null
 
 export getSampleFeedItems = ->
@@ -174,7 +147,7 @@ export getSampleFeedItems = ->
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
 
   defaults =
-    dots[0 to 1] ++ typeletter[0 to 1] ++ typeword[0 to 1] ++ balance[0 to 1] ++ lettervideo[0 to 1] ++ numbervideo[0 to 1] ++ readaloud[0 to 1]
+    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1)
 
   feed_items_cache := {
     defaults

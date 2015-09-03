@@ -242,8 +242,6 @@
       }
       matches = res$;
       return async.eachSeries(matches, function(matchitem, ncallback){
-        console.log(matchitem);
-        console.log(matchitem['_id']);
         return db.upsert(matchitem['_id'], function(dbitem){
           dbitem.updatetime = Math.max(dbitem.updatetime, new_update_time);
           return dbitem;

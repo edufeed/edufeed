@@ -171,8 +171,6 @@ export bumpItemUpdateTime = (dbname, item, callback) ->
   allitems = [x.doc for x in alldocs.rows]
   matches = [x for x in allitems when itemtype_and_data_matches(item, x)]
   async.eachSeries matches, (matchitem, ncallback) ->
-    console.log matchitem
-    console.log matchitem['_id']
     db.upsert(matchitem['_id'], (dbitem) ->
       dbitem.updatetime = Math.max(dbitem.updatetime, new_update_time)
       return dbitem
