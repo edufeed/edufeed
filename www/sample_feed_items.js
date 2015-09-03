@@ -186,18 +186,13 @@
     readaloud = res$;
     defaults = dots.concat(typeletter, typeword);
     all_feed_items_cache = {
-      defaults: defaults,
-      bars: bars,
       dots: dots,
       typeword: typeword,
       typeletter: typeletter,
       readaloud: readaloud,
       balance: balance,
       lettervideo: lettervideo,
-      numbervideo: numbervideo,
-      admin: admin,
-      example: example,
-      iframe: iframe
+      numbervideo: numbervideo
     };
     return all_feed_items_cache;
   };

@@ -1,3 +1,13 @@
+export getTaskSuggestionFormulas = ->
+  return {
+    'default': getSuggestions_one_same_and_one_different
+    'one_more_of_the_sametype': getSuggestions_one_more_of_the_sametype
+    'one_of_different_type': getSuggestions_one_of_different_type
+    'three_same_then_one_different': getSuggestions_three_same_then_one_different
+    'one_same_and_one_different': getSuggestions_one_same_and_one_different
+    #'sametypeplusextra': addNewItemSuggestions_sametypeplusextra
+  }
+
 getItemsFinishedByUser = (username, all_finished_items) ->
   return all_finished_items.filter (item) ->
     item? and item.social? and item.social.finishedby? and item.social.finishedby.indexOf(username) != -1
@@ -11,13 +21,11 @@ getItemType = (finished_item) ->
     itemtype = finished_item.data.itemcategory
   return itemtype
 
-getSuggestions_onemoreofthesametype = (options) ->
-  {username, finished_item, current_feed_items, all_finished_items} = options
-  itemtype = getItemType(finished_item)
+suggestNextItemOfType = (options, itemtype) ->
+  {current_feed_items, items_finished_by_user} = options
   available_items = getAllFeedItems()[itemtype]
   if not available_items?
     return []
-  items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
   new_items_not_finished = available_items.filter (item) ->
     itemNotInList(item, items_finished_by_user)
   new_available_items = new_items_not_finished.filter (item) ->
@@ -29,33 +37,54 @@ getSuggestions_onemoreofthesametype = (options) ->
   newitem = new_available_items[0]
   return [{post: newitem}]
 
-/*
-addNewItemSuggestions_onemoreofthesametype = (options, callback) ->
-  {username, finished_item, current_feed_items, all_finished_items} = options
-  itemtype = getItemType(finished_item)
-  available_items = getAllFeedItems()[itemtype]
-  if not available_items?
-    if callback?
-      callback()
-    return
-  items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
-  new_available_items = available_items.filter (item) ->
-    itemNotInList(item, items_finished_by_user) and itemNotInList(item, current_feed_items)
-  if new_available_items.length == 0
-    if callback?
-      callback()
-    return
-  newitem = new_available_items[0]
-  postItemToSelf newitem, callback
+getSuggestions_one_more_of_the_sametype = (options) ->
+  {itemtype} = options
+  return suggestNextItemOfType(options, itemtype)
 
-addNewItemSuggestions_randomdifferent = (options, callback) ->
-*/
+getItemTypesCompletelyFinished = (items_finished_by_user) ->
+  output = []
+  all_available_items = getAllFeedItems()
+  for itemtype,itemlist of all_available_items
+    finished_items_of_itemtype = items_finished_by_user.filter (item) ->
+      itemtype == getItemType(item)
+    if finished_items_of_itemtype.length == itemlist.length
+      output.push itemtype
+  return output
 
-export task_suggestion_formulas = {
-  'default': getSuggestions_onemoreofthesametype
-  'onemoreofthesametype': getSuggestions_onemoreofthesametype
-  #'sametypeplusextra': addNewItemSuggestions_sametypeplusextra
-}
+getItemTypesNotCompletelyFinished = (items_finished_by_user) ->
+  completely_finished_itemtypes = {}
+  for itemtype in getItemTypesCompletelyFinished(items_finished_by_user)
+    completely_finished_itemtypes[itemtype] = true
+  return [itemtype for itemtype,itemlist of getAllFeedItems() when not completely_finished_itemtypes[itemtype]?]
+
+randomSelect = (list) ->
+  idx = Math.floor(Math.random() * list.length)
+  return list[idx]
+
+select_random_other_itemtype = (options) ->
+  {username, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype} = options
+  item_types_not_finished = getItemTypesNotCompletelyFinished(items_finished_by_user)
+  other_item_types_not_finished = [x for x in item_types_not_finished when x != itemtype]
+  return randomSelect(other_item_types_not_finished)
+
+getSuggestions_one_of_different_type = (options) ->
+  selected_itemtype = select_random_other_itemtype(options)
+  return suggestNextItemOfType(options, selected_itemtype)
+
+suggested_itemtype_history = []
+getSuggestions_three_same_then_one_different = (options) ->
+  {itemtype} = options
+  number_times_itemtype_was_inserted_most_recently = suggested_itemtype_history[-3 to].filter((item) -> item.itemtype == itemtype).length
+  next_item_type = itemtype
+  if number_times_itemtype_was_inserted_most_recently >= 3
+    next_item_type = select_random_other_itemtype(options)
+  suggested_itemtype_history.push(next_item_type)
+  return suggestNextItemOfType(options, next_item_type)
+
+getSuggestions_one_same_and_one_different = (options) ->
+  {itemtype} = options
+  different_itemtype = select_random_other_itemtype(options)
+  return suggestNextItemOfType(options, itemtype) ++ suggestNextItemOfType(options, different_itemtype)
 
 processTaskSuggestion = (task_suggestion, callback) ->
   if task_suggestion.post?
@@ -76,13 +105,15 @@ processTaskSuggestions = (task_suggestions, callback) ->
 export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
   username <- getUsername()
   suggestionformula <- getParam('suggestionformula')
-  options = {username, finished_item, current_feed_items, all_finished_items}
+  items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
+  itemtype = getItemType(finished_item)
+  options = {username, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype}
   task_suggestion_formula = null
+  console.log 'addNewItemSuggestions'
   if suggestionformula?
-    task_suggestion_formula = task_suggestion_formulas[suggestionformula]
+    task_suggestion_formula = getTaskSuggestionFormulas()[suggestionformula]
   if not task_suggestion_formula?
-    task_suggestion_formula = task_suggestion_formulas.default
-  #task_suggestion_formula(options, callback)
+    task_suggestion_formula = getTaskSuggestionFormulas().default
   task_suggestions = task_suggestion_formula(options)
   console.log 'task suggestions are:'
   console.log task_suggestions

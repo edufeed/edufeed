@@ -85,8 +85,8 @@ export getAllFeedItems = ->
     dots ++ typeletter ++ typeword
 
   all_feed_items_cache := {
-    defaults
-    bars
+    #defaults
+    #bars
     dots
     typeword
     typeletter
@@ -94,9 +94,9 @@ export getAllFeedItems = ->
     balance
     lettervideo
     numbervideo
-    admin
-    example
-    iframe
+    #admin
+    #example
+    #iframe
   }
 
   return all_feed_items_cache
