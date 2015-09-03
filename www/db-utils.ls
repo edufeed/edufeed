@@ -152,14 +152,46 @@ export postItem = (dbname, item, callback) ->
       callback(err, res)
 */
 
+prev_updatetime = 0
+getNewUpdateTime = ->
+  output = Date.now()
+  if output <= prev_updatetime
+    output = Math.max(output, prev_updatetime) + 0.01
+  prev_updatetime := output
+  return output
+
+export bumpFeedItemUpdateTime = (item, callback) ->
+  username <- getUsername()
+  bumpItemUpdateTime "feeditems_#{username}", item, callback
+
+export bumpItemUpdateTime = (dbname, item, callback) ->
+  new_update_time = getNewUpdateTime()
+  db = getDb(dbname)
+  alldocs <- db.allDocs({include_docs: true}).then()
+  allitems = [x.doc for x in alldocs.rows]
+  matches = [x for x in allitems when itemtype_and_data_matches(item, x)]
+  async.eachSeries matches, (matchitem, ncallback) ->
+    console.log matchitem
+    console.log matchitem['_id']
+    db.upsert(matchitem['_id'], (dbitem) ->
+      dbitem.updatetime = Math.max(dbitem.updatetime, new_update_time)
+      return dbitem
+    ).then ->
+      ncallback(null, null)
+  , ->
+    if callback?
+      callback()
+
 export postItem = (dbname, item, callback) ->
   #console.log 'postItem called: '
   #console.log dbname
   #console.log item
+  new_update_time = getNewUpdateTime()
   db = getDb(dbname)
   db.upsert(makeUUID(), (doc) ->
     for k,v of item
       doc[k] = v
+    doc.updatetime = new_update_time
     return doc
   ).then ->
     if callback?

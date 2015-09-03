@@ -98,6 +98,8 @@ Polymer {
         addlog {event: 'task-left', item: item}
         this.closeActivity()
     activity.appendTo this.S('#activity')
+    bumpFeedItemUpdateTime item, ~>
+      this.updateItems()
   addItemToFeed: (item) ->
     thumbnail = makeSocialThumbnail item
     thumbnail.find('#thumbnail').click ~>
@@ -110,6 +112,15 @@ Polymer {
     this.S('#thumbnails').html('')
     for item in this.items
       this.addItemToFeed item
+  sortByUpdateTime: (docs) ->
+    return docs.sort (a, b) ->
+      a_updatetime = 0
+      if a? and a.updatetime?
+        a_updatetime = a.updatetime
+      b_updatetime = 0
+      if b? and b.updatetime?
+        b_updatetime = b.updatetime
+      return b_updatetime - a_updatetime
   updateItems: (firstvisit) ->
     self = this
     username <- getUsername()
@@ -121,7 +132,7 @@ Polymer {
     if self.hide_admin_console? and self.hide_admin_console
       noadmin = true
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
-      docs := [{itemtype: 'admin', social: {poster: 'horse'}}] ++ docs
+      docs := [{itemtype: 'admin', social: {poster: 'horse'}, updatetime: 0}] ++ docs
     finished_items <- getFinishedItems()
     self.finished_items = finished_items
     for doc in docs
@@ -130,7 +141,9 @@ Polymer {
         if not doc.social?
           doc.social = {}
         doc.social.finishedby = matching_finished_items[0].social.finishedby
-    self.items = docs
+    self.items = self.sortByUpdateTime(docs)
+    #console.log [x.updatetime for x in self.items]
+    console.log [x.updatetime for x in self.sortByUpdateTime(docs)]
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
   shareActivity: (evt) ->

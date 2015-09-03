@@ -1,5 +1,5 @@
 (function(){
-  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, postItem, postItemToSelf, postItemToTarget, postFinishedItem, getFinishedItems, out$ = typeof exports != 'undefined' && exports || this;
+  var test_if_can_login, get_couchdb_login, db_cache, remote_db_cache, db_sync_handlers, getDb, setSyncHandler, getItems, deleteLocalDb, clearDb, padWithZeros, prevUUID, makeUUID, prev_updatetime, getNewUpdateTime, bumpFeedItemUpdateTime, bumpItemUpdateTime, postItem, postItemToSelf, postItemToTarget, postFinishedItem, getFinishedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.test_if_can_login = test_if_can_login = function(username, password, callback){
     return getCouchURL(function(couchurl){
       var pouchOpts, use_https, db, ajaxOpts;
@@ -204,8 +204,62 @@
       if callback?
         callback(err, res)
   */
+  prev_updatetime = 0;
+  getNewUpdateTime = function(){
+    var output;
+    output = Date.now();
+    if (output <= prev_updatetime) {
+      output = Math.max(output, prev_updatetime) + 0.01;
+    }
+    prev_updatetime = output;
+    return output;
+  };
+  out$.bumpFeedItemUpdateTime = bumpFeedItemUpdateTime = function(item, callback){
+    return getUsername(function(username){
+      return bumpItemUpdateTime("feeditems_" + username, item, callback);
+    });
+  };
+  out$.bumpItemUpdateTime = bumpItemUpdateTime = function(dbname, item, callback){
+    var new_update_time, db;
+    new_update_time = getNewUpdateTime();
+    db = getDb(dbname);
+    return db.allDocs({
+      include_docs: true
+    }).then(function(alldocs){
+      var allitems, res$, i$, ref$, len$, x, matches;
+      res$ = [];
+      for (i$ = 0, len$ = (ref$ = alldocs.rows).length; i$ < len$; ++i$) {
+        x = ref$[i$];
+        res$.push(x.doc);
+      }
+      allitems = res$;
+      res$ = [];
+      for (i$ = 0, len$ = allitems.length; i$ < len$; ++i$) {
+        x = allitems[i$];
+        if (itemtype_and_data_matches(item, x)) {
+          res$.push(x);
+        }
+      }
+      matches = res$;
+      return async.eachSeries(matches, function(matchitem, ncallback){
+        console.log(matchitem);
+        console.log(matchitem['_id']);
+        return db.upsert(matchitem['_id'], function(dbitem){
+          dbitem.updatetime = Math.max(dbitem.updatetime, new_update_time);
+          return dbitem;
+        }).then(function(){
+          return ncallback(null, null);
+        });
+      }, function(){
+        if (callback != null) {
+          return callback();
+        }
+      });
+    });
+  };
   out$.postItem = postItem = function(dbname, item, callback){
-    var db;
+    var new_update_time, db;
+    new_update_time = getNewUpdateTime();
     db = getDb(dbname);
     return db.upsert(makeUUID(), function(doc){
       var k, ref$, v;
@@ -213,6 +267,7 @@
         v = ref$[k];
         doc[k] = v;
       }
+      doc.updatetime = new_update_time;
       return doc;
     }).then(function(){
       if (callback != null) {

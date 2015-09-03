@@ -120,7 +120,10 @@
           return this$.closeActivity();
         }
       });
-      return activity.appendTo(this.S('#activity'));
+      activity.appendTo(this.S('#activity'));
+      return bumpFeedItemUpdateTime(item, function(){
+        return this$.updateItems();
+      });
     },
     addItemToFeed: function(item){
       var thumbnail, this$ = this;
@@ -146,6 +149,20 @@
       }
       return results$;
     },
+    sortByUpdateTime: function(docs){
+      return docs.sort(function(a, b){
+        var a_updatetime, b_updatetime;
+        a_updatetime = 0;
+        if (a != null && a.updatetime != null) {
+          a_updatetime = a.updatetime;
+        }
+        b_updatetime = 0;
+        if (b != null && b.updatetime != null) {
+          b_updatetime = b.updatetime;
+        }
+        return b_updatetime - a_updatetime;
+      });
+    },
     updateItems: function(firstvisit){
       var self;
       self = this;
@@ -165,7 +182,8 @@
                 itemtype: 'admin',
                 social: {
                   poster: 'horse'
-                }
+                },
+                updatetime: 0
               }].concat(docs);
             }
             return getFinishedItems(function(finished_items){
@@ -188,7 +206,15 @@
                   doc.social.finishedby = matching_finished_items[0].social.finishedby;
                 }
               }
-              self.items = docs;
+              self.items = self.sortByUpdateTime(docs);
+              console.log((function(){
+                var i$, ref$, len$, results$ = [];
+                for (i$ = 0, len$ = (ref$ = self.sortByUpdateTime(docs)).length; i$ < len$; ++i$) {
+                  x = ref$[i$];
+                  results$.push(x.updatetime);
+                }
+                return results$;
+              }()));
               if (firstvisit != null && firstvisit) {
                 return addlog({
                   event: 'visitfeed'
