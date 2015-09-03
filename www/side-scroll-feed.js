@@ -207,14 +207,6 @@
                 }
               }
               self.items = self.sortByUpdateTime(docs);
-              console.log((function(){
-                var i$, ref$, len$, results$ = [];
-                for (i$ = 0, len$ = (ref$ = self.sortByUpdateTime(docs)).length; i$ < len$; ++i$) {
-                  x = ref$[i$];
-                  results$.push(x.updatetime);
-                }
-                return results$;
-              }()));
               if (firstvisit != null && firstvisit) {
                 return addlog({
                   event: 'visitfeed'

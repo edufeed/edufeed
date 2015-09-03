@@ -142,8 +142,6 @@ Polymer {
           doc.social = {}
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     self.items = self.sortByUpdateTime(docs)
-    #console.log [x.updatetime for x in self.items]
-    console.log [x.updatetime for x in self.sortByUpdateTime(docs)]
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
   shareActivity: (evt) ->
