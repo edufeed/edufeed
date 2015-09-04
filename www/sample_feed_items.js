@@ -446,7 +446,7 @@
       });
     }
     fillblanksocial = res$;
-    defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1), fillblanksocial(0, 1));
+    defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1), fillblanksocial.slice(0, 1));
     feed_items_cache = {
       defaults: defaults,
       bars: bars,
