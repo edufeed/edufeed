@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link rel="stylesheet" type="text/css">
+    <title>Addition</title>
+    <style type="text/css">
+
+        .numeral {
+            fill: url(#numeralpattern);
+            border:none; 
+            overflow:hidden;
+        }
+
+        .addend1bar {
+            fill: url(#addend1barpattern);
+            border:none; 
+            overflow:hidden;
+        }
+
+        .sumbar {
+            fill: url(#sumbarpattern);
+            border:none; 
+            overflow:hidden;
+        }
+
+    </style>
+</head>
+
+
+<body>
+    <script src="../d3/d3.min.js"></script>
+    <script src="../d3/jquery.min.js"></script>
+
+    <!--<div id="dummy" style="height:15px; width:100%; clear:both;"></div>-->
+
+    <div class="pane" id="addition">
+        <svg xmlns="http://www.w3.org/2000/svg" id="pane" width="600" height="600">
+            <defs>
+                <pattern id="numeralpattern" height="10" width="100">
+                    <image xlink:href="../icons/numbers_bar.png" height="10" width="100" />
+                </pattern>
+                <pattern id="addend1barpattern" height="10" width="100">
+                    <image xlink:href="../icons/numbers_bar.png" height="10" width="100" />
+                </pattern>
+                <pattern id="sumbarpattern" height="10" width="200">
+                    <image xlink:href="../icons/sum_bar.png" height="10" width="200" />
+                </pattern>
+            </defs>
+            
+            <!--<rect x="0" y="0" width="350" height="350" stroke-width="1" stroke="yellow" fill="transparent"></rect>
+            <line x1="100" x2="100" y1="0" y2="350" stroke-width="1" stroke="yellow"></line>
+            <line x1="310" x2="310" y1="0" y2="350" stroke-width="1" stroke="yellow"></line>-->
+            <g id="numberals">
+                <rect id="numeral1" class="numeral" data-value="1" data-y="10" height="10" width="10" x="0" y="10"></rect>
+                <rect id="numeral2" class="numeral" data-value="2" data-y="40" height="10" width="20" x="0" y="40"></rect>
+                <rect id="numeral3" class="numeral" data-value="3" data-y="70" height="10" width="30" x="0" y="70"></rect>
+                <rect id="numeral4" class="numeral" data-value="4" data-y="100" height="10" width="40" x="0" y="100"></rect>
+                <rect id="numeral5" class="numeral" data-value="5" data-y="130" height="10" width="50" x="0" y="130"></rect>
+                <rect id="numeral6" class="numeral" data-value="6" data-y="160" height="10" width="60" x="0" y="160"></rect>
+                <rect id="numeral7" class="numeral" data-value="7" data-y="190" height="10" width="70" x="0" y="190"></rect>
+                <rect id="numeral8" class="numeral" data-value="8" data-y="220" height="10" width="80" x="0" y="220"></rect>
+                <rect id="numeral9" class="numeral" data-value="9" data-y="250" height="10" width="90" x="0" y="250"></rect>
+                <rect id="numeral10" class="numeral" data-value="10" data-y="280" height="10" width="100" x="0" y="280"></rect>
+            </g>
+            <g id="additionbar">
+                <rect id="addend1bar" class="addend1bar" height="10" width="100" x="100" y="110"></rect>
+                <rect id="sumbar" class="sumbar" height="10" width="200" x="100" y="170"></rect>
+            </g>
+            <g id="problem">
+                <text id="addend1number" x="335" y="100">3</text>
+                <text id="plussign" x="320" y="130">+</text>
+                <text id="addend2number" x="335" y="130">?</text>
+                <line x1="310" x2="350" y1="150" y2="150" stroke-width="1" stroke="black"></line>
+                <text id="equalsign" x="320" y="180">=</text>
+                <text id="sumnumber" x="335" y="180">7</text>
+            </g>
+        </svg>
+    </div>
+
+    <audio id="boink" src="Audio\boink.mp3"></audio>
+    <audio id="tada" src="Audio\tada.mp3"></audio>
+    <script src="addition.js"></script>
+
+    <script>
+        getUrlParameters = function () {
+            var url, hash, map, parts;
+            url = window.location.href;
+            hash = url.lastIndexOf('#');
+            if (hash !== -1) {
+                url = url.slice(0, hash);
+            }
+            map = {};
+            parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                return map[key] = decodeURIComponent(value).split('+').join(' ');
+            });
+            return map;
+        };
+        params = getUrlParameters();
+
+        //var svg_dummy = d3.select("body").append("svg");
+        //var defs = svg_dummy.append("defs");
+        //var pane_g = d3.select("#pane > g");
+
+        var numberals_g = d3.select("#numberals");
+        var additionbar_g = d3.select("#additionbar");
+        var problem_g = d3.select("#problem");
+
+        var width = 350;
+        var height = 350;
+
+        var sum = params.sum;
+        var addend1 = params.add;
+        var addend2;
+
+        var mousedragX;
+        var mousedragY;
+
+        DefineDragEvents();
+        InitProblem();
+
+    </script>
+</body>
+
+</html>
