@@ -48,7 +48,13 @@ Visit the feed page, and open the admin console (it should be the first feed ite
 
 ## Offline Caching and Customization
 
-## Customizing Classes
+### Customizing Feed Items
+
+To customize the set of sample feed items (which you can insert from the admin activity, in the `Add sample feed items` section), edit the function `getAllFeedItems` in [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls) - it returns a dictionary mapping from activity type to a list of feed items.
+
+To customize the set of all feed items (which are suggested by the task suggestion algorithm), edit the function `getSampleFeedItems` in [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls) - it returns a dictionary mapping from activity type to a list of feed items, listed in ascending order of difficulty.
+
+### Customizing Classes
 
 Users who are in the same class will be able to share activities with each other. The lsit of classes can be edited at [classes.yaml](https://github.com/edufeed/edufeed/blob/master/www/classes.yaml)
 
