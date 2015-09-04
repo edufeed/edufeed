@@ -106,6 +106,68 @@ An example of adding a new activity consisting of a video playlist is shown [her
 
 ## Logs
 
+### Viewing Log Analysis Results
+
+You can view the log analysis results for the current user on the tablet by going to the admin console and clicking the `Display Log Analysis` button. Results will look like follows. The code that does the log analysis is in [log-analysis.ls](https://github.com/edufeed/edufeed/blob/master/www/log-analysis.ls)
+
+```
+{
+  "number of activities started": 13,
+  "number of activities finished": 3,
+  "number of activities left": 7,
+  "number of total share events": 2,
+  "number of unique activities shared": 1,
+  "number of shares to each person in the class": {
+    "geza": 2
+  },
+  "identities of posters for activities started": {
+    "mouse": 13
+  },
+  "identities of posters for activities finished": {
+    "mouse": 3
+  },
+  "identities of posters for activities left": {
+    "mouse": 7
+  },
+  "types of activities started": {
+    "admin": 8,
+    "video": 1,
+    "balance": 1,
+    "typeword": 2,
+    "dots": 1
+  },
+  "types of activities finished": {
+    "balance": 1,
+    "typeword": 2
+  },
+  "types of activities left": {
+    "admin": 5,
+    "video": 1,
+    "dots": 1
+  },
+  "total duration app has been open in seconds (within 10 seconds including idle time)": 580,
+  "total duration app has been active (excluding idle periods greater than 10 seconds)": 210,
+  "total time spent on each activity type (within 10 seconds including idle time)": {
+    "side-scroll-feed": 20,
+    "video": 30,
+    "balance": 10,
+    "typeword": 50,
+    "taskfinished-sharing": 200,
+    "admin": 260,
+    "tutorial": 10
+  },
+  "total active time spent on each activity type (excluding idle periods greater than 10 seconds)": {
+    "side-scroll-feed": 20,
+    "video": 10,
+    "balance": 10,
+    "typeword": 50,
+    "taskfinished-sharing": 30,
+    "admin": 80,
+    "tutorial": 10
+  }
+}
+```
+
 ### Viewing Logs
 
 Visit COUCHROOT/_utils/ and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
