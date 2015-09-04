@@ -54,6 +54,17 @@ To customize the set of sample feed items (which you can insert from the admin a
 
 To customize the set of all feed items (which are suggested by the task suggestion algorithm), edit the function `getSampleFeedItems` in [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sample_feed_items.ls) - it returns a dictionary mapping from activity type to a list of feed items, listed in ascending order of difficulty.
 
+### Customzing Task Suggestions
+
+To customize the item recommendation algorithm (which determines which items to insert into the feed after you complete one), you can choose from one of the existing, already-implemented algorithms in the admin console (see the selector box titled `Task Suggestion Formula`). They are:
+
+* one_more_of_the_sametype: Inserts one more task, with the same type as the task you just finished.
+* one_of_different_type: Inserts one more task, with a different type from the task you just finished.
+* three_same_then_one_different: Inserts one more task, with the same type as the task you just finished. If it has already inserted 3 tasks of the same type in a row, it will insert a different type.
+* one_same_and_one_different (default): Inserts two tasks: one with the same item type as the task you just finished, and one with a different item type.
+
+To add a new one, add a function to the dictionary returned by `getTaskSuggestionFormulas` in [task-suggestion-utils.ls](https://github.com/edufeed/edufeed/blob/master/www/task-suggestion-utils.ls)
+
 ### Customizing Classes
 
 Users who are in the same class will be able to share activities with each other. The list of classes can be edited at [classes.yaml](https://github.com/edufeed/edufeed/blob/master/www/classes.yaml)
