@@ -108,7 +108,12 @@ An example of adding a new activity consisting of a video playlist is shown [her
 
 ### Viewing Log Analysis Results
 
-You can view the log analysis results for the current user on the tablet by going to the admin console and clicking the `Display Log Analysis` button. Results will look like follows. The code that does the log analysis is in [log-analysis.ls](https://github.com/edufeed/edufeed/blob/master/www/log-analysis.ls)
+You can view the log analysis results for the current user by either:
+
+* On the tablet, go to the admin console and click the `Display Log Analysis` button
+* On the server, run the command `node scripts/log_analysis.js geza` (substituting `geza` with the username you want to view log analysis results for)
+
+Results will look like follows. The code that does the log analysis is in [log-analysis.ls](https://github.com/edufeed/edufeed/blob/master/www/log-analysis.ls)
 
 ```
 {

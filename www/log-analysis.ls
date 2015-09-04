@@ -12,6 +12,14 @@ export filter_by_query = (logs, query) ->
 filter_out_activities = (logs, ignored_activities) ->
   return [x for x in logs when ignored_activities.indexOf(x.itemtype) == -1]
 
+itemtype_and_data_matches_v2 = (item1, item2) ->
+  # returns true if all keys and values in item1 are present in item2
+  if item1.itemtype != item2.itemtype
+    return false
+  if item1.data === item2.data
+    return true
+  return false
+
 export makeLogAnalyzer = (orig_logs, options) ->
   if not options?
     options = {}
@@ -29,7 +37,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
     all_share_events = select_query({event: 'shareactivity'})
     unique_share_events = []
     for share_event in all_share_events
-      matches = [x for x in unique_share_events when itemtype_and_data_matches(share_event, x)]
+      matches = [x for x in unique_share_events when itemtype_and_data_matches_v2(share_event, x)]
       if matches.length == 0
         unique_share_events.push(share_event)
     return unique_share_events.length
@@ -117,7 +125,6 @@ export makeLogAnalyzer = (orig_logs, options) ->
     open_events = select_query({event: 'app-still-open'})
     output = {}
     for evt in open_events
-      console.log evt
       if not evt.postinterval?
         continue
       if not evt.currentactivitytype?
