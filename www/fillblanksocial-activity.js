@@ -1,6 +1,6 @@
 (function(){
   RegisterActivity({
-    is: 'fillblank-activity',
+    is: 'fillblanksocial-activity',
     properties: {
       sentence: {
         type: String,
@@ -44,6 +44,9 @@
         }
       }
       this.entered = word;
+      setSocialSharingData('fillblanksocial', {
+        entered: word
+      });
       return setTimeout(function(){
         return this$.fire('task-freeplay', this$);
       }, 0);

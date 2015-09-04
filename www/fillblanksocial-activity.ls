@@ -1,5 +1,5 @@
 RegisterActivity {
-  is: 'fillblank-activity'
+  is: 'fillblanksocial-activity'
   properties: {
     sentence: {
       type: String
@@ -36,7 +36,7 @@ RegisterActivity {
         word = elem.word
         break
     this.entered = word
-    #setSocialSharingData('fillblank', {entered: word})
+    setSocialSharingData('fillblanksocial', {entered: word})
     setTimeout ~>
       this.fire 'task-freeplay', this
     , 0

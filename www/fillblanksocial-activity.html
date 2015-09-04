@@ -1,0 +1,46 @@
+<link rel="import" href="polymer-utils.html">
+<link rel="import" href="typeword-thumbnail.html">
+
+<dom-module id="fillblanksocial-activity">
+  <style>
+    :host {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      font-size: 44px;
+      white-space: normal;
+    }
+    .saysentence {
+      cursor: pointer;
+    }
+    .sayword {
+      cursor: pointer;
+    }
+    .highlighted {
+      background-color: yellow;
+    }
+    .wordoptiondiv {
+      height: 350px;
+      width: 100%;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      white-space: nowrap;
+    }
+    .wordoptionwrapper {
+      position: absolute;
+      height: 350px;
+      width: 100%;
+      top: 0px;
+    }
+  </style>
+  <template>
+    <div class="wordoptiondiv">
+      <template is="dom-repeat" items="{{wordoptions}}" as="wordoption">
+        <typeword-thumbnail word="{{wordoption}}" on-click="fillword"></typeword-thumbnail>
+      </template>
+    </div>
+    <readaloud-text text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence"></readaloud-text>
+  </template>
+  <script src="fillblanksocial-activity.js"></script>  
+</dom-module>

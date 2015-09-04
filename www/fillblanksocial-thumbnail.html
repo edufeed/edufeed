@@ -1,0 +1,26 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="fillblanksocial-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      vertical-align: top;
+      width: 350px;
+      height: 350px;
+      overflow: hidden;
+      font-size: 32px;
+      white-space: normal;
+    }
+    .overlaydiv {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+    }
+  </style>
+  <template>
+    <div class="overlaydiv"></div>
+    <readaloud-text text="{{sentence}}" style="pointer-events: none"></readaloud-text>
+  </template>
+  <script src="fillblanksocial-thumbnail.js"></script>  
+</dom-module>
