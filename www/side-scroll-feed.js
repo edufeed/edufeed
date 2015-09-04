@@ -22,7 +22,7 @@
         return this.closeShareWidget();
       } else {
         addlog({
-          event: 'task-closed',
+          event: 'task-left',
           item: this.current_item
         });
         return this.closeActivity();
@@ -46,7 +46,12 @@
       this.SM('.mainscreen').hide();
       this.S('#tutorial').show();
       tutorial_dom = Polymer.dom(this.$$('#tutorial'));
-      return tutorial_dom.innerHTML = "<tutorial-display tutorial='" + itemtype + "'></tutorial-display>";
+      tutorial_dom.innerHTML = "<tutorial-display tutorial='" + itemtype + "'></tutorial-display>";
+      addlog({
+        'tutorial-opened': 'tutorial-opened',
+        item: this.current_item
+      });
+      return this.currentactivitytype = 'tutorial';
     },
     closeTutorial: function(){
       var tutorial_dom;
@@ -54,7 +59,8 @@
       this.SM('.mainscreen').hide();
       tutorial_dom = Polymer.dom(this.$$('#tutorial'));
       tutorial_dom.innerHTML = '';
-      return this.S('#activityscreen').show();
+      this.S('#activityscreen').show();
+      return this.currentactivitytype = this.current_item.itemtype;
     },
     openTaskFinished: function(item){
       var taskfinished_dom;
@@ -69,7 +75,8 @@
       this.$$('#sharingbutton').closeShareWidget();
       this.S('#taskfinished').show();
       taskfinished_dom = Polymer.dom(this.$$('#taskfinished'));
-      return taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>";
+      taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>";
+      return this.currentactivitytype = 'taskfinished-sharing';
     },
     closeTaskFinished: function(){
       var tutorial_dom;
@@ -84,7 +91,8 @@
       this.SM('.mainscreen').hide();
       this.S('#activity').html('');
       this.S('#thumbnails').show();
-      return this.$$('#sharingbutton').closeShareWidget();
+      this.$$('#sharingbutton').closeShareWidget();
+      return this.currentactivitytype = 'side-scroll-feed';
     },
     itemFinished: function(item){
       var self;
@@ -103,6 +111,7 @@
       this.S('#exitbutton').show();
       this.S('#activity').html('');
       this.current_item = item;
+      this.currentactivitytype = item.itemtype;
       activity = makeActivity(item);
       activity[0].addEventListener('task-finished', function(){
         if (!activity[0].alreadyleft) {
@@ -181,7 +190,7 @@
               docs = [{
                 itemtype: 'admin',
                 social: {
-                  poster: 'horse'
+                  poster: 'mouse'
                 },
                 updatetime: 0
               }].concat(docs);
@@ -308,12 +317,29 @@
       });
       return getBoolParam('hidesharebutton', function(hidesharebutton){
         return getBoolParam('hidehelpbutton', function(hidehelpbutton){
+          var mostrecentclick, postinterval;
           if (hidesharebutton) {
             self.S('#sharingbutton').hide();
           }
           if (hidehelpbutton) {
-            return self.S('#helpbutton').hide();
+            self.S('#helpbutton').hide();
           }
+          self.currentactivitytype = 'side-scroll-feed';
+          mostrecentclick = Date.now();
+          $('body').click(function(){
+            return mostrecentclick = Date.now();
+          });
+          postinterval = 10000;
+          return setInterval(function(){
+            return addlog({
+              event: 'app-still-open',
+              'mostrecentclick': mostrecentclick,
+              'currenttime': Date.now(),
+              'postinterval': postinterval,
+              'currentactivitytype': self.currentactivitytype,
+              'item': self.current_item
+            });
+          }, postinterval);
         });
       });
     }

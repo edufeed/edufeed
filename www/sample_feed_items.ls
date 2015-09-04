@@ -46,16 +46,16 @@ export getAllFeedItems = ->
   videolists = getFeedVideoLists()
 
   bars =
-    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
+    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
 
   dots =
     [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
 
   typeletter =
-    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
 
   typeword =
-    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
 
   #balance =
   #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
@@ -64,13 +64,13 @@ export getAllFeedItems = ->
     [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
 
   admin =
-    [{itemtype: 'admin', social: {poster: 'horse'}}]
+    [{itemtype: 'admin', social: {poster: 'mouse'}}]
 
   example =
-    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}]
+    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: []}}]
 
   iframe =
-    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: ['elephant']}}]
+    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: []}}]
 
   lettervideo =
     [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
@@ -111,16 +111,16 @@ export getSampleFeedItems = ->
   videolists = getFeedVideoLists()
 
   bars =
-    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'dog'}} for levelnum in [0 to 2]]
+    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
 
   dots =
     [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
 
   typeletter =
-    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
 
   typeword =
-    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'dog', finishedby: ['zebra']}} for word in wordlist]
+    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
 
   #balance =
   #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
@@ -129,13 +129,13 @@ export getSampleFeedItems = ->
     [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 50, 300]]
 
   admin =
-    [{itemtype: 'admin', social: {poster: 'horse'}}]
+    [{itemtype: 'admin', social: {poster: 'mouse'}}]
 
   example =
-    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: ['elephant']}}]
+    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: []}}]
 
   iframe =
-    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: ['elephant']}}]
+    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: []}}]
 
   lettervideo =
     [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]

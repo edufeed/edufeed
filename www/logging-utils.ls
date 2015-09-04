@@ -21,7 +21,7 @@ export addlog = (postdata, callback) ->
   username <- getUsername()
   db = getDb "logs_#{username}", {replicatetoremote: true}
   if not output.username?
-    output.username = 'guestuser'
+    output.username = username
   output.posttime = Date.now()
   if not loginfo.sessionstart?
     loginfo.sessionstart = Date.now()
@@ -42,8 +42,14 @@ export addlog = (postdata, callback) ->
 export getlogs = (callback) ->
   username <- getUsername()
   db = getDb "logs_#{username}"
-  db.allDocs({include_docs: true}).then((docs) -> callback(docs.rows))
+  db.allDocs({include_docs: true}).then (docs) ->
+    callback [x.doc for x in docs.rows]
 
-export printlogs = ->
+export printlogs = (query) ->
   getlogs (logs) ->
-    console.log JSON.stringify(logs)
+    matching_logs = filter_by_query(logs, query)
+    console.log JSON.stringify(matching_logs, null, 2)
+
+export printloganalysis = ->
+  getlogs (logs) ->
+    console.log getLogAnalysisResultsAsString(logs)

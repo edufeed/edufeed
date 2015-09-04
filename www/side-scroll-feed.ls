@@ -17,7 +17,7 @@ Polymer {
     if this.$$('#sharingbutton').isShareWidgetOpen()
       this.closeShareWidget()
     else
-      addlog {event: 'task-closed', item: this.current_item}
+      addlog {event: 'task-left', item: this.current_item}
       this.closeActivity()
   doneButtonClicked: ->
     if this.$$('#sharingbutton').isShareWidgetOpen()
@@ -33,12 +33,15 @@ Polymer {
     this.S('#tutorial').show()
     tutorial_dom = Polymer.dom(this.$$('#tutorial'))
     tutorial_dom.innerHTML = "<tutorial-display tutorial='#{itemtype}'></tutorial-display>"
+    addlog {'tutorial-opened', item: this.current_item}
+    this.currentactivitytype = 'tutorial'
   closeTutorial: ->
     stop_sound()
     this.SM('.mainscreen').hide()
     tutorial_dom = Polymer.dom(this.$$('#tutorial'))
     tutorial_dom.innerHTML = ''
     this.S('#activityscreen').show()
+    this.currentactivitytype = this.current_item.itemtype
   openTaskFinished: (item) ->
     stop_sound()
     addlog {event: 'task-finished', item: item}
@@ -50,6 +53,7 @@ Polymer {
     this.S('#taskfinished').show()
     taskfinished_dom = Polymer.dom(this.$$('#taskfinished'))
     taskfinished_dom.innerHTML = "<taskfinished-display></taskfinished-display>"
+    this.currentactivitytype = 'taskfinished-sharing'
   closeTaskFinished: ->
     stop_sound()
     this.SM('.mainscreen').hide()
@@ -62,6 +66,7 @@ Polymer {
     this.S('#activity').html('')
     this.S('#thumbnails').show()
     this.$$('#sharingbutton').closeShareWidget()
+    this.currentactivitytype = 'side-scroll-feed'
   itemFinished: (item) ->
     self = this
     postFinishedItem item, ->
@@ -87,6 +92,7 @@ Polymer {
     this.S('#exitbutton').show()
     this.S('#activity').html('')
     this.current_item = item
+    this.currentactivitytype = item.itemtype
     activity = makeActivity(item) # feed-items.ls
     activity[0].addEventListener 'task-finished', ~>
       if not activity[0].alreadyleft
@@ -132,7 +138,7 @@ Polymer {
     if self.hide_admin_console? and self.hide_admin_console
       noadmin = true
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
-      docs := [{itemtype: 'admin', social: {poster: 'horse'}, updatetime: 0}] ++ docs
+      docs := [{itemtype: 'admin', social: {poster: 'mouse'}, updatetime: 0}] ++ docs
     finished_items <- getFinishedItems()
     self.finished_items = finished_items
     for doc in docs
@@ -207,4 +213,12 @@ Polymer {
       self.S('#sharingbutton').hide()
     if hidehelpbutton
       self.S('#helpbutton').hide()
+    self.currentactivitytype = 'side-scroll-feed'
+    mostrecentclick = Date.now()
+    $('body').click ->
+      mostrecentclick := Date.now()
+    postinterval = 10000 # every 10 seconds
+    setInterval ->
+      addlog {event: 'app-still-open', 'mostrecentclick': mostrecentclick, 'currenttime': Date.now(), 'postinterval': postinterval, 'currentactivitytype': self.currentactivitytype, 'item': self.current_item}
+    , postinterval
 }

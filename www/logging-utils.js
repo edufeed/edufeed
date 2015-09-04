@@ -1,5 +1,5 @@
 (function(){
-  var getActivityName, getActivityTag, loginfo, addlog, getlogs, printlogs, out$ = typeof exports != 'undefined' && exports || this;
+  var getActivityName, getActivityTag, loginfo, addlog, getlogs, printlogs, printloganalysis, out$ = typeof exports != 'undefined' && exports || this;
   out$.getActivityName = getActivityName = function(){
     var activity, children, tag;
     activity = $('#activity');
@@ -33,7 +33,7 @@
         replicatetoremote: true
       });
       if (output.username == null) {
-        output.username = 'guestuser';
+        output.username = username;
       }
       output.posttime = Date.now();
       if (loginfo.sessionstart == null) {
@@ -64,13 +64,28 @@
       return db.allDocs({
         include_docs: true
       }).then(function(docs){
-        return callback(docs.rows);
+        var x;
+        return callback((function(){
+          var i$, ref$, len$, results$ = [];
+          for (i$ = 0, len$ = (ref$ = docs.rows).length; i$ < len$; ++i$) {
+            x = ref$[i$];
+            results$.push(x.doc);
+          }
+          return results$;
+        }()));
       });
     });
   };
-  out$.printlogs = printlogs = function(){
+  out$.printlogs = printlogs = function(query){
     return getlogs(function(logs){
-      return console.log(JSON.stringify(logs));
+      var matching_logs;
+      matching_logs = filter_by_query(logs, query);
+      return console.log(JSON.stringify(matching_logs, null, 2));
+    });
+  };
+  out$.printloganalysis = printloganalysis = function(){
+    return getlogs(function(logs){
+      return console.log(getLogAnalysisResultsAsString(logs));
     });
   };
   function import$(obj, src){

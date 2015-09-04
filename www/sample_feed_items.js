@@ -30,7 +30,7 @@
           level: levelnum
         },
         social: {
-          poster: 'dog'
+          poster: 'mouse'
         }
       });
     }
@@ -73,8 +73,8 @@
           word: word
         },
         social: {
-          poster: 'dog',
-          finishedby: ['zebra']
+          poster: 'mouse',
+          finishedby: []
         }
       });
     }
@@ -88,8 +88,8 @@
           word: word
         },
         social: {
-          poster: 'dog',
-          finishedby: ['zebra']
+          poster: 'mouse',
+          finishedby: []
         }
       });
     }
@@ -111,7 +111,7 @@
     admin = [{
       itemtype: 'admin',
       social: {
-        poster: 'horse'
+        poster: 'mouse'
       }
     }];
     example = [{
@@ -122,7 +122,7 @@
       },
       social: {
         poster: 'mouse',
-        finishedby: ['elephant']
+        finishedby: []
       }
     }];
     iframe = [{
@@ -137,7 +137,7 @@
       },
       social: {
         poster: 'mouse',
-        finishedby: ['elephant']
+        finishedby: []
       }
     }];
     res$ = [];
@@ -214,7 +214,7 @@
           level: levelnum
         },
         social: {
-          poster: 'dog'
+          poster: 'mouse'
         }
       });
     }
@@ -257,8 +257,8 @@
           word: word
         },
         social: {
-          poster: 'dog',
-          finishedby: ['zebra']
+          poster: 'mouse',
+          finishedby: []
         }
       });
     }
@@ -272,8 +272,8 @@
           word: word
         },
         social: {
-          poster: 'dog',
-          finishedby: ['zebra']
+          poster: 'mouse',
+          finishedby: []
         }
       });
     }
@@ -295,7 +295,7 @@
     admin = [{
       itemtype: 'admin',
       social: {
-        poster: 'horse'
+        poster: 'mouse'
       }
     }];
     example = [{
@@ -306,7 +306,7 @@
       },
       social: {
         poster: 'mouse',
-        finishedby: ['elephant']
+        finishedby: []
       }
     }];
     iframe = [{
@@ -321,7 +321,7 @@
       },
       social: {
         poster: 'mouse',
-        finishedby: ['elephant']
+        finishedby: []
       }
     }];
     res$ = [];
