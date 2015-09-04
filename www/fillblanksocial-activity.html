@@ -40,13 +40,16 @@
         <typeword-thumbnail height="350" width="350" word="{{wordoption}}" on-click="fillword"></typeword-thumbnail>
       </template>
     </div>
-    <div>
+    <div style="display: inline-block; width: 100%">
       <user-avatar username="{{social.poster}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence1"></user-avatar>
-      <readaloud-text style="font-size: 36px; display: inline" text="{{firstsentence}}" fillinblank="{{fillinblank}}" id="sentence1"></readaloud-text>
+      <span style="float: left; margin-right: 10px;" class="glyphicon glyphicon-volume-up saysentence" on-click="saySentence1"></span>
+      <readaloud-text nomicrophone style="font-size: 32px; display: inline" text="{{firstsentence}}" fillinblank="{{fillinblank}}" id="sentence1"></readaloud-text>
     </div>
-    <div>
+    <br>
+    <div style="display: inline-block; width: 100%">
       <user-avatar username="{{social.myname}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence2"></user-avatar>
-      <readaloud-text style="font-size: 36px; display: inline" text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence2"></readaloud-text>
+      <span style="float: left; margin-right: 10px" class="glyphicon glyphicon-volume-up saysentence" on-click="saySentence2"></span>
+      <readaloud-text nomicrophone style="font-size: 32px; display: inline" text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence2"></readaloud-text>
     </div>
   </template>
   <script src="fillblanksocial-activity.js"></script>  
