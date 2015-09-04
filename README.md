@@ -40,7 +40,7 @@ cca run android --device
 
 ### Account Creation
 
-Visit the signup page: WEBROOT/signup.html
+Visit the signup page: http://localhost:8080/signup.html
 
 ### Logging in
 
@@ -108,10 +108,10 @@ An example of adding a new activity consisting of a video playlist is shown [her
 
 ### Viewing Log Analysis Results
 
-You can view the log analysis results for the current user by either:
+You can view the log analysis results for the current user the following ways:
 
 * On the tablet, go to the admin console and click the `Display Log Analysis` button
-* On the server, run the command `node scripts/log_analysis.js geza` (substituting `geza` with the username you want to view log analysis results for)
+* On the server, run the command `node scripts/view_log_analysis.js geza` (substituting `geza` with the username you want to view log analysis results for)
 
 Results will look like follows. The code that does the log analysis is in [log-analysis.ls](https://github.com/edufeed/edufeed/blob/master/www/log-analysis.ls)
 
@@ -175,7 +175,11 @@ Results will look like follows. The code that does the log analysis is in [log-a
 
 ### Viewing Logs
 
-Visit COUCHROOT/_utils/ and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
+You can view the logs the following ways:
+
+* On the tablet, go to the admin console and either download or view the logs (warning: viewing them directly on the tablet might freeze the app if there's too many logs to display)
+* On the server, run the command `node scripts/view_logs.js geza` (substituting `geza` with the username you want to view log analysis results for)
+* Visit http://localhost:5984/_utils/ (or wherever the couchdb is hosted) and log in with same username/password credentials you signed up with. The logs will be in the database logs_USERNAME.
 
 ## Sample Feed Items
 
