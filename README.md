@@ -56,7 +56,7 @@ To customize the set of all feed items (which are suggested by the task suggesti
 
 ### Customizing Classes
 
-Users who are in the same class will be able to share activities with each other. The lsit of classes can be edited at [classes.yaml](https://github.com/edufeed/edufeed/blob/master/www/classes.yaml)
+Users who are in the same class will be able to share activities with each other. The list of classes can be edited at [classes.yaml](https://github.com/edufeed/edufeed/blob/master/www/classes.yaml)
 
 ### Customizing Profile Pictures
 

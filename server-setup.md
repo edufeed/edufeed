@@ -54,7 +54,7 @@ Now open the app on your tablet, visit the admin console, enter the IP address u
 
 ## Setting up Mongo and Bing API Keys
 
-These were originally are required for fetching images from the bing API. However, these instructions should no longer be required, as we're storing all the images locally now. However, if you do want to use the bing image functionality, you will also need to do the following (after running the instructions above)
+These were originally required for fetching images from the bing API. However, these instructions should no longer be required, as we're storing all the images locally now. However, if you do want to use the bing image functionality, you will also need to do the following (after running the instructions above)
 
 First install [mongoDB](https://www.mongodb.org/)
 
