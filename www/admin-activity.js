@@ -25,27 +25,36 @@
               return getBoolParam('hidesharebutton', function(hidesharebutton){
                 return getBoolParam('hidehelpbutton', function(hidehelpbutton){
                   return getBoolParam('maketransparentbutton', function(maketransparentbutton){
-                    self.S('#skipsharescreen').prop('checked', skipsharescreen);
-                    self.S('#hidesharebutton').prop('checked', hidesharebutton);
-                    self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
-                    self.S('#maketransparentbutton').prop('checked', maketransparentbutton);
-                    return getAllUsers(function(all_users){
-                      var fastlogin_buttons, i$, len$, results$ = [];
-                      fastlogin_buttons = $(self).find('#fastlogin_buttons');
-                      for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
-                        results$.push((fn$.call(this, all_users[i$])));
-                      }
-                      return results$;
-                      function fn$(current_user){
-                        var new_fastlogin_button;
-                        new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
-                          self.S('#usernameinput').val(current_user);
-                          self.S('#passwordinput').val(current_user);
-                          return self.setUsername();
-                        });
-                        new_fastlogin_button.appendTo(fastlogin_buttons);
-                        return fastlogin_buttons.append(' ');
-                      }
+                    return getParam('suggestionformula', function(suggestionformula){
+                      self.S('#skipsharescreen').prop('checked', skipsharescreen);
+                      self.S('#hidesharebutton').prop('checked', hidesharebutton);
+                      self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
+                      self.S('#maketransparentbutton').prop('checked', maketransparentbutton);
+                      return getAllUsers(function(all_users){
+                        var fastlogin_buttons, i$, len$;
+                        fastlogin_buttons = $(self).find('#fastlogin_buttons');
+                        for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                          (fn$.call(this, all_users[i$]));
+                        }
+                        console.log(suggestionformula);
+                        return setTimeout(function(){
+                          if (suggestionformula != null && suggestionformula.length > 0) {
+                            return self.S('#selectsuggestionformula').val(suggestionformula);
+                          } else {
+                            return self.S('#selectsuggestionformula').val('default');
+                          }
+                        }, 0);
+                        function fn$(current_user){
+                          var new_fastlogin_button;
+                          new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                            self.S('#usernameinput').val(current_user);
+                            self.S('#passwordinput').val(current_user);
+                            return self.setUsername();
+                          });
+                          new_fastlogin_button.appendTo(fastlogin_buttons);
+                          fastlogin_buttons.append(' ');
+                        }
+                      });
                     });
                   });
                 });
@@ -57,6 +66,17 @@
     },
     appcacheStatus: function(){
       return ['uncached', 'idle', 'checking', 'downloading', 'updateready'][window.applicationCache.status];
+    },
+    getSuggestionFormulas: function(){
+      var k, v;
+      return (function(){
+        var ref$, results$ = [];
+        for (k in ref$ = getTaskSuggestionFormulas()) {
+          v = ref$[k];
+          results$.push(k);
+        }
+        return results$;
+      }());
     },
     reallySetUsername: function(username, password, couchserver){
       return setUsername(username, function(){
@@ -193,6 +213,14 @@
         this.fire('make-all-buttons-opaque', this);
       }
       return setParam('maketransparentbutton', checked);
+    },
+    suggestionformula_changed: function(evt){
+      var new_suggestion_formula;
+      new_suggestion_formula = 'default';
+      if (evt != null && evt.target != null && evt.target.value != null) {
+        new_suggestion_formula = evt.target.value;
+      }
+      return setParam('suggestionformula', new_suggestion_formula);
     },
     setUsername: function(){
       var self, username, password, couchserver;

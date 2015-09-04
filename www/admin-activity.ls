@@ -18,6 +18,7 @@ RegisterActivity {
     hidesharebutton <- getBoolParam('hidesharebutton')
     hidehelpbutton <- getBoolParam('hidehelpbutton')
     maketransparentbutton <- getBoolParam('maketransparentbutton')
+    suggestionformula <- getParam('suggestionformula')
     self.S('#skipsharescreen').prop('checked', skipsharescreen)
     self.S('#hidesharebutton').prop('checked', hidesharebutton)
     self.S('#hidehelpbutton').prop('checked', hidehelpbutton)
@@ -31,8 +32,17 @@ RegisterActivity {
         self.setUsername()
       new_fastlogin_button.appendTo fastlogin_buttons
       fastlogin_buttons.append(' ')
+    console.log suggestionformula
+    setTimeout ->
+      if suggestionformula? and suggestionformula.length > 0
+        self.S('#selectsuggestionformula').val(suggestionformula)
+      else
+        self.S('#selectsuggestionformula').val('default')
+    , 0
   appcacheStatus: ->
     return <[ uncached idle checking downloading updateready ]>[window.applicationCache.status]
+  getSuggestionFormulas: ->
+    return [k for k,v of getTaskSuggestionFormulas()]
   reallySetUsername: (username, password, couchserver) ->
     setUsername username, ->
       setPassword password, ->
@@ -118,6 +128,11 @@ RegisterActivity {
     else
       this.fire 'make-all-buttons-opaque', this
     setParam 'maketransparentbutton', checked
+  suggestionformula_changed: (evt) ->
+    new_suggestion_formula = 'default'
+    if evt? and evt.target? and evt.target.value?
+      new_suggestion_formula = evt.target.value
+    setParam 'suggestionformula', new_suggestion_formula
   setUsername: ->
     self = this
     username = this.S('#usernameinput').val().trim()
