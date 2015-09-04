@@ -158,7 +158,8 @@ export makeLogAnalyzer = (orig_logs, options) ->
   return this
 
 export getLogAnalysisResults = (logs) ->
-  analyzer = makeLogAnalyzer(logs, {ignored_activities: ['admin']})
+  #analyzer = makeLogAnalyzer(logs, {ignored_activities: ['admin']})
+  analyzer = makeLogAnalyzer(logs, {ignored_activities: []})
   return analyzer.getResults()
 
 export getLogAnalysisResultsAsString = (logs) ->

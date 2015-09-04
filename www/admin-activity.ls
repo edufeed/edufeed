@@ -205,6 +205,9 @@ RegisterActivity {
   displayErrors: ->
     geterrors (errors) ~>
       this.S('#errordisplay').text JSON.stringify(errors, null, 2)
+  displayLogAnalysis: ->
+    getlogs (logs) ~>
+      this.S('#loganalysisdisplay').text getLogAnalysisResultsAsString(logs)
   downloadLogs: ->
     getlogs (logs) ~>
       document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(logs, null, 2))

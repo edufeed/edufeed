@@ -339,6 +339,12 @@
         return this$.S('#errordisplay').text(JSON.stringify(errors, null, 2));
       });
     },
+    displayLogAnalysis: function(){
+      var this$ = this;
+      return getlogs(function(logs){
+        return this$.S('#loganalysisdisplay').text(getLogAnalysisResultsAsString(logs));
+      });
+    },
     downloadLogs: function(){
       var this$ = this;
       return getlogs(function(logs){

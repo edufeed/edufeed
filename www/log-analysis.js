@@ -263,7 +263,7 @@
   out$.getLogAnalysisResults = getLogAnalysisResults = function(logs){
     var analyzer;
     analyzer = makeLogAnalyzer(logs, {
-      ignored_activities: ['admin']
+      ignored_activities: []
     });
     return analyzer.getResults();
   };
