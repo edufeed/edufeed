@@ -17,9 +17,21 @@ Polymer {
       type: String
       value: 'fill in the blank'
     }
+    nomicrophone: {
+      type: Boolean
+      value: false
+      observer: 'nomicrophone_changed'
+    }
   }
   S: (pattern) ->
     return $(this.$$(pattern))
+  nomicrophone_changed: ->
+    if this.nomicrophone == true
+      this.S('#microphonedisplay').hide()
+      this.S('#lmargindiv').css('margin-left', '0px')
+    else
+      this.S('#microphonedisplay').show()
+      this.S('#lmargindiv').css('margin-left', '70px')
   splitWordsInSentence: (sentence) ->
     output = []
     curword = []
@@ -29,7 +41,7 @@ Polymer {
       output.push curword.join('')
       curword := []
     for c in sentence
-      if [' ', '?', '.', '!'].indexOf(c) != -1
+      if [' ', '?', '.', '!', ':'].indexOf(c) != -1
         end_curword()
         output.push c
       else

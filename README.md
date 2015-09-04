@@ -95,6 +95,14 @@ The script [fetch_speechsynth.ls](https://github.com/edufeed/edufeed/blob/master
 node scripts/fetch_speechsynth.js cat dog mouse
 ```
 
+(Note that this script does not currently work, as Google has started blocking it and returns a CAPTCHA instead of the mp3 file)
+
+The speech is also cached in base64-format strings in the file [filecache.js](https://github.com/edufeed/edufeed/blob/master/www/filecache.js), to allow for faster access. To update this file, run:
+
+```
+node scripts/make_filecache.js
+```
+
 ## Generating the directory listing yaml files
 
 The script [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) automates the task of generating the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml), [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml), and [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) files based on the contents of the corresponding directories ([images](https://github.com/edufeed/edufeed/tree/master/www/images), [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics), [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en)). Run it using:

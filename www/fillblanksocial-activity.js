@@ -6,6 +6,10 @@
         type: String,
         value: 'My favorite color is ⬜⬜⬜⬜⬜.'
       },
+      howaboutyou: {
+        type: String,
+        value: 'How about you?'
+      },
       fillinblank: {
         type: String,
         value: 'fill in the blank'
@@ -19,16 +23,40 @@
         computed: 'compute_filledsentence(sentence, entered)',
         observer: 'filledsentence_changed'
       },
+      firstfilledsentence: {
+        type: String,
+        computed: 'compute_firstfilledsentence(sentence, firstentered)'
+      },
+      firstentered: {
+        type: String,
+        value: '⬜⬜⬜⬜⬜'
+      },
+      firstsentence: {
+        type: String,
+        computed: 'compute_firstsentence(firstfilledsentence, social, howaboutyou)'
+      },
       wordoptions: {
         type: Array,
         value: []
       }
     },
+    saySentence1: function(){
+      return this.$$('#sentence1').playSentence();
+    },
+    saySentence2: function(){
+      return this.$$('#sentence2').playSentence();
+    },
+    compute_firstfilledsentence: function(sentence, firstentered){
+      return sentence.split('⬜⬜⬜⬜⬜').join(firstentered);
+    },
+    compute_firstsentence: function(firstfilledsentence, social, howaboutyou){
+      return capitalizeFirstLetter(social.poster) + " says: " + firstfilledsentence + " " + howaboutyou;
+    },
     filledsentence_changed: function(newval, oldval){
       if (!this.firstplay) {
         return;
       }
-      return this.$$('#sentence').playSentence();
+      return this.$$('#sentence2').playSentence();
     },
     compute_filledsentence: function(sentence, entered){
       return sentence.split('⬜⬜⬜⬜⬜').join(entered);
@@ -45,7 +73,7 @@
       }
       this.entered = word;
       setSocialSharingData('fillblanksocial', {
-        entered: word
+        firstentered: word
       });
       return setTimeout(function(){
         return this$.fire('task-freeplay', this$);
@@ -57,7 +85,7 @@
         this.wordoptions = getFeedWordList();
       }
       return setTimeout(function(){
-        this$.$$('#sentence').playSentence();
+        this$.$$('#sentence1').playSentence();
         return this$.firstplay = true;
       }, 100);
     }

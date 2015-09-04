@@ -118,6 +118,9 @@ export getAllFeedItems = ->
 
   fillblank =
     [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+
+  fillblanksocial =
+    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
   
   defaults =
     dots ++ typeletter ++ typeword
@@ -133,6 +136,7 @@ export getAllFeedItems = ->
     lettervideo
     numbervideo
     fillblank
+    fillblanksocial
     #admin
     #example
     #iframe
@@ -190,6 +194,9 @@ export getSampleFeedItems = ->
   fillblank =
     [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
 
+  fillblanksocial =
+    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+
   defaults =
     dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1)
 
@@ -204,6 +211,7 @@ export getSampleFeedItems = ->
     lettervideo
     numbervideo
     fillblank
+    fillblanksocial
     admin
     example
     iframe

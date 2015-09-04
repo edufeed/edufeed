@@ -200,6 +200,10 @@
               self.finished_items = finished_items;
               for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
                 doc = ref$[i$];
+                if (doc.social == null) {
+                  doc.social = {};
+                }
+                doc.social.myname = username;
                 res$ = [];
                 for (j$ = 0, len1$ = finished_items.length; j$ < len1$; ++j$) {
                   x = finished_items[j$];
@@ -209,9 +213,6 @@
                 }
                 matching_finished_items = res$;
                 if (matching_finished_items.length > 0) {
-                  if (doc.social == null) {
-                    doc.social = {};
-                  }
                   doc.social.finishedby = matching_finished_items[0].social.finishedby;
                 }
               }

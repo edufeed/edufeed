@@ -136,6 +136,13 @@ export setSocialSharingData = (itemtype, data) ->
 export getSocialSharingData = (itemtype) ->
   return social_sharing_data[itemtype]
 
+# string related
+
+export capitalizeFirstLetter = (str) ->
+  if not str? or str.length == 0
+    return str
+  return str[0].toUpperCase() + str.substring(1)
+
 # filesystem related
 
 /*

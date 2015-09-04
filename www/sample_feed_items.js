@@ -24,7 +24,7 @@
   };
   all_feed_items_cache = null;
   out$.getAllFeedItems = getAllFeedItems = function(){
-    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, defaults;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial, defaults;
     if (all_feed_items_cache != null) {
       return all_feed_items_cache;
     }
@@ -211,6 +211,22 @@
       });
     }
     fillblank = res$;
+    res$ = [];
+    for (i$ = 0, len$ = fillblanklist.length; i$ < len$; ++i$) {
+      ref$ = fillblanklist[i$], sentence = ref$[0], category = ref$[1];
+      res$.push({
+        itemtype: 'fillblanksocial',
+        data: {
+          sentence: sentence,
+          wordoptions: wordcategories[category],
+          firstentered: wordcategories[category][0]
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    fillblanksocial = res$;
     defaults = dots.concat(typeletter, typeword);
     all_feed_items_cache = {
       dots: dots,
@@ -220,13 +236,14 @@
       balance: balance,
       lettervideo: lettervideo,
       numbervideo: numbervideo,
-      fillblank: fillblank
+      fillblank: fillblank,
+      fillblanksocial: fillblanksocial
     };
     return all_feed_items_cache;
   };
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, defaults;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
@@ -413,6 +430,22 @@
       });
     }
     fillblank = res$;
+    res$ = [];
+    for (i$ = 0, len$ = fillblanklist.length; i$ < len$; ++i$) {
+      ref$ = fillblanklist[i$], sentence = ref$[0], category = ref$[1];
+      res$.push({
+        itemtype: 'fillblanksocial',
+        data: {
+          sentence: sentence,
+          wordoptions: wordcategories[category],
+          firstentered: wordcategories[category][0]
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    fillblanksocial = res$;
     defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1));
     feed_items_cache = {
       defaults: defaults,
@@ -425,6 +458,7 @@
       lettervideo: lettervideo,
       numbervideo: numbervideo,
       fillblank: fillblank,
+      fillblanksocial: fillblanksocial,
       admin: admin,
       example: example,
       iframe: iframe

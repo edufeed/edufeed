@@ -5,6 +5,10 @@ RegisterActivity {
       type: String
       value: 'My favorite color is ⬜⬜⬜⬜⬜.'
     }
+    howaboutyou: {
+      type: String
+      value: 'How about you?'
+    }
     fillinblank: {
       type: String
       value: 'fill in the blank'
@@ -18,15 +22,35 @@ RegisterActivity {
       computed: 'compute_filledsentence(sentence, entered)'
       observer: 'filledsentence_changed'
     }
+    firstfilledsentence: {
+      type: String
+      computed: 'compute_firstfilledsentence(sentence, firstentered)'
+    }
+    firstentered: {
+      type: String
+      value: '⬜⬜⬜⬜⬜'
+    }
+    firstsentence: {
+      type: String
+      computed: 'compute_firstsentence(firstfilledsentence, social, howaboutyou)'
+    }
     wordoptions: {
       type: Array
       value: []
     }
   }
+  saySentence1: ->
+    this.$$('#sentence1').playSentence()
+  saySentence2: ->
+    this.$$('#sentence2').playSentence()
+  compute_firstfilledsentence: (sentence, firstentered) ->
+    return sentence.split('⬜⬜⬜⬜⬜').join(firstentered)
+  compute_firstsentence: (firstfilledsentence, social, howaboutyou) ->
+    return "#{capitalizeFirstLetter(social.poster)} says: #{firstfilledsentence} #{howaboutyou}"
   filledsentence_changed: (newval, oldval) ->
     if not this.firstplay
       return
-    this.$$('#sentence').playSentence()
+    this.$$('#sentence2').playSentence()
   compute_filledsentence: (sentence, entered) ->
     return sentence.split('⬜⬜⬜⬜⬜').join(entered)
   fillword: (evt) ->
@@ -36,7 +60,7 @@ RegisterActivity {
         word = elem.word
         break
     this.entered = word
-    setSocialSharingData('fillblanksocial', {entered: word})
+    setSocialSharingData('fillblanksocial', {firstentered: word})
     setTimeout ~>
       this.fire 'task-freeplay', this
     , 0
@@ -44,7 +68,7 @@ RegisterActivity {
     if this.wordoptions.length == 0
       this.wordoptions = getFeedWordList()
     setTimeout ~>
-      this.$$('#sentence').playSentence()
+      this.$$('#sentence1').playSentence()
       this.firstplay = true
     , 100
   /*

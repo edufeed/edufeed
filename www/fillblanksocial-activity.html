@@ -37,10 +37,17 @@
   <template>
     <div class="wordoptiondiv">
       <template is="dom-repeat" items="{{wordoptions}}" as="wordoption">
-        <typeword-thumbnail word="{{wordoption}}" on-click="fillword"></typeword-thumbnail>
+        <typeword-thumbnail height="350" width="350" word="{{wordoption}}" on-click="fillword"></typeword-thumbnail>
       </template>
     </div>
-    <readaloud-text text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence"></readaloud-text>
+    <div>
+      <user-avatar username="{{social.poster}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence1"></user-avatar>
+      <readaloud-text style="font-size: 36px; display: inline" text="{{firstsentence}}" fillinblank="{{fillinblank}}" id="sentence1"></readaloud-text>
+    </div>
+    <div>
+      <user-avatar username="{{social.myname}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence2"></user-avatar>
+      <readaloud-text style="font-size: 36px; display: inline" text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence2"></readaloud-text>
+    </div>
   </template>
   <script src="fillblanksocial-activity.js"></script>  
 </dom-module>

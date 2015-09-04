@@ -111,7 +111,7 @@
     return synthesize_word_real(get_new_play_id(), word, callback);
   };
   is_empty_word = function(word){
-    return ['', '?', '.', '!'].indexOf(word.trim()) !== -1;
+    return ['', '?', '.', '!', ':'].indexOf(word.trim()) !== -1;
   };
   synthesize_word_real = function(play_id, word, callback){
     var synth_lang;

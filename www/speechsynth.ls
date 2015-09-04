@@ -88,7 +88,7 @@ export synthesize_word = (word, callback) ->
   synthesize_word_real(get_new_play_id(), word, callback)
 
 is_empty_word = (word) ->
-  return ['', '?', '.', '!'].indexOf(word.trim()) != -1
+  return ['', '?', '.', '!', ':'].indexOf(word.trim()) != -1
 
 synthesize_word_real = (play_id, word, callback) ->
   if current_play_id != play_id

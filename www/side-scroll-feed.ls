@@ -142,10 +142,11 @@ Polymer {
     finished_items <- getFinishedItems()
     self.finished_items = finished_items
     for doc in docs
+      if not doc.social?
+        doc.social = {}
+      doc.social.myname = username
       matching_finished_items = [x for x in finished_items when itemtype_and_data_matches(doc, x)]
       if matching_finished_items.length > 0
-        if not doc.social?
-          doc.social = {}
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     self.items = self.sortByUpdateTime(docs)
     if firstvisit? and firstvisit

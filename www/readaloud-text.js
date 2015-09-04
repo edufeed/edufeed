@@ -17,10 +17,24 @@
       fillinblank: {
         type: String,
         value: 'fill in the blank'
+      },
+      nomicrophone: {
+        type: Boolean,
+        value: false,
+        observer: 'nomicrophone_changed'
       }
     },
     S: function(pattern){
       return $(this.$$(pattern));
+    },
+    nomicrophone_changed: function(){
+      if (this.nomicrophone === true) {
+        this.S('#microphonedisplay').hide();
+        return this.S('#lmargindiv').css('margin-left', '0px');
+      } else {
+        this.S('#microphonedisplay').show();
+        return this.S('#lmargindiv').css('margin-left', '70px');
+      }
     },
     splitWordsInSentence: function(sentence){
       var output, curword, end_curword, i$, len$, c;
@@ -35,7 +49,7 @@
       };
       for (i$ = 0, len$ = sentence.length; i$ < len$; ++i$) {
         c = sentence[i$];
-        if ([' ', '?', '.', '!'].indexOf(c) !== -1) {
+        if ([' ', '?', '.', '!', ':'].indexOf(c) !== -1) {
           end_curword();
           output.push(c);
         } else {

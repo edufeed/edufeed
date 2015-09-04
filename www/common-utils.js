@@ -1,5 +1,5 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, fixMediaURL, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, social_sharing_data, setSocialSharingData, getSocialSharingData, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, fixMediaURL, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, social_sharing_data, setSocialSharingData, getSocialSharingData, capitalizeFirstLetter, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
@@ -179,6 +179,12 @@
   };
   out$.getSocialSharingData = getSocialSharingData = function(itemtype){
     return social_sharing_data[itemtype];
+  };
+  out$.capitalizeFirstLetter = capitalizeFirstLetter = function(str){
+    if (str == null || str.length === 0) {
+      return str;
+    }
+    return str[0].toUpperCase() + str.substring(1);
   };
   /*
   localinfo = {}
