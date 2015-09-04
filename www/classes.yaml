@@ -1,17 +1,95 @@
 class1:
   users:
-    - avery
-    - kelsey
-    - geza
+    - abhishan
+    - ajay
+    - arbina
+    - asha
+    - bhagya
+    - deepaka
+    - dinesha
+    - gopika
+    - goutham
+    - isaacjoe
+    - keerthana
+    - lohith
+    - mahesh
+    - maryjessica
+    - melwin
+    - pavithraa
+    - poorna
+    - pushpa
+    - sandhya
+    - sangitha
+    - sathya
+    - sumithra
+    - vidhyashree
+    - teachera
+   
 class2:
   users:
+    - amruthashree
+    - arun
+    - ayyana
+    - beena
+    - brinda
+    - dharani
+    - dilip
+    - dineshb
+    - gowthum
+    - holim
+    - jacob
+    - jithan
+    - lois
+    - mohan
+    - monica
+    - poojitha
+    - priya
+    - rajesh
+    - roselin
+    - sachitha
+    - sapna
+    - savitha
+    - swetha
+    - teacherb
+
+class3:
+  users:
+    - anwesha
+    - archana
+    - daniel
+    - deepakc
+    - dineshc
+    - gokul
+    - hemanth
+    - isaac
+    - jancy
+    - madeshwari
+    - manigandan
+    - mini
+    - mishel
+    - namitha
+    - nikitham
+    - pavithrac
+    - prabhakaran
+    - ree
+    - sadhana
+    - sandra
+    - sanjivni
+    - shruthi
+    - supriya
+    - yadhodha
+    - teacherc
+
+class4:
+  users:
+    - guestuser
+    - zebra
+    - elephant
+    - avery
+    - kelsey
     - ksobel
     - mouse
     - pattern
     - dog
     - cat
-class3:
-  users:
-    - guestuser
-    - zebra
-    - elephant
+    - geza
