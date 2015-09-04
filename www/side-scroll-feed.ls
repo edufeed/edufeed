@@ -162,6 +162,10 @@ Polymer {
     if not itemtype?
       console.log 'do not have itemtype'
       return
+    social_sharing_data = getSocialSharingData(itemtype)
+    if social_sharing_data?
+      for k,v of social_sharing_data
+        data[k] = v
     postItemToTarget username, {
       itemtype: itemtype
       data: data

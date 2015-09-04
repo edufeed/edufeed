@@ -1,10 +1,20 @@
 (function(){
-  var getFeedWordList, getFeedReadingList, getFeedVideoLists, all_feed_items_cache, getAllFeedItems, feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
+  var getFeedWordList, getFeedReadingList, getFillBlankSentencesWithCategories, getWordCategories, getFeedVideoLists, all_feed_items_cache, getAllFeedItems, feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getFeedWordList = getFeedWordList = function(){
     return ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
   };
   out$.getFeedReadingList = getFeedReadingList = function(){
     return [['Why do elephants never forget?', 'Because nobody ever tells them anything!'], ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!'], ['What is the strongest animal?', 'A snail. He carries his house on his back!'], ['What has six eyes but cannot see?', 'Three blind mice!']];
+  };
+  out$.getFillBlankSentencesWithCategories = getFillBlankSentencesWithCategories = function(){
+    return [['My favorite color is ⬜⬜⬜⬜⬜.', 'color'], ['My favorite animal is the ⬜⬜⬜⬜⬜.', 'animal'], ['My favorite fruit is the ⬜⬜⬜⬜⬜.', 'fruit']];
+  };
+  out$.getWordCategories = getWordCategories = function(){
+    return {
+      'color': ['red', 'blue', 'black', 'white'],
+      'animal': ['cat', 'dog', 'bee', 'bird', 'lion', 'tiger', 'fish'],
+      'fruit': ['apple', 'banana', 'cherry', 'orange', 'pear']
+    };
   };
   out$.getFeedVideoLists = getFeedVideoLists = function(){
     return {
@@ -14,13 +24,15 @@
   };
   all_feed_items_cache = null;
   out$.getAllFeedItems = getAllFeedItems = function(){
-    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, defaults;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, defaults;
     if (all_feed_items_cache != null) {
       return all_feed_items_cache;
     }
     wordlist = getFeedWordList();
     readinglist = getFeedReadingList();
     videolists = getFeedVideoLists();
+    fillblanklist = getFillBlankSentencesWithCategories();
+    wordcategories = getWordCategories();
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
       levelnum = ref$[i$];
@@ -184,6 +196,21 @@
       });
     }
     readaloud = res$;
+    res$ = [];
+    for (i$ = 0, len$ = fillblanklist.length; i$ < len$; ++i$) {
+      ref$ = fillblanklist[i$], sentence = ref$[0], category = ref$[1];
+      res$.push({
+        itemtype: 'fillblank',
+        data: {
+          sentence: sentence,
+          wordoptions: wordcategories[category]
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    fillblank = res$;
     defaults = dots.concat(typeletter, typeword);
     all_feed_items_cache = {
       dots: dots,
@@ -192,19 +219,22 @@
       readaloud: readaloud,
       balance: balance,
       lettervideo: lettervideo,
-      numbervideo: numbervideo
+      numbervideo: numbervideo,
+      fillblank: fillblank
     };
     return all_feed_items_cache;
   };
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, videolists, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, defaults;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
     wordlist = getFeedWordList();
     readinglist = getFeedReadingList();
     videolists = getFeedVideoLists();
+    fillblanklist = getFillBlankSentencesWithCategories();
+    wordcategories = getWordCategories();
     res$ = [];
     for (i$ = 0, len$ = (ref$ = [0, 1, 2]).length; i$ < len$; ++i$) {
       levelnum = ref$[i$];
@@ -368,6 +398,21 @@
       });
     }
     readaloud = res$;
+    res$ = [];
+    for (i$ = 0, len$ = fillblanklist.length; i$ < len$; ++i$) {
+      ref$ = fillblanklist[i$], sentence = ref$[0], category = ref$[1];
+      res$.push({
+        itemtype: 'fillblank',
+        data: {
+          sentence: sentence,
+          wordoptions: wordcategories[category]
+        },
+        social: {
+          poster: 'mouse'
+        }
+      });
+    }
+    fillblank = res$;
     defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1));
     feed_items_cache = {
       defaults: defaults,
@@ -379,6 +424,7 @@
       balance: balance,
       lettervideo: lettervideo,
       numbervideo: numbervideo,
+      fillblank: fillblank,
       admin: admin,
       example: example,
       iframe: iframe

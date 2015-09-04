@@ -231,7 +231,7 @@
       self = this;
       username = evt.detail.username;
       return getUsername(function(local_username){
-        var ref$, itemtype, data;
+        var ref$, itemtype, data, social_sharing_data, k, v;
         if (username == null) {
           console.log('no username');
           return;
@@ -240,6 +240,13 @@
         if (itemtype == null) {
           console.log('do not have itemtype');
           return;
+        }
+        social_sharing_data = getSocialSharingData(itemtype);
+        if (social_sharing_data != null) {
+          for (k in social_sharing_data) {
+            v = social_sharing_data[k];
+            data[k] = v;
+          }
         }
         postItemToTarget(username, {
           itemtype: itemtype,

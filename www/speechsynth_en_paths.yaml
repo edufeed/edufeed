@@ -119,6 +119,7 @@ cat: speechsynth_en/cat.mp3
 centipede: speechsynth_en/centipede.mp3
 cherry: speechsynth_en/cherry.mp3
 city: speechsynth_en/city.mp3
+color: speechsynth_en/color.mp3
 congratulations: speechsynth_en/congratulations.mp3
 cross: speechsynth_en/cross.mp3
 do: speechsynth_en/do.mp3
@@ -126,8 +127,11 @@ dog: speechsynth_en/dog.mp3
 elephants: speechsynth_en/elephants.mp3
 ever: speechsynth_en/ever.mp3
 eyes: speechsynth_en/eyes.mp3
+favorite: speechsynth_en/favorite.mp3
+fill in the blank: speechsynth_en/fill in the blank.mp3
 fish: speechsynth_en/fish.mp3
 forget: speechsynth_en/forget.mp3
+fruit: speechsynth_en/fruit.mp3
 get: speechsynth_en/get.mp3
 geza: speechsynth_en/geza.mp3
 good: speechsynth_en/good.mp3
@@ -145,6 +149,7 @@ letter: speechsynth_en/letter.mp3
 like: speechsynth_en/like.mp3
 lion: speechsynth_en/lion.mp3
 mice: speechsynth_en/mice.mp3
+my: speechsynth_en/my.mp3
 never: speechsynth_en/never.mp3
 nobody: speechsynth_en/nobody.mp3
 'on': speechsynth_en/on.mp3
@@ -155,6 +160,7 @@ red: speechsynth_en/red.mp3
 river: speechsynth_en/river.mp3
 roof: speechsynth_en/roof.mp3
 see: speechsynth_en/see.mp3
+select a color: speechsynth_en/select a color.mp3
 share: speechsynth_en/share.mp3
 shared with: speechsynth_en/shared with.mp3
 six: speechsynth_en/six.mp3

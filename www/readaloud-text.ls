@@ -9,6 +9,14 @@ Polymer {
       type: Array
       computed: 'splitWordsInSentence(text)'
     }
+    blankstring: {
+      type: String
+      value: '⬜⬜⬜⬜⬜'
+    }
+    fillinblank: {
+      type: String
+      value: 'fill in the blank'
+    }
   }
   S: (pattern) ->
     return $(this.$$(pattern))
@@ -33,7 +41,12 @@ Polymer {
   playSentence: ->
     self = this
     wordlist = this.wordlist
-    playlist = [word.toLowerCase() for word in wordlist]
+    playlist = []
+    for word in wordlist
+      if word == self.blankstring
+        playlist.push(self.fillinblank)
+      else
+        playlist.push(word.toLowerCase())
     play_multiple_sounds playlist, {
       startword: (wordidx, word) ->
         self.S('.highlighted').removeClass('highlighted')

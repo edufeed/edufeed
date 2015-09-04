@@ -9,6 +9,14 @@
       wordlist: {
         type: Array,
         computed: 'splitWordsInSentence(text)'
+      },
+      blankstring: {
+        type: String,
+        value: '⬜⬜⬜⬜⬜'
+      },
+      fillinblank: {
+        type: String,
+        value: 'fill in the blank'
       }
     },
     S: function(pattern){
@@ -41,15 +49,18 @@
       return "word_" + wordidx;
     },
     playSentence: function(){
-      var self, wordlist, playlist, res$, i$, len$, word;
+      var self, wordlist, playlist, i$, len$, word;
       self = this;
       wordlist = this.wordlist;
-      res$ = [];
+      playlist = [];
       for (i$ = 0, len$ = wordlist.length; i$ < len$; ++i$) {
         word = wordlist[i$];
-        res$.push(word.toLowerCase());
+        if (word === self.blankstring) {
+          playlist.push(self.fillinblank);
+        } else {
+          playlist.push(word.toLowerCase());
+        }
       }
-      playlist = res$;
       return play_multiple_sounds(playlist, {
         startword: function(wordidx, word){
           var wordspan;

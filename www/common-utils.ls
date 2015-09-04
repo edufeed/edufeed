@@ -127,6 +127,15 @@ export itemtype_and_data_matches = (item1, item2) ->
     return true
   return false
 
+# social sharing
+
+social_sharing_data = {}
+export setSocialSharingData = (itemtype, data) ->
+  social_sharing_data[itemtype] = data
+
+export getSocialSharingData = (itemtype) ->
+  return social_sharing_data[itemtype]
+
 # filesystem related
 
 /*

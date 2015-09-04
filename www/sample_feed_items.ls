@@ -31,6 +31,39 @@ export getFeedReadingList = ->
     ['What has six eyes but cannot see?', 'Three blind mice!']
   ]
 
+export getFillBlankSentencesWithCategories = ->
+  [
+    ['My favorite color is ⬜⬜⬜⬜⬜.', 'color']
+    ['My favorite animal is the ⬜⬜⬜⬜⬜.', 'animal']
+    ['My favorite fruit is the ⬜⬜⬜⬜⬜.', 'fruit']
+  ]
+
+export getWordCategories = ->
+  {
+    'color': [
+      'red'
+      'blue'
+      'black'
+      'white'
+    ]
+    'animal': [
+      'cat'
+      'dog'
+      'bee'
+      'bird'
+      'lion'
+      'tiger'
+      'fish'
+    ]
+    'fruit': [
+      'apple'
+      'banana'
+      'cherry'
+      'orange'
+      'pear'
+    ]
+  }
+
 export getFeedVideoLists = ->
   {
     lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI']
@@ -44,6 +77,8 @@ export getAllFeedItems = ->
   wordlist = getFeedWordList()
   readinglist = getFeedReadingList()
   videolists = getFeedVideoLists()
+  fillblanklist = getFillBlankSentencesWithCategories()
+  wordcategories = getWordCategories()
 
   bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
@@ -81,6 +116,9 @@ export getAllFeedItems = ->
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
 
+  fillblank =
+    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+  
   defaults =
     dots ++ typeletter ++ typeword
 
@@ -94,6 +132,7 @@ export getAllFeedItems = ->
     balance
     lettervideo
     numbervideo
+    fillblank
     #admin
     #example
     #iframe
@@ -109,6 +148,8 @@ export getSampleFeedItems = ->
   wordlist = getFeedWordList()
   readinglist = getFeedReadingList()
   videolists = getFeedVideoLists()
+  fillblanklist = getFillBlankSentencesWithCategories()
+  wordcategories = getWordCategories()
 
   bars =
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
@@ -146,6 +187,9 @@ export getSampleFeedItems = ->
   readaloud =
     [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
 
+  fillblank =
+    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+
   defaults =
     dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1)
 
@@ -159,6 +203,7 @@ export getSampleFeedItems = ->
     balance
     lettervideo
     numbervideo
+    fillblank
     admin
     example
     iframe
