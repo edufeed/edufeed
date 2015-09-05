@@ -153,6 +153,23 @@
         });
       });
     },
+    deleteAllLocalDbAllUsers: function(){
+      var self;
+      self = this;
+      return getAllUsers(function(all_users){
+        return async.eachSeries(all_users, function(username, callback){
+          return deleteLocalDb("finisheditems_" + username, function(){
+            return deleteLocalDb("logs_" + username, function(){
+              return deleteLocalDb("feeditems_" + username, function(){
+                return callback(null, null);
+              });
+            });
+          });
+        }, function(){
+          return self.fire('task-left', self);
+        });
+      });
+    },
     clearLogs: function(){
       var self;
       self = this;

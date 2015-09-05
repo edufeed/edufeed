@@ -1,7 +1,11 @@
 require! {
   fs
   async
+  os
+  path
 }
+
+is_windows = os.platform() == 'win32'
 
 {exec, which} = require 'shelljs'
 
@@ -17,10 +21,21 @@ if not fs.existsSync 'config.json'
     }
   }
 
-for command in ['pouchdb-server', 'gulp', 'node-dev']
+for command in ['gulp', 'node-dev'] # 'pouchdb-server'
   if not which command
     console.log "missing #{command} command"
     process.exit()
+
+do ->
+  if is_windows
+    couchdb_dir = 'C:/Program Files/Apache Software Foundation/CouchDB/bin/'.split('/').join(path.sep)
+    if fs.existsSync(couchdb_dir)
+      process.env.PATH += ';' + couchdb_dir
+      return
+    couchdb_dir = 'C:/Program Files (x86)/Apache Software Foundation/CouchDB/bin/'.split('/').join(path.sep)
+    if fs.existsSync(couchdb_dir)
+      process.env.PATH += ';' + couchdb_dir
+      return
 
 exec 'gulp', {async: true}
 
@@ -43,7 +58,10 @@ is_couchdb_running (running) ->
     console.log 'using already-running couchdb instance at ' + couchdb_server
     couchserver_started()
     return
-  exec 'pouchdb-server', {async: true}
+  if not which 'couchdb'
+    console.log 'couchdb command not found'
+    return
+  exec 'couchdb', {async: true}
   once_couchdb_running ->
     console.log '====================================================='
     exec 'node scripts/getip'

@@ -250,4 +250,29 @@ See [sample_feed_items.ls](https://github.com/edufeed/edufeed/blob/master/www/sa
 
 Entry point is in [app.ls](https://github.com/edufeed/edufeed/blob/master/app.ls)
 
+## Troubleshooting
 
+### No feed items
+
+Open the admin console, go to `Add sample feed items`, and click the `defaults` button.
+
+### Sync Errors
+
+If you are having sync errors and are using a standalone server, please ensure that
+
+* The tablet is connected to the same wifi network as the server (if you have created a wifi network on the server via [connectify](https://github.com/edufeed/edufeed/blob/master/server-setup.md#connectify))
+* You are able to visit your_server_ip:5984/_utils (the couchdb admin console) on the tablet (where your_server_ip is [your server's ip address](https://github.com/edufeed/edufeed/blob/master/server-setup.md#determine-server-ip-address))
+* [CORS is enabled on the server](https://github.com/edufeed/edufeed/blob/master/server-setup.md#enable-cors)
+* [You have set the couchdb `bind_address` variable set to 0.0.0.0](https://github.com/edufeed/edufeed/blob/master/server-setup.md#listen-to-all-hosts)
+
+#### Database Errors
+
+One possible source of sync errors is that your database format is outdated. You can delete all server-side databases using the following command:
+
+```
+node scripts/delete_all_databases
+```
+
+And you can then delete all tablet-side databases by going to the admin console and clicking the `Delete All Local Databases for all users` (or by going to the android application manager and clearing all app data there).
+
+And after restarting the server and tablet app, the sync issues should hopefully be gone.

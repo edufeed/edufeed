@@ -87,6 +87,16 @@ RegisterActivity {
         callback(null, null)
     , ->
       self.fire 'task-left', self
+  deleteAllLocalDbAllUsers: ->
+    self = this
+    all_users <- getAllUsers()
+    async.eachSeries all_users, (username, callback) ->
+      <- deleteLocalDb "finisheditems_#{username}"
+      <- deleteLocalDb "logs_#{username}"
+      <- deleteLocalDb "feeditems_#{username}"
+      callback(null, null)
+    , ->
+      self.fire 'task-left', self
   clearLogs: ->
     self = this
     username <- getUsername()
