@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <link rel="stylesheet" type="text/css">
     <title>Addition</title>
     <style type="text/css">
 
@@ -27,9 +26,9 @@
 </head>
 
 
-<body>
-    <script src="../d3/d3.min.js"></script>
-    <script src="../d3/jquery.min.js"></script>
+<body style="overflow: hidden">
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
 
     <!--<div id="dummy" style="height:15px; width:100%; clear:both;"></div>-->
 
@@ -77,48 +76,11 @@
         </svg>
     </div>
 
-    <audio id="boink" src="Audio\boink.mp3"></audio>
-    <audio id="tada" src="Audio\tada.mp3"></audio>
+    <script src="iframe-utils.js"></script>
+    <script src="base64-utils.js"></script>
+    <script src="speechsynth.js"></script>
     <script src="addition.js"></script>
-
-    <script>
-        getUrlParameters = function () {
-            var url, hash, map, parts;
-            url = window.location.href;
-            hash = url.lastIndexOf('#');
-            if (hash !== -1) {
-                url = url.slice(0, hash);
-            }
-            map = {};
-            parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-                return map[key] = decodeURIComponent(value).split('+').join(' ');
-            });
-            return map;
-        };
-        params = getUrlParameters();
-
-        //var svg_dummy = d3.select("body").append("svg");
-        //var defs = svg_dummy.append("defs");
-        //var pane_g = d3.select("#pane > g");
-
-        var numberals_g = d3.select("#numberals");
-        var additionbar_g = d3.select("#additionbar");
-        var problem_g = d3.select("#problem");
-
-        var width = 350;
-        var height = 350;
-
-        var sum = params.sum;
-        var addend1 = params.add;
-        var addend2;
-
-        var mousedragX;
-        var mousedragY;
-
-        DefineDragEvents();
-        InitProblem();
-
-    </script>
+    <script src="addition_init.js"></script>
 </body>
 
 </html>

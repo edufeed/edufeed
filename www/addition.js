@@ -11,12 +11,12 @@
     drag = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragX = d3.event.x;
-            mousedragY = d3.event.y;
+            mousedragX = d3.event.x * scale;
+            mousedragY = d3.event.y * scale;
 
             d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y)));
+                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
         })
         .on("dragend", function () {
 
@@ -32,11 +32,17 @@
                     mousedragY > addend1endY1 - proximityDelta && mousedragY < addend1endY2 + proximityDelta) {
 
                     additionbar_g.select("#addend1bar").attr("width", sum * 10);
-                    document.getElementById("tada").play();
+                    //document.getElementById("tada").play();
+                    play_sound('audio/tada.mp3', function() {
+                        finishActivity();
+                    });
                 }
             }
             else {
-                document.getElementById("boink").play();
+                //document.getElementById("boink").play();
+                play_sound('audio/boink.mp3', function() {
+                    //finishActivity();
+                });
             }
             d3.select(this)
                 .attr("x", 0)

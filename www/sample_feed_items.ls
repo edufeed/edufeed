@@ -98,6 +98,9 @@ export getAllFeedItems = ->
   balance =
     [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
 
+  addition =
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'mouse'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
+
   admin =
     [{itemtype: 'admin', social: {poster: 'mouse'}}]
 
@@ -122,8 +125,8 @@ export getAllFeedItems = ->
   fillblanksocial =
     [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
   
-  defaults =
-    dots ++ typeletter ++ typeword
+  #defaults =
+  #  dots ++ typeletter ++ typeword
 
   all_feed_items_cache := {
     #defaults
@@ -133,6 +136,7 @@ export getAllFeedItems = ->
     typeletter
     readaloud
     balance
+    addition
     lettervideo
     numbervideo
     fillblank
@@ -173,6 +177,9 @@ export getSampleFeedItems = ->
   balance =
     [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 50, 300]]
 
+  addition =
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'mouse'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
+
   admin =
     [{itemtype: 'admin', social: {poster: 'mouse'}}]
 
@@ -198,7 +205,7 @@ export getSampleFeedItems = ->
     [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
 
   defaults =
-    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)
+    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)
 
   feed_items_cache := {
     defaults
@@ -208,6 +215,7 @@ export getSampleFeedItems = ->
     typeletter
     readaloud
     balance
+    addition
     lettervideo
     numbervideo
     fillblank
