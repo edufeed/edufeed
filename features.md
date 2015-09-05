@@ -1,5 +1,4 @@
 # Features
-# Features
 
 ## Social Feed
 
@@ -17,13 +16,13 @@ When a task is completed, users are taken to a sharing screen, where they have t
 
 This activity allows you to respond, using a fixed vocabulary of words, to a question. Built-in questions are currently of the format "What is your favorite animal/color/fruit", though any fill-in-the-blank question that can be answereed using a fixed vocabulary of words can be used. (We enforce a fixed vocabulary to ensure that users don't enter garbage text). When you send the activity to another user, it will display your response and prompt them for their response. Becuase the prompt is given by a peer rather than just a machine, and playing the activity lets users learn more about their peers, we hope that this increases engagement.
 
-![fillinblanksocial](screenshots/fillinblanksocial.png)
+![fillblanksocial](screenshots/fillblanksocial.png)
 
 ### Fill in the blank basic version
 
 This is a control version of the above activity, where the user is simply asked to fill in the blank using a fixed vocabulary of words. Sharing will send the question, but not their response.
 
-![fillinblank](screenshots/fillinblank.png)
+![fillblank](screenshots/fillblank.png)
 
 ### Read sentence aloud
 
