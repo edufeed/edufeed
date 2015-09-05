@@ -10,6 +10,8 @@ When a task is completed, users are taken to a sharing screen, where they have t
 
 ![sharing](screenshots/sharing.png)
 
+In addition, the task that was completed is marked with a checkmark and bumped to the front of the feed, and another task of that same type (with a higher difficulty) is then inserted to the front of the feed, and another task of a different type (that has not yet been completed, and is of the next difficulty level within that task) is also inserted.
+
 ## Activities
 
 ### Fill in the blank social version
