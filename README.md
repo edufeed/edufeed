@@ -1,5 +1,9 @@
 # edufeed
 
+## Features
+
+See [features.md](https://github.com/edufeed/edufeed/blob/master/features.md)
+
 ## Demo (Web Version)
 
 See WEBROOT for a demo (chrome only - other browsers don't yet support the Web Components standard).
