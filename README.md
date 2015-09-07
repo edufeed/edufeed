@@ -46,6 +46,12 @@ cca run android --device
 
 Visit the signup page: http://localhost:8080/signup.html
 
+If you are creating accounts for an entire new set of users in the classes file, you can run:
+
+```
+node scripts/create_users
+```
+
 ### Logging in
 
 Visit the feed page, and open the admin console (it should be the first feed item). It will have a place for you to log in.
@@ -280,3 +286,10 @@ node scripts/delete_all_databases
 And you can then delete all tablet-side databases by going to the admin console and clicking the `Delete All Local Databases for all users` (or by going to the android application manager and clearing all app data there).
 
 And after restarting the server and tablet app, the sync issues should hopefully be gone.
+
+If you delete all of the databases on cloudant, you'll need to make a new database called '_users' with a file named '_all_docs' before running:
+
+```
+node scripts/create_users
+```
+to repopulate the database.
