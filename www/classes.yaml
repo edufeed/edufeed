@@ -24,7 +24,6 @@ class1:
     - sumithra
     - vidhyashree
     - teachera
-    - tablet
    
 class2:
   users:
@@ -52,7 +51,6 @@ class2:
     - savitha
     - swetha
     - teacherb
-    - tablet
 
 class3:
   users:
@@ -81,7 +79,6 @@ class3:
     - supriya
     - yadhodha
     - teacherc
-    - tablet
 
 class4:
   users:
