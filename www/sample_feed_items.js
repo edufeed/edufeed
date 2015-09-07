@@ -42,7 +42,7 @@
           level: levelnum
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -71,7 +71,7 @@
         itemtype: 'dots',
         data: data,
         social: {
-          poster: 'mouse'
+            poster: 'tablet'
         }
       });
     }
@@ -85,7 +85,7 @@
           word: word
         },
         social: {
-          poster: 'mouse',
+            poster: 'tablet',
           finishedby: []
         }
       });
@@ -100,7 +100,7 @@
           word: word
         },
         social: {
-          poster: 'mouse',
+          poster: 'tablet',
           finishedby: []
         }
       });
@@ -115,7 +115,7 @@
           number: number
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -130,7 +130,7 @@
           add: addval
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -138,7 +138,7 @@
     admin = [{
       itemtype: 'admin',
       social: {
-        poster: 'mouse'
+        poster: 'tablet'
       }
     }];
     example = [{
@@ -148,7 +148,7 @@
         bar: 'somebarval'
       },
       social: {
-        poster: 'mouse',
+        poster: 'tablet',
         finishedby: []
       }
     }];
@@ -163,7 +163,7 @@
         }
       },
       social: {
-        poster: 'mouse',
+        poster: 'tablet',
         finishedby: []
       }
     }];
@@ -177,7 +177,7 @@
           videoid: videoid
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -192,7 +192,7 @@
           videoid: videoid
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -206,7 +206,7 @@
           sentences: sentences
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -221,7 +221,7 @@
           wordoptions: wordcategories[category]
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -237,7 +237,7 @@
           firstentered: wordcategories[category][0]
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -276,7 +276,7 @@
           level: levelnum
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -305,7 +305,7 @@
         itemtype: 'dots',
         data: data,
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -319,7 +319,7 @@
           word: word
         },
         social: {
-          poster: 'mouse',
+          poster: 'tablet',
           finishedby: []
         }
       });
@@ -334,7 +334,7 @@
           word: word
         },
         social: {
-          poster: 'mouse',
+          poster: 'tablet',
           finishedby: []
         }
       });
@@ -349,7 +349,7 @@
           number: number
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -364,7 +364,7 @@
           add: addval
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -372,7 +372,7 @@
     admin = [{
       itemtype: 'admin',
       social: {
-        poster: 'mouse'
+        poster: 'tablet'
       }
     }];
     example = [{
@@ -382,7 +382,7 @@
         bar: 'somebarval'
       },
       social: {
-        poster: 'mouse',
+        poster: 'tablet',
         finishedby: []
       }
     }];
@@ -397,7 +397,7 @@
         }
       },
       social: {
-        poster: 'mouse',
+        poster: 'tablet',
         finishedby: []
       }
     }];
@@ -411,7 +411,7 @@
           videoid: videoid
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -426,7 +426,7 @@
           videoid: videoid
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -440,7 +440,7 @@
           sentences: sentences
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -455,7 +455,7 @@
           wordoptions: wordcategories[category]
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
@@ -471,7 +471,7 @@
           firstentered: wordcategories[category][0]
         },
         social: {
-          poster: 'mouse'
+          poster: 'tablet'
         }
       });
     }
