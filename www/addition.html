@@ -30,10 +30,8 @@
     <script src="bower_components/d3/d3.min.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
 
-    <!--<div id="dummy" style="height:15px; width:100%; clear:both;"></div>-->
-
     <div class="pane" id="addition">
-        <svg xmlns="http://www.w3.org/2000/svg" id="pane" width="600" height="600">
+        <svg xmlns="http://www.w3.org/2000/svg" id="pane">
             <defs>
                 <pattern id="numeralpattern" height="10" width="100">
                     <image xlink:href="../icons/numbers_bar.png" height="10" width="100" />
@@ -41,14 +39,10 @@
                 <pattern id="addend1barpattern" height="10" width="100">
                     <image xlink:href="../icons/numbers_bar.png" height="10" width="100" />
                 </pattern>
-                <pattern id="sumbarpattern" height="10" width="200">
-                    <image xlink:href="../icons/sum_bar.png" height="10" width="200" />
+                <pattern id="sumbarpattern" height="10" width="100">
+                    <image xlink:href="../icons/sum_bar.png" height="10" width="100" />
                 </pattern>
             </defs>
-            
-            <!--<rect x="0" y="0" width="350" height="350" stroke-width="1" stroke="yellow" fill="transparent"></rect>
-            <line x1="100" x2="100" y1="0" y2="350" stroke-width="1" stroke="yellow"></line>
-            <line x1="310" x2="310" y1="0" y2="350" stroke-width="1" stroke="yellow"></line>-->
             <g id="numberals">
                 <rect id="numeral1" class="numeral" data-value="1" data-y="10" height="10" width="10" x="0" y="10"></rect>
                 <rect id="numeral2" class="numeral" data-value="2" data-y="40" height="10" width="20" x="0" y="40"></rect>
@@ -62,8 +56,10 @@
                 <rect id="numeral10" class="numeral" data-value="10" data-y="280" height="10" width="100" x="0" y="280"></rect>
             </g>
             <g id="additionbar">
-                <rect id="addend1bar" class="addend1bar" height="10" width="100" x="100" y="110"></rect>
-                <rect id="sumbar" class="sumbar" height="10" width="200" x="100" y="170"></rect>
+                <rect id="addend1bar0" class="addend1bar" height="10" width="100" x="100" y="110"></rect>
+                <rect id="addend1bar1" class="addend1bar" height="10" width="100" x="200" y="110"></rect>
+                <rect id="sumbar0" class="sumbar" height="10" width="100" x="100" y="170"></rect>
+                <rect id="sumbar1" class="sumbar" height="10" width="100" x="200" y="170"></rect>
             </g>
             <g id="problem">
                 <text id="addend1number" x="335" y="100">3</text>
@@ -75,6 +71,9 @@
             </g>
         </svg>
     </div>
+
+    <audio id="boink" src="Audio\boink.mp3"></audio>
+    <audio id="tada" src="Audio\tada.mp3"></audio>
 
     <script src="iframe-utils.js"></script>
     <script src="base64-utils.js"></script>
