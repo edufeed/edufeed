@@ -287,7 +287,7 @@ And you can then delete all tablet-side databases by going to the admin console 
 
 And after restarting the server and tablet app, the sync issues should hopefully be gone.
 
-If you delete all of the databases on cloudant, you'll need to make a new database called '_users' with a file named '_all_docs' before running:
+If you delete all of the databases on cloudant, you'll need to make a new database called '_users' before running:
 
 ```
 node scripts/create_users

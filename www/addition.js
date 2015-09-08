@@ -67,14 +67,61 @@
 
 
 function InitProblem() {
-
     addend2 = sum - addend1;
-    problem_g.select("#addend1number").text(addend1);
-    problem_g.select("#sumnumber").text(sum);
 
-    additionbar_g.select("#addend1bar").attr("data-value", addend1);
-    additionbar_g.select("#addend1bar").attr("width", addend1 * 10);
+    problem_g.append("text")
+        .attr("id", "addend1number")
+        .attr("x", 335)
+        .attr("y", 100)
+        .text(addend1);
 
-    additionbar_g.select("#sumbar").attr("data-value", sum);
-    additionbar_g.select("#sumbar").attr("width", sum * 10);
+    problem_g.append("text")
+        .attr("id", "plussign")
+        .attr("x", 320)
+        .attr("y", 130)
+        .text("+");
+
+    problem_g.append("text")
+        .attr("id", "addend2number")
+        .attr("x", 335)
+        .attr("y", 130)
+        .text("?");
+
+    problem_g.append("line")
+        .attr("x1", 310)
+        .attr("x2", 350)
+        .attr("y1", 150)
+        .attr("y2", 150)
+        .attr("stroke-width", 1)
+        .attr("stroke", "black");
+
+    problem_g.append("text")
+        .attr("id", "equalsign")
+        .attr("x", 320)
+        .attr("y", 180)
+        .text("=");
+
+    problem_g.append("text")
+        .attr("id", "sumnumber")
+        .attr("x", 335)
+        .attr("y", 180)
+        .text(sum);
+
+    additionbar_g.append("rect")
+        .attr("id", "addend1bar")
+        .attr("class", "addend1bar")
+        .attr("height", 10)
+        .attr("x", 100)
+        .attr("y", 110)
+        .attr("data-value", addend1)
+        .attr("width", addend1 * 10);
+
+    additionbar_g.append("rect")
+        .attr("id", "sumbar")
+        .attr("class", "sumbar")
+        .attr("height", 10)
+        .attr("x", 100)
+        .attr("y", 170)
+        .attr("data-value", sum)
+        .attr("width", sum * 10);
 }

@@ -27,5 +27,5 @@
         var mousedragX;
         var mousedragY;
 
-        DefineDragEvents();
         InitProblem();
+        DefineDragEvents();
