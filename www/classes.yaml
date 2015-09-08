@@ -82,6 +82,7 @@ class3:
 
 class4:
   users:
+    - ed
     - guestuser
     - avery
     - kelsey
