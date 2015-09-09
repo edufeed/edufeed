@@ -41,8 +41,9 @@
         var addend1 = params.add;
         var addend2;
 
-        var mousedragX;
-        var mousedragY;
+        var mousedragX = 0;
+        var mousedragY = 0;
+        var dragstep = 0;
 
         InitProblem();
         DefineDragEvents();

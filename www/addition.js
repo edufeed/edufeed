@@ -11,12 +11,16 @@
     drag = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedragX = d3.event.x * scale;
-            mousedragY = d3.event.y * scale;
+            if (Math.abs(mousedragX - d3.event.x * scale) > dragstep ||
+                Math.abs(mousedragY - d3.event.y * scale) > dragstep) {
 
-            d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                mousedragX = d3.event.x * scale;
+                mousedragY = d3.event.y * scale;
+
+                d3.select(this)
+                    .attr("x", Math.max(0, Math.min(width - 20, mousedragX)))
+                    .attr("y", Math.max(0, Math.min(height - 20, mousedragY)));
+            }
         })
         .on("dragend", function () {
 
@@ -27,11 +31,13 @@
                 var addend1endY1 = parseInt(additionbar_g.select("#addend1bar").attr("y"), 0);
                 var addend1endY2 = addend1endY1 + parseInt(additionbar_g.select("#addend1bar").attr("height"), 0);
 
-                var proximityDelta = 20;
+                var proximityDelta = 100;
                 if (mousedragX > addend1endX - proximityDelta && mousedragX < addend1endX + proximityDelta &&
                     mousedragY > addend1endY1 - proximityDelta && mousedragY < addend1endY2 + proximityDelta) {
 
                     additionbar_g.select("#addend1bar").attr("width", sum * 10);
+                    problem_g.select("#addend2number").text(addend2);
+
                     //document.getElementById("tada").play();
                     play_sound('audio/tada.mp3', function () {
                         finishActivity();
@@ -45,9 +51,11 @@
                 });
             }
             d3.select(this)
-                .attr("x", 0)
+                .attr("x", 20)
                 .attr("y", parseInt(d3.select(this).attr("data-y"), 10));
 
+            mousedragX = 0;
+            mousedragY = 0;
         });
 
     numberals_g.select("#numeral1").call(drag);

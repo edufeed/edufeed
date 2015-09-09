@@ -36,18 +36,19 @@
         var one = 0;
         var todoVal = params.number;
 
-        var mousedrag1x;
-        var mousedrag1y;
-        var mousedrag10x;
-        var mousedrag10y;
-        var mousedrag100x;
-        var mousedrag100y;
+        var mousedrag1x = 0;
+        var mousedrag1y = 0;
+        var mousedrag10x = 0;
+        var mousedrag10y = 0;
+        var mousedrag100x = 0;
+        var mousedrag100y = 0;
         var mousedragremove1x;
         var mousedragremove1y;
         var mousedragremove10x;
         var mousedragremove10y;
         var mousedragremove100x;
         var mousedragremove100y;
+        var dragstep = 10;
 
         var nodrag;
         var dragcoin1;

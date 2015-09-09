@@ -94,12 +94,15 @@ function DefineCoinDragEvents() {
     dragcoin1 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag1x = d3.event.x * scale;
-            mousedrag1y = d3.event.y * scale;
+            if (Math.abs(mousedrag1x - d3.event.x * scale) > dragstep ||
+                Math.abs(mousedrag1y - d3.event.y * scale) > dragstep) {
+                mousedrag1x = d3.event.x * scale;
+                mousedrag1y = d3.event.y * scale;
 
-            d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                d3.select(this)
+                    .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                    .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+            }
         })
         .on("dragend", function () {
 
@@ -120,6 +123,8 @@ function DefineCoinDragEvents() {
             if (newMouseX > left - (iconW / 2) && newMouseX < right && newMouseY > top - (iconH / 2) && newMouseY < bottom) {
                 AddToOne();
             }
+            mousedrag1x = 0;
+            mousedrag1y = 0;
         });
 
     dragremovecoin1 = d3.behavior.drag()
@@ -153,12 +158,15 @@ function DefineCoinDragEvents() {
     dragcoin10 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag10x = d3.event.x * scale;
-            mousedrag10y = d3.event.y * scale;
+            if (Math.abs(mousedrag10x - d3.event.x * scale) > dragstep ||
+                Math.abs(mousedrag10y - d3.event.y * scale) > dragstep) {
+                mousedrag10x = d3.event.x * scale;
+                mousedrag10y = d3.event.y * scale;
 
-            d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                d3.select(this)
+                    .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
+                    .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+            }
         })
         .on("dragend", function () {
 
@@ -179,6 +187,8 @@ function DefineCoinDragEvents() {
             if (newMouseX > left - (iconW / 2) && newMouseX < right && newMouseY > top - (iconH / 2) && newMouseY < bottom) {
                 AddToTen();
             }
+            mousedrag10x = 0;
+            mousedrag10y = 0;
         });
 
     dragremovecoin10 = d3.behavior.drag()
@@ -212,12 +222,15 @@ function DefineCoinDragEvents() {
     dragcoin100 = d3.behavior.drag()
         .on("drag", function () {
 
-            mousedrag100x = d3.event.x * scale;
-            mousedrag100y = d3.event.y * scale;
+            if (Math.abs(mousedrag100x - d3.event.x * scale) > dragstep ||
+                Math.abs(mousedrag100y - d3.event.y * scale) > dragstep) {
+                mousedrag100x = d3.event.x * scale;
+                mousedrag100y = d3.event.y * scale;
 
-            d3.select(this)
-                .attr("x", Math.max(0, Math.min(width - 20, mousedrag100x)))
-                .attr("y", Math.max(0, Math.min(height - 20, mousedrag100y)));
+                d3.select(this)
+                    .attr("x", Math.max(0, Math.min(width - 20, mousedrag100x)))
+                    .attr("y", Math.max(0, Math.min(height - 20, mousedrag100y)));
+            }
         })
         .on("dragend", function () {
 
@@ -238,6 +251,8 @@ function DefineCoinDragEvents() {
             if (newMouseX > left - (iconW/2) && newMouseX < right && newMouseY > top - (iconH / 2) && newMouseY < bottom) {
                     AddToHundred();
             }
+            mousedrag100x = 0;
+            mousedrag100y = 0;
         });
 
     dragremovecoin100 = d3.behavior.drag()
