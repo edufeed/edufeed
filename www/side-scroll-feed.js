@@ -190,7 +190,7 @@
               docs = [{
                 itemtype: 'admin',
                 social: {
-                  poster: 'mouse'
+                  poster: 'tablet'
                 },
                 updatetime: 0
               }].concat(docs);

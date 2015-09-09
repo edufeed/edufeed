@@ -1,4 +1,4 @@
-'0': speechsynth_en/0.mp3
+﻿'0': speechsynth_en/0.mp3
 '1': speechsynth_en/1.mp3
 '2': speechsynth_en/2.mp3
 '3': speechsynth_en/3.mp3
@@ -100,7 +100,7 @@
 '99': speechsynth_en/99.mp3
 '100': speechsynth_en/100.mp3
 a: speechsynth_en/a.mp3
-about: speechsynth_en/american_accent/about.mp3
+about: speechsynth_en/about.mp3
 animal: speechsynth_en/animal.mp3
 anything: speechsynth_en/anything.mp3
 apple: speechsynth_en/apple.mp3
@@ -142,16 +142,17 @@ has: speechsynth_en/has.mp3
 he: speechsynth_en/he.mp3
 his: speechsynth_en/his.mp3
 house: speechsynth_en/house.mp3
-how: speechsynth_en/american_accent/how.mp3
+how: speechsynth_en/how.mp3
 in: speechsynth_en/in.mp3
 instead type the letter: speechsynth_en/instead type the letter.mp3
 is: speechsynth_en/is.mp3
 job: speechsynth_en/job.mp3
 kelsey: speechsynth_en/kelsey.mp3
+kiley: speechsynth_en/kiley.mp3
 letter: speechsynth_en/letter.mp3
 like: speechsynth_en/like.mp3
 lion: speechsynth_en/lion.mp3
-mouse: speechsynth_en/american_accent/mouse.mp3
+mouse: speechsynth_en/mouse.mp3
 mice: speechsynth_en/mice.mp3
 my: speechsynth_en/my.mp3
 never: speechsynth_en/never.mp3
@@ -163,7 +164,7 @@ pear: speechsynth_en/pear.mp3
 red: speechsynth_en/red.mp3
 river: speechsynth_en/river.mp3
 roof: speechsynth_en/roof.mp3
-says: speechsynth_en/american_accent/says.mp3
+says: speechsynth_en/says.mp3
 see: speechsynth_en/see.mp3
 select a color: speechsynth_en/select a color.mp3
 share: speechsynth_en/share.mp3
@@ -218,7 +219,7 @@ maryjessica: speechsynth_en/mary_jessica.mp3
 melwin: speechsynth_en/melwin.mp3
 pavithraa: speechsynth_en/pavithra.mp3
 poorna: speechsynth_en/poorna.mp3
-pushpa: speechsynth_en/pushpa.mp3s
+pushpa: speechsynth_en/pushpa.mp3
 sandhya: speechsynth_en/sandhya.mp3
 sangitha: speechsynth_en/sangitha.mp3
 sathya: speechsynth_en/sathya.mp3
@@ -272,5 +273,8 @@ sandra: speechsynth_en/sandra.mp3
 sanjivni: speechsynth_en/sanjivni.mp3
 shruthi: speechsynth_en/shruthi.mp3
 supriya: speechsynth_en/supriya.mp3
-yadhodha: speechsynth_en/yadhodha.mp3
+yashodha: speechsynth_en/yashodha.mp3
 teacherc: speechsynth_en/your teacher.mp3
+tablet: speechsynth_en/the tablet.mp3
+kiley: speechsynth_en/kiley.mp3
+ed: speechsynth_en/ed.mp3
