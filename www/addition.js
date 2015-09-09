@@ -23,44 +23,24 @@
             var thisVal = parseInt(d3.select(this).attr("data-value"), 10);
             if (thisVal == addend2) {
 
-                var addend1endX;
-                var addend1endY1;
-                var addend1endY2;
-
-                if (addend1 <= 10) {
-                    addend1endX = parseInt(additionbar_g.select("#addend1bar0").attr("x"), 0) + parseInt(additionbar_g.select("#addend1bar0").attr("width"), 0);
-                    addend1endY1 = parseInt(additionbar_g.select("#addend1bar0").attr("y"), 0);
-                    addend1endY2 = addend1endY1 + parseInt(additionbar_g.select("#addend1bar0").attr("height"), 0);
-                }
-                else {
-                    addend1endX = parseInt(additionbar_g.select("#addend1bar1").attr("x"), 0) + parseInt(additionbar_g.select("#addend1bar1").attr("width"), 0);
-                    addend1endY1 = parseInt(additionbar_g.select("#addend1bar1").attr("y"), 0);
-                    addend1endY2 = addend1endY1 + parseInt(additionbar_g.select("#addend1bar1").attr("height"), 0);
-                }
-
+                var addend1endX = parseInt(additionbar_g.select("#addend1bar").attr("x"), 0) + parseInt(additionbar_g.select("#addend1bar").attr("width"), 0);
+                var addend1endY1 = parseInt(additionbar_g.select("#addend1bar").attr("y"), 0);
+                var addend1endY2 = addend1endY1 + parseInt(additionbar_g.select("#addend1bar").attr("height"), 0);
 
                 var proximityDelta = 20;
                 if (mousedragX > addend1endX - proximityDelta && mousedragX < addend1endX + proximityDelta &&
                     mousedragY > addend1endY1 - proximityDelta && mousedragY < addend1endY2 + proximityDelta) {
 
-                    var sum1 = sum >= 10 ? 10 : sum;
-                    var sum2 = sum >= 10 ? sum - 10 : 0;
-                    additionbar_g.select("#addend1bar0").attr("data-value", sum1);
-                    additionbar_g.select("#addend1bar0").attr("width", sum1 * 10);
-                    additionbar_g.select("#addend1bar1").attr("data-value", sum2);
-                    additionbar_g.select("#addend1bar1").attr("width", sum2 * 10);
-
-                    problem_g.select("#addend2number").text(addend2);
-
+                    additionbar_g.select("#addend1bar").attr("width", sum * 10);
                     //document.getElementById("tada").play();
-                    play_sound('audio/tada.mp3', function() {
+                    play_sound('audio/tada.mp3', function () {
                         finishActivity();
                     });
                 }
             }
             else {
                 //document.getElementById("boink").play();
-                play_sound('audio/boink.mp3', function() {
+                play_sound('audio/boink.mp3', function () {
                     //finishActivity();
                 });
             }
@@ -81,32 +61,67 @@
     numberals_g.select("#numeral9").call(drag);
     numberals_g.select("#numeral10").call(drag);
 
-    numberals_g.select("#addend1bar0").call(nodrag);
-    numberals_g.select("#addend1bar1").call(nodrag);
-    numberals_g.select("#sumbar0").call(nodrag);
-    numberals_g.select("#sumbar1").call(nodrag);
-
+    numberals_g.select("#addend1bar").call(nodrag);
+    numberals_g.select("#sumbar").call(nodrag);
 }
 
 
 function InitProblem() {
-
     addend2 = sum - addend1;
-    problem_g.select("#addend1number").text(addend1);
-    problem_g.select("#sumnumber").text(sum);
 
-    var addend1_0 = addend1 >= 10 ? 10 : addend1;
-    var addend1_1 = addend1 >= 10 ? addend1 - 10 : 0;
-    additionbar_g.select("#addend1bar0").attr("data-value", addend1_0);
-    additionbar_g.select("#addend1bar0").attr("width", addend1_0 * 10);
-    additionbar_g.select("#addend1bar1").attr("data-value", addend1_1);
-    additionbar_g.select("#addend1bar1").attr("width", addend1_1 * 10);
+    problem_g.append("text")
+        .attr("id", "addend1number")
+        .attr("x", 335)
+        .attr("y", 100)
+        .text(addend1);
 
+    problem_g.append("text")
+        .attr("id", "plussign")
+        .attr("x", 320)
+        .attr("y", 130)
+        .text("+");
 
-    var sum1 = sum >= 10 ? 10 : sum;
-    var sum2 = sum >= 10 ? sum - 10 : 0;
-    additionbar_g.select("#sumbar0").attr("data-value", sum1);
-    additionbar_g.select("#sumbar0").attr("width", sum1 * 10);
-    additionbar_g.select("#sumbar1").attr("data-value", sum2);
-    additionbar_g.select("#sumbar1").attr("width", sum2 * 10);
+    problem_g.append("text")
+        .attr("id", "addend2number")
+        .attr("x", 335)
+        .attr("y", 130)
+        .text("?");
+
+    problem_g.append("line")
+        .attr("x1", 310)
+        .attr("x2", 350)
+        .attr("y1", 150)
+        .attr("y2", 150)
+        .attr("stroke-width", 1)
+        .attr("stroke", "black");
+
+    problem_g.append("text")
+        .attr("id", "equalsign")
+        .attr("x", 320)
+        .attr("y", 180)
+        .text("=");
+
+    problem_g.append("text")
+        .attr("id", "sumnumber")
+        .attr("x", 335)
+        .attr("y", 180)
+        .text(sum);
+
+    additionbar_g.append("rect")
+        .attr("id", "addend1bar")
+        .attr("class", "addend1bar")
+        .attr("height", 10)
+        .attr("x", 100)
+        .attr("y", 110)
+        .attr("data-value", addend1)
+        .attr("width", addend1 * 10);
+
+    additionbar_g.append("rect")
+        .attr("id", "sumbar")
+        .attr("class", "sumbar")
+        .attr("height", 10)
+        .attr("x", 100)
+        .attr("y", 170)
+        .attr("data-value", sum)
+        .attr("width", sum * 10);
 }
