@@ -1,5 +1,4 @@
 <link rel="import" href="polymer-utils.html">
-<link rel="import" href="dots-grid.html">
 <link rel="import" href="multiply-formula-display.html">
 
 <dom-module id="dots-thumbnail">
@@ -38,13 +37,13 @@
       z-index: 1;
     }
   </style>
-  <template>
-    <div style="position: relative">
-      <dots-grid id="thumbnaildotsgrid" numdots="{{numdots}}" nolabels="true" ignoretouch="true" width="350"></dots-grid>
-      <multiply-formula-display id="thumbnailmultiplyformula"></multiply-formula-display>
-      <div id="thumbnailmultiplyformulabackground"></div>
-    </div>
-  </template>
+    <template>
+        <div style="position: relative">
+            <img src="thumbnails/dots.png" />
+            <multiply-formula-display id="thumbnailmultiplyformula"></multiply-formula-display>
+            <div id="thumbnailmultiplyformulabackground"></div>
+        </div>
+    </template>
   <script src="dots-common.js"></script>
   <script src="dots-thumbnail.js"></script>  
 </dom-module>

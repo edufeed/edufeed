@@ -7,33 +7,25 @@
       vertical-align: top;
       width: 350px;
       height: 350px;
+      overflow: hidden;
     }
     #contentframe {
-      display: block;
-      width: 350px;
-      height: 350px;
-      overflow: hidden;
-      margin: none;
-      padding: none;
-      border: none;
-    }
-    #overlapframe {
-      position: absolute;
-      width: 350px;
-      height: 350px;
-    }
+        display: block;
+        width: 250px;
+        height: 350px;
+        overflow: hidden;
+        margin: none;
+        padding: none;
+        border: none;
+      }
   </style>
   <template>
-    <div id="overlapframe"></div>
-    <iframe id="contentframe" src="{{thumbnailurl}}"></iframe>
-    <!--
-    <div>
-      This is the thumbnail for an iframe activity.<br>
-      activitypage: <span>{{activitypage}}</span><br>
-      <span class="wordwrap">activityurl: <a href="{{activityurl}}">{{activityurl}}</a></span><br>
-      <span class="wordwrap">params: <span>{{printParams(params)}}</span></span><br>
-    </div>
-    -->
+      <img src="thumbnails/addition.png" class="additionthumbnail" />
+      <div id="contentframe" style="text-align:right; font-family:'Arial Rounded MT'; font-size: 48px; color: black; position: absolute; bottom:-65px">
+      <p>{{add}}</p>
+      <p><u>+ ?</u></p>
+      <p>{{sum}}</p>
+      </div>
   </template>
   <script src="addition-thumbnail.js"></script>  
 </dom-module>

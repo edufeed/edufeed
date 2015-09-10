@@ -10,30 +10,17 @@
     }
     #contentframe {
       display: block;
-      width: 350px;
+      width: 300px;
       height: 350px;
       overflow: hidden;
       margin: none;
       padding: none;
       border: none;
     }
-    #overlapframe {
-      position: absolute;
-      width: 350px;
-      height: 350px;
-    }
   </style>
   <template>
-    <div id="overlapframe"></div>
-    <iframe id="contentframe" src="{{thumbnailurl}}"></iframe>
-    <!--
-    <div>
-      This is the thumbnail for an iframe activity.<br>
-      activitypage: <span>{{activitypage}}</span><br>
-      <span class="wordwrap">activityurl: <a href="{{activityurl}}">{{activityurl}}</a></span><br>
-      <span class="wordwrap">params: <span>{{printParams(params)}}</span></span><br>
-    </div>
-    -->
+      <img src="thumbnails/balance.png" class="balancethumbnail" />
+      <div id="contentframe" style="text-align: right; font-family:'Arial Rounded MT'; font-size:75px; color:black; position:absolute; bottom:-75px">{{number}}</div>
   </template>
   <script src="balance-thumbnail.js"></script>  
 </dom-module>
