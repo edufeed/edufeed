@@ -81,49 +81,49 @@ export getAllFeedItems = ->
   wordcategories = getWordCategories()
 
   bars =
-    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
+    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'tablet'}} for levelnum in [0 to 2]]
 
   dots =
-    [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
+    [{itemtype: 'dots', data: data, social: {poster: 'tablet'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
 
   typeletter =
-    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
+    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   typeword =
-    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
+    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   #balance =
-  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
+  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 50, 300]]
 
   balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
 
   addition =
-    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'mouse'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
 
   admin =
-    [{itemtype: 'admin', social: {poster: 'mouse'}}]
+    [{itemtype: 'admin', social: {poster: 'tablet'}}]
 
   example =
-    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: []}}]
+    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'tablet', finishedby: []}}]
 
   iframe =
-    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: []}}]
+    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'tablet', finishedby: []}}]
 
   lettervideo =
-    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
+    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.lettervideo]
 
   numbervideo =
-    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.numbervideo]
+    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.numbervideo]
 
   readaloud =
-    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
+    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'tablet'}} for sentences in readinglist]
 
   fillblank =
-    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
 
   fillblanksocial =
-    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
   
   #defaults =
   #  dots ++ typeletter ++ typeword
@@ -160,49 +160,49 @@ export getSampleFeedItems = ->
   wordcategories = getWordCategories()
 
   bars =
-    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'mouse'}} for levelnum in [0 to 2]]
+    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'tablet'}} for levelnum in [0 to 2]]
 
   dots =
-    [{itemtype: 'dots', data: data, social: {poster: 'mouse'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
+    [{itemtype: 'dots', data: data, social: {poster: 'tablet'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
 
   typeletter =
-    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
+    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   typeword =
-    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'mouse', finishedby: []}} for word in wordlist]
+    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   #balance =
-  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'mouse'}} for number in [1, 3, 50, 300]]
+  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 50, 300]]
 
   balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'mouse'}} for number in [1, 2, 3, 50, 300]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 50, 300]]
 
   addition =
-    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'mouse'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
 
   admin =
-    [{itemtype: 'admin', social: {poster: 'mouse'}}]
+    [{itemtype: 'admin', social: {poster: 'tablet'}}]
 
   example =
-    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'mouse', finishedby: []}}]
+    [{itemtype: 'example', data: {foo: 'somefooval', bar: 'somebarval'}, social: {poster: 'tablet', finishedby: []}}]
 
   iframe =
-    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'mouse', finishedby: []}}]
+    [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'tablet', finishedby: []}}]
 
   lettervideo =
-    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.lettervideo]
+    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.lettervideo]
 
   numbervideo =
-    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'mouse'}} for videoid in videolists.numbervideo]
+    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.numbervideo]
 
   readaloud =
-    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'mouse'}} for sentences in readinglist]
+    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'tablet'}} for sentences in readinglist]
 
   fillblank =
-    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
 
   fillblanksocial =
-    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'mouse'}} for [sentence, category] in fillblanklist]
+    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
 
   defaults =
     dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)

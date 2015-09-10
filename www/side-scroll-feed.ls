@@ -138,7 +138,7 @@ Polymer {
     if self.hide_admin_console? and self.hide_admin_console
       noadmin = true
     if docs.length == 0 or (!noadmin and (docs.map (.itemtype)).indexOf('admin') == -1)
-      docs := [{itemtype: 'admin', social: {poster: 'mouse'}, updatetime: 0}] ++ docs
+      docs := [{itemtype: 'admin', social: {poster: 'tablet'}, updatetime: 0}] ++ docs
     finished_items <- getFinishedItems()
     self.finished_items = finished_items
     for doc in docs
