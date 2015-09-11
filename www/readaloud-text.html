@@ -23,7 +23,7 @@
   </style>
   <template>
     <div id="microphonedisplay">
-      <span id="microphonespan" style="float: left" class="glyphicon glyphicon-volume-up saysentence" on-click="sentenceClicked"></span>
+      <img src="images/audio.png" id="microphonespan" style="float: left" on-click="sentenceClicked"/>
     </div>
     <div id="lmargindiv">
       <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">

@@ -15,7 +15,7 @@
   </style>
   <template>
     <template is="dom-repeat" items="{{sentences_split}}" as="wordlist" index-as="sentenceidx">
-      <span style="float: left" class="glyphicon glyphicon-volume-up saysentence"></span>
+      <img src="images/audio_small.png" style="float: left"></img>
       <div style="margin-left: 50px; width: 300px">
         <template is="dom-repeat" items={{wordlist}} as="word" index-as="wordidx">
           <span>{{word}}</span>

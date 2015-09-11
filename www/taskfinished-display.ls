@@ -20,7 +20,7 @@ Polymer {
       self.style.opacity = 1.0
     setTimeout ->
       #play_success_sound ->
-      self.$$('#sharemessage').playSentence()
+      synthesize_word 'with whom do you want to share this activity'
     , 1000
     username <- getUsername()
     classmates <- getClassmates(username)

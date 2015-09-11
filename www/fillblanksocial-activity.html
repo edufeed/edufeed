@@ -42,13 +42,13 @@
     </div>
     <div style="display: inline-block; width: 100%">
       <user-avatar username="{{social.poster}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence1"></user-avatar>
-      <span style="float: left; margin-right: 10px;" class="glyphicon glyphicon-volume-up saysentence" on-click="saySentence1"></span>
+      <img src="images/audio_small.png" style="float: left; margin-right: 10px;" on-click="saySentence1"/>
       <readaloud-text nomicrophone style="font-size: 32px; display: inline" text="{{firstsentence}}" fillinblank="{{fillinblank}}" id="sentence1"></readaloud-text>
     </div>
     <br>
     <div style="display: inline-block; width: 100%">
       <user-avatar username="{{social.myname}}" size="s" style="display: inline; float: left; cursor: pointer" on-click="saySentence2"></user-avatar>
-      <span style="float: left; margin-right: 10px" class="glyphicon glyphicon-volume-up saysentence" on-click="saySentence2"></span>
+      <img src="images/audio_small.png" style="float: left; margin-right: 10px" on-click="saySentence2"/>
       <readaloud-text nomicrophone style="font-size: 32px; display: inline" text="{{filledsentence}}" fillinblank="{{fillinblank}}" id="sentence2"></readaloud-text>
     </div>
   </template>

@@ -23,7 +23,7 @@
           self.style.opacity = 1.0;
         }
         setTimeout(function(){
-          return self.$$('#sharemessage').playSentence();
+          return synthesize_word('with whom do you want to share this activity');
         }, 1000);
         return getUsername(function(username){
           return getClassmates(username, function(classmates){
