@@ -21,9 +21,9 @@
     },
     get_instruction_playlist: function(){
       return [
-        'the word', this.word, 'starts with the letter', {
+        'the word', this.word, 'starts with the sound', {
           letter: this.letter
-        }, 'type the letter', {
+        }, 'touch the letter that makes the sound', {
           letter: this.letter
         }
       ];
@@ -82,11 +82,9 @@
         this.incorrect += 1;
         this.disableKeyboard();
         play_multiple_sounds([
-          {
-            sound: 'wrong'
-          }, 'you typed the letter', {
+          'you touched the letter that makes the sound', {
             letter: letter_sound
-          }, 'instead type the letter', {
+          }, 'instead touch the letter that makes the sound', {
             letter: next_letter
           }
         ], function(){
@@ -115,7 +113,7 @@
               letter: letter_sound
             }, {
               sound: 'success'
-            }, 'you typed the letter', {
+            }, 'you touched the letter that makes the sound', {
               letter: this.letter
             }, 'in', this.word
           ], function(){

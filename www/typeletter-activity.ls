@@ -22,9 +22,9 @@ RegisterActivity {
     return [
       'the word'
       this.word
-      'starts with the letter'
+      'starts with the sound'
       {letter: this.letter}
-      'type the letter'
+      'touch the letter that makes the sound'
       {letter: this.letter}
     ]
   playword: (success, callback) ->
@@ -65,10 +65,9 @@ RegisterActivity {
       this.incorrect += 1
       this.disableKeyboard()
       play_multiple_sounds [
-        {sound: 'wrong'}
-        'you typed the letter'
+        'you touched the letter that makes the sound'
         {letter: letter_sound}
-        'instead type the letter'
+        'instead touch the letter that makes the sound'
         {letter: next_letter}
       ], ~>
         this.enableKeyboard()
@@ -86,7 +85,7 @@ RegisterActivity {
         play_multiple_sounds [
           {letter: letter_sound}
           {sound: 'success'}
-          'you typed the letter'
+          'you touched the letter that makes the sound'
           {letter: this.letter}
           'in'
           this.word

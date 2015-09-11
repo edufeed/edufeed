@@ -22,7 +22,7 @@
     },
     get_instruction_playlist: function(){
       var letter;
-      return ['type the word', this.word].concat((function(){
+      return ['spell the word', this.word].concat((function(){
         var i$, ref$, len$, results$ = [];
         for (i$ = 0, len$ = (ref$ = this.word).length; i$ < len$; ++i$) {
           letter = ref$[i$];
@@ -75,11 +75,9 @@
         this.incorrect += 1;
         this.disableKeyboard();
         play_multiple_sounds([
-          {
-            sound: 'wrong'
-          }, 'you typed the letter', {
+           'you touched the letter that makes the sound', {
             letter: letter_sound
-          }, 'instead type the letter', {
+          }, 'instead touch the letter that makes the sound', {
             letter: next_letter
           }
         ], function(){
@@ -120,7 +118,7 @@
                 letter: letter_sound
               }, {
                 sound: 'success'
-              }, 'you typed the word', this.word
+              }, 'you spelled the word', this.word
             ], function(){
               this$.enableKeyboard();
               return this$.fire('task-finished', this$);

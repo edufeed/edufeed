@@ -21,7 +21,7 @@ RegisterActivity {
     this.playword(false)
   get_instruction_playlist: ->
     return [
-      'type the word'
+      'spell the word'
       this.word
     ] ++ [{letter: letter} for letter in this.word]
   playword: (success, callback) ->
@@ -57,10 +57,9 @@ RegisterActivity {
       this.incorrect += 1
       this.disableKeyboard()
       play_multiple_sounds [
-        {sound: 'wrong'}
-        'you typed the letter'
+        'you touched the letter that makes the sound'
         {letter: letter_sound}
-        'instead type the letter'
+        'instead touch the letter that makes the sound'
         {letter: next_letter}
       ], ~>
         this.enableKeyboard()
@@ -81,7 +80,7 @@ RegisterActivity {
           play_multiple_sounds [
             {letter: letter_sound}
             {sound: 'success'}
-            'you typed the word'
+            'you spelled the word'
             this.word
           ], ~>
             this.enableKeyboard()
