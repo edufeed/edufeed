@@ -11,7 +11,7 @@ Polymer {
     }
     blankstring: {
       type: String
-      value: '⬜⬜⬜⬜⬜'
+      value: '________'
     }
     fillinblank: {
       type: String

@@ -3,7 +3,7 @@ RegisterActivity {
   properties: {
     sentence: {
       type: String
-      value: 'My favorite color is ⬜⬜⬜⬜⬜.'
+      value: 'My favorite color is ________.'
     }
     howaboutyou: {
       type: String
@@ -15,7 +15,7 @@ RegisterActivity {
     }
     entered: {
       type: String
-      value: '⬜⬜⬜⬜⬜'
+      value: '________'
     }
     filledsentence: {
       type: String
@@ -28,7 +28,7 @@ RegisterActivity {
     }
     firstentered: {
       type: String
-      value: '⬜⬜⬜⬜⬜'
+      value: '________'
     }
     firstsentence: {
       type: String
@@ -44,7 +44,7 @@ RegisterActivity {
   saySentence2: ->
     this.$$('#sentence2').playSentence()
   compute_firstfilledsentence: (sentence, firstentered) ->
-    return sentence.split('⬜⬜⬜⬜⬜').join(firstentered)
+    return sentence.split('________').join(firstentered)
   compute_firstsentence: (firstfilledsentence, social, howaboutyou) ->
     return "#{capitalizeFirstLetter(social.poster)} says: #{firstfilledsentence} #{howaboutyou}"
   filledsentence_changed: (newval, oldval) ->
@@ -52,7 +52,7 @@ RegisterActivity {
       return
     this.$$('#sentence2').playSentence()
   compute_filledsentence: (sentence, entered) ->
-    return sentence.split('⬜⬜⬜⬜⬜').join(entered)
+    return sentence.split('________').join(entered)
   fillword: (evt) ->
     word = ''
     for elem in evt.path

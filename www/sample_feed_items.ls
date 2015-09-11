@@ -33,9 +33,9 @@ export getFeedReadingList = ->
 
 export getFillBlankSentencesWithCategories = ->
   [
-    ['My favorite color is ⬜⬜⬜⬜⬜.', 'color']
-    ['My favorite animal is the ⬜⬜⬜⬜⬜.', 'animal']
-    ['My favorite fruit is the ⬜⬜⬜⬜⬜.', 'fruit']
+    ['My favorite color is ________.', 'color']
+    ['My favorite animal is the ________.', 'animal']
+    ['My favorite fruit is the ________.', 'fruit']
   ]
 
 export getWordCategories = ->

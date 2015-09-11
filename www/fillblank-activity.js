@@ -4,7 +4,7 @@
     properties: {
       sentence: {
         type: String,
-        value: 'My favorite color is ⬜⬜⬜⬜⬜.'
+        value: 'My favorite color is ________.'
       },
       fillinblank: {
         type: String,
@@ -12,7 +12,7 @@
       },
       entered: {
         type: String,
-        value: '⬜⬜⬜⬜⬜'
+        value: '________'
       },
       filledsentence: {
         type: String,
@@ -31,7 +31,7 @@
       return this.$$('#sentence').playSentence();
     },
     compute_filledsentence: function(sentence, entered){
-      return sentence.split('⬜⬜⬜⬜⬜').join(entered);
+      return sentence.split('________').join(entered);
     },
     fillword: function(evt){
       var word, i$, ref$, len$, elem, this$ = this;

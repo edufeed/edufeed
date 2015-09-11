@@ -7,7 +7,7 @@
     return [['Why do elephants never forget?', 'Because nobody ever tells them anything!'], ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!'], ['What is the strongest animal?', 'A snail. He carries his house on his back!'], ['What has six eyes but cannot see?', 'Three blind mice!']];
   };
   out$.getFillBlankSentencesWithCategories = getFillBlankSentencesWithCategories = function(){
-    return [['My favorite color is ⬜⬜⬜⬜⬜.', 'color'], ['My favorite animal is the ⬜⬜⬜⬜⬜.', 'animal'], ['My favorite fruit is the ⬜⬜⬜⬜⬜.', 'fruit']];
+    return [['My favorite color is ________.', 'color'], ['My favorite animal is the ________.', 'animal'], ['My favorite fruit is the ________.', 'fruit']];
   };
   out$.getWordCategories = getWordCategories = function(){
     return {

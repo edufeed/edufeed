@@ -3,7 +3,7 @@ RegisterActivity {
   properties: {
     sentence: {
       type: String
-      value: 'My favorite color is ⬜⬜⬜⬜⬜.'
+      value: 'My favorite color is ________.'
     }
     fillinblank: {
       type: String
@@ -11,7 +11,7 @@ RegisterActivity {
     }
     entered: {
       type: String
-      value: '⬜⬜⬜⬜⬜'
+      value: '________'
     }
     filledsentence: {
       type: String
@@ -28,7 +28,7 @@ RegisterActivity {
       return
     this.$$('#sentence').playSentence()
   compute_filledsentence: (sentence, entered) ->
-    return sentence.split('⬜⬜⬜⬜⬜').join(entered)
+    return sentence.split('________').join(entered)
   fillword: (evt) ->
     word = ''
     for elem in evt.path

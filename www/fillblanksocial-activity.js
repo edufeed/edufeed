@@ -4,7 +4,7 @@
     properties: {
       sentence: {
         type: String,
-        value: 'My favorite color is ⬜⬜⬜⬜⬜.'
+        value: 'My favorite color is ________.'
       },
       howaboutyou: {
         type: String,
@@ -16,7 +16,7 @@
       },
       entered: {
         type: String,
-        value: '⬜⬜⬜⬜⬜'
+        value: '________'
       },
       filledsentence: {
         type: String,
@@ -29,7 +29,7 @@
       },
       firstentered: {
         type: String,
-        value: '⬜⬜⬜⬜⬜'
+        value: '________'
       },
       firstsentence: {
         type: String,
@@ -47,7 +47,7 @@
       return this.$$('#sentence2').playSentence();
     },
     compute_firstfilledsentence: function(sentence, firstentered){
-      return sentence.split('⬜⬜⬜⬜⬜').join(firstentered);
+      return sentence.split('________').join(firstentered);
     },
     compute_firstsentence: function(firstfilledsentence, social, howaboutyou){
       return capitalizeFirstLetter(social.poster) + " says: " + firstfilledsentence + " " + howaboutyou;
@@ -59,7 +59,7 @@
       return this.$$('#sentence2').playSentence();
     },
     compute_filledsentence: function(sentence, entered){
-      return sentence.split('⬜⬜⬜⬜⬜').join(entered);
+      return sentence.split('________').join(entered);
     },
     fillword: function(evt){
       var word, i$, ref$, len$, elem, this$ = this;
