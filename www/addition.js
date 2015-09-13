@@ -18,8 +18,8 @@
                 mousedragY = d3.event.y * scale;
 
                 d3.select(this)
-                    .attr("x", Math.max(0, Math.min(width - 20, mousedragX)))
-                    .attr("y", Math.max(0, Math.min(height - 20, mousedragY)));
+                    .attr("x", Math.max(0, mousedragX))
+                    .attr("y", Math.max(0, mousedragY));
             }
         })
         .on("dragend", function () {
@@ -35,7 +35,7 @@
                 if (mousedragX > addend1endX - proximityDelta && mousedragX < addend1endX + proximityDelta &&
                     mousedragY > addend1endY1 - proximityDelta && mousedragY < addend1endY2 + proximityDelta) {
 
-                    additionbar_g.select("#addend1bar").attr("width", sum * 10);
+                    additionbar_g.select("#addend1bar").attr("width", sum * 14);
                     problem_g.select("#addend2number").text(addend2);
 
                     //document.getElementById("tada").play();
@@ -73,13 +73,40 @@
     numberals_g.select("#sumbar").call(nodrag);
 }
 
+function DefineTapEvent() {
+
+    numberals_g.select("#numeral1").on("click", Tap);
+    numberals_g.select("#numeral2").on("click", Tap);
+    numberals_g.select("#numeral3").on("click", Tap);
+    numberals_g.select("#numeral4").on("click", Tap);
+    numberals_g.select("#numeral5").on("click", Tap);
+    numberals_g.select("#numeral6").on("click", Tap);
+    numberals_g.select("#numeral7").on("click", Tap);
+    numberals_g.select("#numeral8").on("click", Tap);
+    numberals_g.select("#numeral9").on("click", Tap);
+    numberals_g.select("#numeral10").on("click", Tap);
+}
+
+function Tap() {
+    var thisVal = parseInt(d3.select(this).attr("data-value"), 10);
+    if (thisVal == addend2) {
+
+        additionbar_g.select("#addend1bar").attr("width", sum * 14);
+        problem_g.select("#addend2number").text(addend2);
+
+        play_sound('audio/tada.mp3', function () {
+            finishActivity();
+        });
+    }
+}
+
 
 function InitProblem() {
     addend2 = sum - addend1;
 
     problem_g.append("text")
         .attr("id", "addend1number")
-        .attr("x", 335)
+        .attr("x", 390)
         .attr("y", 100)
         .attr("font-family", 'Arial Rounded MT')
         .attr("font-size", "30px")
@@ -89,7 +116,7 @@ function InitProblem() {
         .attr("font-size", "30px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "plussign")
-        .attr("x", 310)
+        .attr("x", 365)
         .attr("y", 130)
         .text("+");
 
@@ -97,13 +124,13 @@ function InitProblem() {
         .attr("font-size", "30px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "addend2number")
-        .attr("x", 335)
+        .attr("x", 390)
         .attr("y", 130)
         .text("⬜");
 
     problem_g.append("line")
-        .attr("x1", 310)
-        .attr("x2", 350)
+        .attr("x1", 360)
+        .attr("x2", 430)
         .attr("y1", 140)
         .attr("y2", 140)
         .attr("stroke-width", 1)
@@ -113,25 +140,25 @@ function InitProblem() {
         .attr("font-size", "30px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "sumnumber")
-        .attr("x", 335)
+        .attr("x", 390)
         .attr("y", 170)
         .text(sum);
 
     additionbar_g.append("rect")
         .attr("id", "addend1bar")
         .attr("class", "addend1bar")
-        .attr("height", 10)
-        .attr("x", 150)
+        .attr("height", 20)
+        .attr("x", 200)
         .attr("y", 110)
         .attr("data-value", addend1)
-        .attr("width", addend1 * 10);
+        .attr("width", addend1 * 14);
 
     additionbar_g.append("rect")
         .attr("id", "sumbar")
         .attr("class", "sumbar")
-        .attr("height", 10)
-        .attr("x", 150)
-        .attr("y", 170)
+        .attr("height", 20)
+        .attr("x", 200)
+        .attr("y", 150)
         .attr("data-value", sum)
-        .attr("width", sum * 10);
+        .attr("width", sum * 14);
 }

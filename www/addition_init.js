@@ -34,9 +34,6 @@
         var additionbar_g = d3.select("#additionbar");
         var problem_g = d3.select("#problem");
 
-        var width = 350;
-        var height = 350;
-
         var sum = params.sum;
         var addend1 = params.add;
         var addend2;
@@ -47,3 +44,4 @@
 
         InitProblem();
         DefineDragEvents();
+        //DefineTapEvent();
