@@ -43,5 +43,5 @@
         var dragstep = 0;
 
         InitProblem();
-        DefineDragEvents();
-        //DefineTapEvent();
+       // DefineDragEvents();
+       DefineTapEvent();

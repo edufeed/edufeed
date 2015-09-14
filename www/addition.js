@@ -51,6 +51,7 @@
                     mousedragY > addend1endY1 - proximityDelta && mousedragY < addend1endY2 + proximityDelta) {
 
                     additionbar_g.select("#addend1bar").attr("width", sum * 14);
+                    additionbar_g.select("#blankbar").attr("width", 0);
                     problem_g.select("#addend2number").text(addend2);
 
                     var equation = SpokenEquation(thisVal, true);
@@ -125,18 +126,30 @@ function DefineTapEvent() {
 }
 
 function Tap() {
+
     var thisVal = parseInt(d3.select(this).attr("data-value"), 10);
+
+    additionbar_g.select("#addend1bar").attr("width", (parseInt(addend1, 10) + parseInt(thisVal, 10)) * 14);
+    additionbar_g.select("#blankbar").attr("width", 0);
+
     if (thisVal == addend2) {
 
-        additionbar_g.select("#addend1bar").attr("width", sum * 14);
         problem_g.select("#addend2number").text(addend2);
 
-        play_sound('audio/tada.mp3', function () {
-            finishActivity();
+        var equation = SpokenEquation(thisVal, true);
+        play_multiple_sounds(equation, function () {
+            setTimeout(finishActivity, 3000); // wait 3 seconds before going to the finished screen
         });
     }
+    else {
+        var equation = SpokenEquation(thisVal, false);
+        play_multiple_sounds(equation);
+        setTimeout(function () {
+            additionbar_g.select("#addend1bar").attr("width", parseInt(addend1, 10) * 14);
+            additionbar_g.select("#blankbar").attr("width", parseInt(addend2, 10) * 14);
+        }, 7000); // wait 7 seconds to finish spoken equation
+    }
 }
-
 
 function InitProblem() {
     addend2 = sum - addend1;
@@ -209,6 +222,18 @@ function InitProblem() {
         .attr("y", 110)
         .attr("data-value", addend1)
         .attr("width", addend1 * 14);
+
+    // x, y got from addend1 rect
+    var addend1endX = 200 + (addend1 * 14);
+    var addend1endY = 110;
+    additionbar_g.append("rect")
+        .attr("id", "blankbar")
+        .attr("class", "blankbar")
+        .attr("height", 20)
+        .attr("x", addend1endX)
+        .attr("y", addend1endY)
+        .attr("data-value", addend2)
+        .attr("width", addend2 * 14);
 
     additionbar_g.append("rect")
         .attr("id", "sumbar")
