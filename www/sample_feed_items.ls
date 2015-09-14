@@ -93,10 +93,10 @@ export getAllFeedItems = ->
     [{itemtype: 'typeword', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   #balance =
-  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 50, 300]]
+  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
 
   balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 5, 10, 14, 57, 129, 206, 329, 453, 511, 933]]
 
   addition =
     [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
@@ -172,10 +172,10 @@ export getSampleFeedItems = ->
     [{itemtype: 'typeword', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
 
   #balance =
-  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 50, 300]]
+  #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
 
   balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 50, 300]]
+    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
 
   addition =
     [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]

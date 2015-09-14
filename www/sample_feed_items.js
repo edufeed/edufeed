@@ -107,7 +107,7 @@
     }
     typeword = res$;
     res$ = [];
-    for (i$ = 0, len$ = (ref$ = [1, 2, 3, 5, 10, 20, 50, 100, 200, 300, 400, 500]).length; i$ < len$; ++i$) {
+    for (i$ = 0, len$ = (ref$ = [1, 2, 3, 5, 10, 14, 57, 129, 206, 329, 453, 511, 933]).length; i$ < len$; ++i$) {
       number = ref$[i$];
       res$.push({
         itemtype: 'balance',
@@ -341,7 +341,7 @@
     }
     typeword = res$;
     res$ = [];
-    for (i$ = 0, len$ = (ref$ = [1, 2, 3, 50, 300]).length; i$ < len$; ++i$) {
+    for (i$ = 0, len$ = (ref$ = [1, 3, 9, 20, 34, 100]).length; i$ < len$; ++i$) {
       number = ref$[i$];
       res$.push({
         itemtype: 'balance',

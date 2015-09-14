@@ -384,36 +384,40 @@ function RotateBeam()
         .attr("transform", "rotate(" + rotationDeg + " " + rotationX + " " + rotationY + ")");
 
     if (diff == 0) {
+        var number = SpokenNum()
 
-        // Set up the number to be spoken
-        var spokenNum = [];
-
-        // Add hundreds place
-        if (hundred > 0)
-        {
-            spokenNum.push(hundred.toString());
-            spokenNum.push('hundred');
-        }
-        
-        // If the tens are in the teens, add that full number
-        // Otherwise just add the tens place
-        if (ten == 1) {
-            spokenNum.push((ten * 10 + one).toString());
-        }
-        else if (ten > 1) {
-            spokenNum.push((ten * 10).toString());
-        }
-
-        if (one > 0 && ten != 1)
-        {
-            spokenNum.push(one.toString());
-        }
-
-        spokenNum.push('task_completed'); //hack to play the success sound
-        play_multiple_sounds(spokenNum, function() {
+        play_multiple_sounds(number, function() {
                 finishActivity();
             });
     }
+}
+
+// Set up the number to be spoken
+function SpokenNum()
+{
+    var number = [];
+    // Add hundreds place
+    if (hundred > 0) {
+        number.push(hundred.toString());
+        number.push('hundred');
+    }
+
+    // If the tens are in the teens, add that full number
+    // Otherwise just add the tens place
+    if (ten == 1) {
+        number.push((ten * 10 + one).toString());
+    }
+    else if (ten > 1) {
+        number.push((ten * 10).toString());
+    }
+
+    if (one > 0 && ten != 1) {
+        number.push(one.toString());
+    }
+
+    number.push('task_completed'); //hack to play the success sound
+
+    return number;
 }
 
 function AddToOne() {

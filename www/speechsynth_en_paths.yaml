@@ -290,3 +290,6 @@ whom: speechsynth_en/whom.mp3
 activity: speechsynth_en/activity.mp3
 hundred: speechsynth_en/hundred.mp3
 task_completed: success.mp3
+try again: speechsynth_en/try again.mp3
+plus: speechsynth_en/plus.mp3
+equals: speechsynth_en/equals.mp3
