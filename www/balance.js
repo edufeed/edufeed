@@ -27,9 +27,9 @@
                 .attr("stroke-width", "1")
                 .attr("stroke", "black")
                 .attr("x1", 5)
-                .attr("x2", width-35)
-                .attr("y1", bagY + bagH + 1)
-                .attr("y2", bagY + bagH + 1)
+                .attr("x2", 405)
+                .attr("y1", 151)
+                .attr("y2", 151)
                 .call(nodrag);
 
     // bags
@@ -62,22 +62,22 @@
     balacebeam_g.append("rect")
                 .attr("id", "sumbag")
                 .attr("class", "sum")
-                .attr("x", rotationX + bagW)
+                .attr("x", rotationX + 25)
                 .attr("y", bagY)
                 .attr("width", bagW * 2)
                 .attr("height", bagH)
                 .call(nodrag);
-    var x_offset = 17;
+    var x_offset = 60;
     if (todoVal < 100)
-        x_offset = 24;
+        x_offset = 70;
     if (todoVal < 10)
-        x_offset = 33;
+        x_offset = 80;
     balacebeam_g.append("text")
                 .text(todoVal)
                 .attr("id", "todoVal")
                 .attr("class", "number")
-                .attr("x", rotationX + bagW + x_offset)
-                .attr("y", bagY + 35)
+                .attr("x", rotationX + x_offset)
+                .attr("y", bagY + 40)
                 .call(nodrag);
 }
 
@@ -303,17 +303,17 @@ function SnapCoinToPosition(x, y, c) {
         case 1:
         case 4:
         case 7:
-            xx = x + 0;
+            xx = x + 2;
             break;
         case 2:
         case 5:
         case 8:
-            xx = x + 15;
+            xx = x + 22;
             break;
         case 3:
         case 6:
         case 9:
-            xx = x + 30;
+            xx = x + 42;
             break;
         default:
             ;
@@ -322,17 +322,17 @@ function SnapCoinToPosition(x, y, c) {
         case 1:
         case 2:
         case 3:
-            yy = y + 30;
+            yy = y + 42;
             break;
         case 4:
         case 5:
         case 6:
-            yy = y + 15;
+            yy = y + 22;
             break;
         case 7:
         case 8:
         case 9:
-            yy = y + 0;
+            yy = y + 2;
             break;
         default:
             ;

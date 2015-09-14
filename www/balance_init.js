@@ -14,21 +14,21 @@
         var pane_g = d3.select("#pane > g");
         var balacebeam_g = d3.select("#balacebeam");
 
-        var width = 348;
-        var height = 348;
+        var width = 600;
+        var height = 350;
 
-        var bagW = 45;
-        var bagH = 45;
+        var bagW = 60;
+        var bagH = 60;
         var bagX = 10;
-        var bagY = 150;
+        var bagY = 90;
 
-        var iconW = 15;
-        var iconH = 15;
+        var iconW = 20;
+        var iconH = 20;
         var iconX = 10;
         var iconY = 5;
 
-        var rotationX = 174;
-        var rotationY = 197;
+        var rotationX = 235;
+        var rotationY = 150;
         var rotationDeg = 0;
 
         var hundred = 0;
