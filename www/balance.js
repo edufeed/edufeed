@@ -383,16 +383,11 @@ function RotateBeam()
         .transition()
         .attr("transform", "rotate(" + rotationDeg + " " + rotationX + " " + rotationY + ")");
 
-    var correct = document.getElementById("correct");
     if (diff == 0) {
-        correct.attributes["visibility"].value = "visible";
-        //document.getElementById("tada").play();
         play_sound('audio/tada.mp3', function() {
             finishActivity();
         });
     }
-    else
-        correct.attributes["visibility"].value = "hidden";
 }
 
 function AddToOne() {
