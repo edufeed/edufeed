@@ -134,7 +134,7 @@
         return this$.updateItems();
       });
     },
-    addItemToFeed: function(item){
+    addItemToFeed: function(item, idx){
       var thumbnail, this$ = this;
       thumbnail = makeSocialThumbnail(item);
       thumbnail.find('#thumbnail').click(function(){
@@ -144,20 +144,68 @@
         });
         return this$.openItem(item);
       });
-      return this.S('#thumbnails').append(thumbnail);
+      if (idx == null) {
+        return this.S('#thumbnails').append(thumbnail);
+      } else {
+        return this.S('#thumbnails').insertAt(idx, thumbnail);
+      }
+    },
+    removeItemFromFeed: function(idx){
+      var thumbnail;
+      thumbnail = this.S('#thumbnails').children().eq(idx);
+      return thumbnail.remove();
+    },
+    updateSocialThumbnail: function(item, idx){
+      var thumbnail;
+      if (item == null || item.social == null) {
+        return;
+      }
+      thumbnail = this.S('#thumbnails').children().eq(idx);
+      return thumbnail.prop(item.social);
     },
     itemsChanged: function(newitems, olditems){
-      var i$, ref$, len$, item, results$ = [];
+      var edits, i$, len$, edit, action, idx, item, new_social, ref$, old_social, results$ = [];
       if (deepEq$(newitems, olditems, '===')) {
         return;
       }
-      this.S('#thumbnails').html('');
-      for (i$ = 0, len$ = (ref$ = this.items).length; i$ < len$; ++i$) {
-        item = ref$[i$];
-        results$.push(this.addItemToFeed(item));
+      newitems = newitems != null
+        ? newitems
+        : [];
+      olditems = olditems != null
+        ? olditems
+        : [];
+      edits = edit_sequence(newitems, olditems, itemtype_and_data_matches);
+      for (i$ = 0, len$ = edits.length; i$ < len$; ++i$) {
+        edit = edits[i$];
+        action = edit.action, idx = edit.idx, item = edit.item;
+        if (action === 'EQUAL') {
+          new_social = (ref$ = item.social) != null
+            ? ref$
+            : {};
+          old_social = (ref$ = edit.olditem.social) != null
+            ? ref$
+            : {};
+          if (!deepEq$(new_social, old_social, '===')) {
+            this.updateSocialThumbnail(item, idx);
+          }
+        }
+        if (action === 'DELETE') {
+          this.removeItemFromFeed(idx);
+        }
+        if (action === 'INSERT') {
+          results$.push(this.addItemToFeed(item, idx));
+        }
       }
       return results$;
-    },
+    }
+    /*
+    itemsChanged: (newitems, olditems) ->
+      if newitems === olditems
+        return
+      this.S('#thumbnails').html('')
+      for item in this.items
+        this.addItemToFeed item
+    */,
     sortByUpdateTime: function(docs){
       return docs.sort(function(a, b){
         var a_updatetime, b_updatetime;

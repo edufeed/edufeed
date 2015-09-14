@@ -11,12 +11,20 @@ Polymer {
       value: []
       #notify: true
     }
+    myname: {
+      type: String
+      value: ''
+    }
     finished: {
       type: Boolean
-      value: false
+      computed: 'compute_finished(finishedby, myname)'
       observer: 'finished_changed'
     }
   }
+  compute_finished: (finishedby, myname) ->
+    if not finishedby? or not myname?
+      return false
+    return finishedby.indexOf(myname) >= 0
   finished_changed: (finished) ->
     if finished
       this.$$('#doneicon').style.display = 'inline'

@@ -10,11 +10,21 @@
         type: Array,
         value: []
       },
+      myname: {
+        type: String,
+        value: ''
+      },
       finished: {
         type: Boolean,
-        value: false,
+        computed: 'compute_finished(finishedby, myname)',
         observer: 'finished_changed'
       }
+    },
+    compute_finished: function(finishedby, myname){
+      if (finishedby == null || myname == null) {
+        return false;
+      }
+      return finishedby.indexOf(myname) >= 0;
     },
     finished_changed: function(finished){
       if (finished) {

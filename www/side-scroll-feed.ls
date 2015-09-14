@@ -106,18 +106,48 @@ Polymer {
     activity.appendTo this.S('#activity')
     bumpFeedItemUpdateTime item, ~>
       this.updateItems()
-  addItemToFeed: (item) ->
+  addItemToFeed: (item, idx) ->
     thumbnail = makeSocialThumbnail item
     thumbnail.find('#thumbnail').click ~>
       addlog {event: 'task-started', item: item}
       this.openItem item
-    this.S('#thumbnails').append thumbnail
+    if not idx?
+      this.S('#thumbnails').append thumbnail
+    else
+      this.S('#thumbnails').insertAt idx, thumbnail
+  removeItemFromFeed: (idx) ->
+    thumbnail = this.S('#thumbnails').children().eq(idx)
+    thumbnail.remove()
+  updateSocialThumbnail: (item, idx) ->
+    if not item? or not item.social?
+      return
+    thumbnail = this.S('#thumbnails').children().eq(idx)
+    thumbnail.prop item.social
+  itemsChanged: (newitems, olditems) ->
+    if newitems === olditems
+      return
+    newitems = newitems ? []
+    olditems = olditems ? []
+    edits = edit_sequence(newitems, olditems, itemtype_and_data_matches)
+    for edit in edits
+      {action, idx, item} = edit
+      if action == 'EQUAL'
+        new_social = item.social ? {}
+        old_social = edit.olditem.social ? {}
+        if new_social !== old_social
+          this.updateSocialThumbnail(item, idx)
+      if action == 'DELETE'
+        this.removeItemFromFeed(idx)
+      if action == 'INSERT'
+        this.addItemToFeed(item, idx)
+  /*
   itemsChanged: (newitems, olditems) ->
     if newitems === olditems
       return
     this.S('#thumbnails').html('')
     for item in this.items
       this.addItemToFeed item
+  */
   sortByUpdateTime: (docs) ->
     return docs.sort (a, b) ->
       a_updatetime = 0
