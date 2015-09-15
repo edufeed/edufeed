@@ -15,8 +15,8 @@
 
         var mousedragX = 0;
         var mousedragY = 0;
-        var dragstep = 0;
+        var dragstep = 10;
 
         InitProblem();
-       // DefineDragEvents();
-       DefineTapEvent();
+        //DefineDragEvents();
+        DefineTapEvent();
