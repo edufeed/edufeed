@@ -111,8 +111,12 @@ export clearDb = (dbname, callback) ->
 
 export clearDb = (dbname, callback) ->
   db = getDb(dbname)
+  console.log 'clearing db'
+  console.log dbname
+  console.log db
   db.allDocs({include_docs: true}).then (data) ->
     async.each data.rows, (x, ncallback) ->
+      console.log 'clearing item with id: ' + x.doc._id
       db.upsert(x.doc._id, (doc) ->
         doc._deleted = true
         return doc

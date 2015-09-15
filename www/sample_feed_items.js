@@ -1,5 +1,5 @@
 (function(){
-  var getFeedWordList, getFeedReadingList, getFillBlankSentencesWithCategories, getWordCategories, getFeedVideoLists, all_feed_items_cache, getAllFeedItems, feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
+  var getFeedWordList, getFeedReadingList, getFillBlankSentencesWithCategories, getWordCategories, getFeedVideoLists, getPosterLists, all_feed_items_cache, getAllFeedItems, feed_items_cache, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getFeedWordList = getFeedWordList = function(){
     return ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
   };
@@ -20,6 +20,14 @@
     return {
       lettervideo: ['y8pZ3F8KB_Y', 'F7WyPqms5x0', 'LnDxp5QNxmA', 'qdJwtaaTfb4', 'PMDpfPky054', 'CaywS_FK4wE', 'O96r1dZ4Nqg', 'ndf_-FJsPVk', 'yZbNMjwgEN8', 'GkcqRmdwKlE', 'DHRQXGTSvw0', 'YASqLUId4n8', 'xUOc-UwTVBA', 'LYyK7KurvMs', 'rpvtKnqu7-4', '3724uXedg0A', '-k4oiVaekT0', 'zQ7vvPa4pAk', 'McACiO5dwGM', '4PhbUhrI4KE', 'qmWTMNhtY9Q', 'NkniyCUWeF4', '8ovG9ptOjBw', 'RhA10WVTmHw', 'RJH2oMKPeaw', 'f-iL7k5jhCI'],
       numbervideo: ['pbRU3lsGS0M', 'IiwqgDfJyXQ', 'VW2MREqE-_I', 'eyi0179wpE0', 'dpMP78dU5gQ', 'aKZlJ-tZo1Y', 'sXhM7AfctNU', 'X5A9PKY2FYk', 'upx7UwL4Pws', 'whHJ-WTEu_4']
+    };
+  };
+  out$.getPosterLists = getPosterLists = function(){
+    return {
+      'class1': ['tablet'],
+      'class2': ['tablet', 'teacherb'],
+      'class3': ['tablet', 'teacherc'],
+      'other': ['tablet', 'kiley']
     };
   };
   all_feed_items_cache = null;
@@ -71,7 +79,7 @@
         itemtype: 'dots',
         data: data,
         social: {
-            poster: 'tablet'
+          poster: 'tablet'
         }
       });
     }
@@ -85,7 +93,7 @@
           word: word
         },
         social: {
-            poster: 'tablet',
+          poster: 'tablet',
           finishedby: []
         }
       });

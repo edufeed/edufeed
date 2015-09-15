@@ -8,6 +8,18 @@ export getTaskSuggestionFormulas = ->
     #'sametypeplusextra': addNewItemSuggestions_sametypeplusextra
   }
 
+chooseRandomPoster = (usersClass) ->
+  posterLists = getPosterLists()
+  classname = usersClass
+  if classname not in ['class1', 'class2', 'class3']
+    classname = 'other'
+
+  classPosters = posterLists[classname]
+  /*console.log 'class posters: ' + classPosters*/
+  randomPoster = classPosters[Math.floor(Math.random() * classPosters.length)]
+  /*console.log 'randomly chosen poster: ' + randomPoster*/
+  return randomPoster
+
 getItemsFinishedByUser = (username, all_finished_items) ->
   return all_finished_items.filter (item) ->
     item? and item.social? and item.social.finishedby? and item.social.finishedby.indexOf(username) != -1
@@ -22,7 +34,7 @@ getItemType = (finished_item) ->
   return itemtype
 
 suggestNextItemOfType = (options, itemtype) ->
-  {current_feed_items, items_finished_by_user} = options
+  {usersClass, current_feed_items, items_finished_by_user} = options
   available_items = getAllFeedItems()[itemtype]
   if not available_items?
     return []
@@ -35,6 +47,9 @@ suggestNextItemOfType = (options, itemtype) ->
       return [{bump: new_items_not_finished[0]}]
     return []
   newitem = new_available_items[0]
+  newPoster = chooseRandomPoster(usersClass)
+  console.log 'new item poster: ' + newPoster
+  newitem.social.poster = newPoster
   return [{post: newitem}]
 
 getSuggestions_one_more_of_the_sametype = (options) ->
@@ -104,10 +119,11 @@ processTaskSuggestions = (task_suggestions, callback) ->
 
 export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
   username <- getUsername()
+  usersClass <- getUsersClass(username)
   suggestionformula <- getParam('suggestionformula')
   items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
   itemtype = getItemType(finished_item)
-  options = {username, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype}
+  options = {username, usersClass, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype}
   task_suggestion_formula = null
   console.log 'addNewItemSuggestions'
   if suggestionformula?

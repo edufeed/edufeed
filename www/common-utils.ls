@@ -93,6 +93,15 @@ export getClasses = memoizeSingleAsync (callback) ->
     data = jsyaml.safeLoad(yamltxt)
     callback data
 
+export getUsersClass = (username, callback) ->
+  classes <- getClasses()
+  for classname, classinfo of classes
+    {users} = classinfo
+    if users.indexOf(username) != -1
+      callback classname
+      return
+  callback ''
+
 export getAllUsers = (callback) ->
   classes <- getClasses()
   all_users = []

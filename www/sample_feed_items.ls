@@ -70,6 +70,32 @@ export getFeedVideoLists = ->
     numbervideo: ['pbRU3lsGS0M', 'IiwqgDfJyXQ', 'VW2MREqE-_I', 'eyi0179wpE0', 'dpMP78dU5gQ', 'aKZlJ-tZo1Y', 'sXhM7AfctNU', 'X5A9PKY2FYk', 'upx7UwL4Pws', 'whHJ-WTEu_4']
   }
 
+export getPosterLists = ->
+  {
+    'class1':
+      [
+        'tablet'
+      ]
+
+    'class2':
+      [
+        'tablet'
+        'teacherb'
+      ]
+
+    'class3':
+      [
+        'tablet'
+        'teacherc'
+      ]
+
+    'other':
+     [
+        'tablet'
+        'kiley'
+     ]
+  }
+
 all_feed_items_cache = null
 export getAllFeedItems = ->
   if all_feed_items_cache?

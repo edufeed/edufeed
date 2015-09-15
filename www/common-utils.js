@@ -1,5 +1,5 @@
 (function(){
-  var isChromeApp, isMobileChromeApp, fixMediaURL, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, social_sharing_data, setSocialSharingData, getSocialSharingData, capitalizeFirstLetter, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
+  var isChromeApp, isMobileChromeApp, fixMediaURL, getLocalStorage, getUsername, getPassword, getCouchURL, setUsername, setPassword, setCouchURL, memoizeSingleAsync, onceTrue, getClasses, getUsersClass, getAllUsers, getClassmates, errorlog, adderror, geterrors, itemtype_and_data_matches, social_sharing_data, setSocialSharingData, getSocialSharingData, capitalizeFirstLetter, getUrlParameters, getParam, getBoolParam, setParam, parseInlineCSS, applyStyleTo, setPropDict, tagMatchesItem, out$ = typeof exports != 'undefined' && exports || this;
   out$.isChromeApp = isChromeApp = function(){
     return (typeof chrome != 'undefined' && chrome !== null) && chrome.app != null && chrome.app.runtime != null;
   };
@@ -123,6 +123,20 @@
       return callback(data);
     });
   });
+  out$.getUsersClass = getUsersClass = function(username, callback){
+    return getClasses(function(classes){
+      var classname, classinfo, users;
+      for (classname in classes) {
+        classinfo = classes[classname];
+        users = classinfo.users;
+        if (users.indexOf(username) !== -1) {
+          callback(classname);
+          return;
+        }
+      }
+      return callback('');
+    });
+  };
   out$.getAllUsers = getAllUsers = function(callback){
     return getClasses(function(classes){
       var all_users, classname, classinfo;
@@ -325,7 +339,7 @@
     return results$;
   };
   out$.setPropDict = setPropDict = function(tag, data){
-    var k, v, results$ = [], results1$ = [];
+    var k, v, results$ = [];
     if (data != null) {
       if (tag.prop != null && typeof tag.prop === 'function') {
         for (k in data) {
@@ -336,9 +350,9 @@
       } else {
         for (k in data) {
           v = data[k];
-          results1$.push(tag[k] = v);
+          results$.push(tag[k] = v);
         }
-        return results1$;
+        return results$;
       }
     }
   };

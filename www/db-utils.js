@@ -153,10 +153,14 @@
   out$.clearDb = clearDb = function(dbname, callback){
     var db;
     db = getDb(dbname);
+    console.log('clearing db');
+    console.log(dbname);
+    console.log(db);
     return db.allDocs({
       include_docs: true
     }).then(function(data){
       return async.each(data.rows, function(x, ncallback){
+        console.log('clearing item with id: ' + x.doc._id);
         return db.upsert(x.doc._id, function(doc){
           doc._deleted = true;
           return doc;

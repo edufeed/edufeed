@@ -1,5 +1,5 @@
 (function(){
-  var getTaskSuggestionFormulas, getItemsFinishedByUser, itemNotInList, getItemType, suggestNextItemOfType, getSuggestions_one_more_of_the_sametype, getItemTypesCompletelyFinished, getItemTypesNotCompletelyFinished, randomSelect, select_random_other_itemtype, getSuggestions_one_of_different_type, suggested_itemtype_history, getSuggestions_three_same_then_one_different, getSuggestions_one_same_and_one_different, processTaskSuggestion, processTaskSuggestions, addNewItemSuggestions, out$ = typeof exports != 'undefined' && exports || this, slice$ = [].slice;
+  var getTaskSuggestionFormulas, chooseRandomPoster, getItemsFinishedByUser, itemNotInList, getItemType, suggestNextItemOfType, getSuggestions_one_more_of_the_sametype, getItemTypesCompletelyFinished, getItemTypesNotCompletelyFinished, randomSelect, select_random_other_itemtype, getSuggestions_one_of_different_type, suggested_itemtype_history, getSuggestions_three_same_then_one_different, getSuggestions_one_same_and_one_different, processTaskSuggestion, processTaskSuggestions, addNewItemSuggestions, out$ = typeof exports != 'undefined' && exports || this, slice$ = [].slice;
   out$.getTaskSuggestionFormulas = getTaskSuggestionFormulas = function(){
     return {
       'default': getSuggestions_one_same_and_one_different,
@@ -8,6 +8,19 @@
       'three_same_then_one_different': getSuggestions_three_same_then_one_different,
       'one_same_and_one_different': getSuggestions_one_same_and_one_different
     };
+  };
+  chooseRandomPoster = function(usersClass){
+    var posterLists, classname, classPosters, randomPoster;
+    posterLists = getPosterLists();
+    classname = usersClass;
+    if (classname !== 'class1' && classname !== 'class2' && classname !== 'class3') {
+      classname = 'other';
+    }
+    classPosters = posterLists[classname];
+    /*console.log 'class posters: ' + classPosters*/
+    randomPoster = classPosters[Math.floor(Math.random() * classPosters.length)];
+    /*console.log 'randomly chosen poster: ' + randomPoster*/
+    return randomPoster;
   };
   getItemsFinishedByUser = function(username, all_finished_items){
     return all_finished_items.filter(function(item){
@@ -36,8 +49,8 @@
     return itemtype;
   };
   suggestNextItemOfType = function(options, itemtype){
-    var current_feed_items, items_finished_by_user, available_items, new_items_not_finished, new_available_items, newitem;
-    current_feed_items = options.current_feed_items, items_finished_by_user = options.items_finished_by_user;
+    var usersClass, current_feed_items, items_finished_by_user, available_items, new_items_not_finished, new_available_items, newitem, newPoster;
+    usersClass = options.usersClass, current_feed_items = options.current_feed_items, items_finished_by_user = options.items_finished_by_user;
     available_items = getAllFeedItems()[itemtype];
     if (available_items == null) {
       return [];
@@ -57,6 +70,9 @@
       return [];
     }
     newitem = new_available_items[0];
+    newPoster = chooseRandomPoster(usersClass);
+    console.log('new item poster: ' + newPoster);
+    newitem.social.poster = newPoster;
     return [{
       post: newitem
     }];
@@ -166,30 +182,33 @@
   };
   out$.addNewItemSuggestions = addNewItemSuggestions = function(finished_item, current_feed_items, all_finished_items, callback){
     return getUsername(function(username){
-      return getParam('suggestionformula', function(suggestionformula){
-        var items_finished_by_user, itemtype, options, task_suggestion_formula, task_suggestions;
-        items_finished_by_user = getItemsFinishedByUser(username, all_finished_items);
-        itemtype = getItemType(finished_item);
-        options = {
-          username: username,
-          finished_item: finished_item,
-          current_feed_items: current_feed_items,
-          all_finished_items: all_finished_items,
-          items_finished_by_user: items_finished_by_user,
-          itemtype: itemtype
-        };
-        task_suggestion_formula = null;
-        console.log('addNewItemSuggestions');
-        if (suggestionformula != null) {
-          task_suggestion_formula = getTaskSuggestionFormulas()[suggestionformula];
-        }
-        if (task_suggestion_formula == null) {
-          task_suggestion_formula = getTaskSuggestionFormulas()['default'];
-        }
-        task_suggestions = task_suggestion_formula(options);
-        console.log('task suggestions are:');
-        console.log(task_suggestions);
-        return processTaskSuggestions(task_suggestions, callback);
+      return getUsersClass(username, function(usersClass){
+        return getParam('suggestionformula', function(suggestionformula){
+          var items_finished_by_user, itemtype, options, task_suggestion_formula, task_suggestions;
+          items_finished_by_user = getItemsFinishedByUser(username, all_finished_items);
+          itemtype = getItemType(finished_item);
+          options = {
+            username: username,
+            usersClass: usersClass,
+            finished_item: finished_item,
+            current_feed_items: current_feed_items,
+            all_finished_items: all_finished_items,
+            items_finished_by_user: items_finished_by_user,
+            itemtype: itemtype
+          };
+          task_suggestion_formula = null;
+          console.log('addNewItemSuggestions');
+          if (suggestionformula != null) {
+            task_suggestion_formula = getTaskSuggestionFormulas()[suggestionformula];
+          }
+          if (task_suggestion_formula == null) {
+            task_suggestion_formula = getTaskSuggestionFormulas()['default'];
+          }
+          task_suggestions = task_suggestion_formula(options);
+          console.log('task suggestions are:');
+          console.log(task_suggestions);
+          return processTaskSuggestions(task_suggestions, callback);
+        });
       });
     });
   };
