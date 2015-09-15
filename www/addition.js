@@ -13,6 +13,8 @@
     drag = d3.behavior.drag()
         .on("drag", function () {
 
+            var scale = 1;
+
             // check to see if you are still dragging the same number
             // if not, then speak the number
             var newDraggedNum = parseInt(d3.select(this).attr("data-value"), 10);
@@ -129,7 +131,7 @@ function Tap() {
 
     var thisVal = parseInt(d3.select(this).attr("data-value"), 10);
 
-    additionbar_g.select("#addend1bar").attr("width", (parseInt(addend1, 10) + parseInt(thisVal, 10)) * 14);
+    additionbar_g.select("#addend1bar").attr("width", (parseInt(addend1, 10) + parseInt(thisVal, 10)) * 20);
     additionbar_g.select("#blankbar").attr("width", 0);
 
     if (thisVal == addend2) {
@@ -145,8 +147,8 @@ function Tap() {
         var equation = SpokenEquation(thisVal, false);
         play_multiple_sounds(equation);
         setTimeout(function () {
-            additionbar_g.select("#addend1bar").attr("width", parseInt(addend1, 10) * 14);
-            additionbar_g.select("#blankbar").attr("width", parseInt(addend2, 10) * 14);
+            additionbar_g.select("#addend1bar").attr("width", parseInt(addend1, 10) * 20);
+            additionbar_g.select("#blankbar").attr("width", parseInt(addend2, 10) * 20);
         }, 7000); // wait 7 seconds to finish spoken equation
     }
 }
@@ -155,77 +157,77 @@ function InitProblem() {
     addend2 = sum - addend1;
 
     // if addend1 is two digits, shift its x position
-    var addend1_xPos = 450;
+    var addend1_xPos = 600;
     if (addend1 >= 10) {
-        addend1_xPos = 430;
+        addend1_xPos = 570;
     }
 
     problem_g.append("text")
         .attr("id", "addend1number")
         .attr("x", addend1_xPos)
-        .attr("y", 100)
+        .attr("y", 120)
         .attr("font-family", 'Arial Rounded MT')
-        .attr("font-size", "40px")
+        .attr("font-size", "60px")
         .text(addend1);
 
     problem_g.append("text")
-        .attr("font-size", "40px")
+        .attr("font-size", "60px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "plussign")
-        .attr("x", 400)
-        .attr("y", 140)
+        .attr("x", 550)
+        .attr("y", 190)
         .text("+");
 
     // if addend2 is two digits, shift its x position
     var addend2_text = "⬜";
-    var addend2_xPos = 450;
+    var addend2_xPos = 600;
     if (addend2 >= 10) {
         addend2_text = "⬜⬜";
-        addend2_xPos = 430;
+        addend2_xPos = 570;
     }
 
     problem_g.append("text")
-        .attr("font-size", "40px")
+        .attr("font-size", "60px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "addend2number")
         .attr("x", addend2_xPos)
-        .attr("y", 140)
+        .attr("y", 190)
         .text(addend2_text);
 
     problem_g.append("line")
-        .attr("x1", 390)
-        .attr("x2", 490)
-        .attr("y1", 150)
-        .attr("y2", 150)
+        .attr("x1", 550)
+        .attr("x2", 690)
+        .attr("y1", 220)
+        .attr("y2", 220)
         .attr("stroke-width", 1)
         .attr("stroke", "black");
 
     // if the sum is two digits, shift its x position
-    var sum_xPos = 450;
+    var sum_xPos = 600;
     if (sum >= 10){
-        sum_xPos = 430;
+        sum_xPos = 570;
     }
 
     problem_g.append("text")
-        .attr("font-size", "40px")
+        .attr("font-size", "60px")
         .attr("font-family", "Arial Rounded MT")
         .attr("id", "sumnumber")
         .attr("x", sum_xPos)
-        .attr("y", 190)
+        .attr("y", 280)
         .text(sum);
 
     additionbar_g.append("rect")
         .attr("id", "addend1bar")
         .attr("class", "addend1bar")
         .attr("height", 20)
-        .attr("x", 200)
-        .attr("y", 110)
+        .attr("x", 300)
+        .attr("y", 150)
         .attr("data-value", addend1)
-        .attr("width", addend1 * 14);
+        .attr("width", addend1 * 20);
 
     // x, y got from addend1 rect
-    var addend1endX = 200 + (addend1 * 14);
-    var addend1endY = 110;
+    var addend1endX = 300 + (addend1 * 20);
+    var addend1endY = 150;
     additionbar_g.append("rect")
         .attr("id", "blankbar")
         .attr("class", "blankbar")
@@ -233,14 +235,14 @@ function InitProblem() {
         .attr("x", addend1endX)
         .attr("y", addend1endY)
         .attr("data-value", addend2)
-        .attr("width", addend2 * 14);
+        .attr("width", addend2 * 20);
 
     additionbar_g.append("rect")
         .attr("id", "sumbar")
         .attr("class", "sumbar")
         .attr("height", 20)
-        .attr("x", 200)
-        .attr("y", 150)
+        .attr("x", 300)
+        .attr("y", 250)
         .attr("data-value", sum)
-        .attr("width", sum * 14);
+        .attr("width", sum * 20);
 }
