@@ -23,7 +23,6 @@ class1:
     - sathya
     - sumithra
     - vidhyashree
-    - teachera
    
 class2:
   users:
@@ -50,7 +49,6 @@ class2:
     - sapna
     - savitha
     - swetha
-    - teacherb
 
 class3:
   users:
@@ -78,7 +76,6 @@ class3:
     - shruthi
     - supriya
     - yashodha
-    - teacherc
 
 class4:
   users:
@@ -88,4 +85,10 @@ class4:
     - kelsey
     - kiley
     - geza
+
+class5:
+  users:
     - tablet
+    - teachera
+    - teacherb
+    - teacherc  
