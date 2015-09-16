@@ -251,57 +251,116 @@
       }
       return newItemsList;
     },
+    filterItems: function(origItems, classmates){
+      var noSharedItemsList, sharedItemsList, i$, len$, item, filteredList, NSIL_len, SIL_len, to$, x, y;
+      noSharedItemsList = [];
+      sharedItemsList = [];
+      for (i$ = 0, len$ = origItems.length; i$ < len$; ++i$) {
+        item = origItems[i$];
+        if (item.social == null) {
+          noSharedItemsList.push(item);
+        } else if (!in$(item.social.poster, classmates)) {
+          noSharedItemsList.push(item);
+        } else {
+          sharedItemsList.push(item);
+        }
+      }
+      filteredList = [];
+      NSIL_len = noSharedItemsList.length;
+      SIL_len = sharedItemsList.length;
+      if (NSIL_len <= 4 && SIL_len <= 6) {
+        filteredList = noSharedItemsList.concat(sharedItemsList);
+      } else if (NSIL_len > 4 && SIL_len > 6) {
+        for (i$ = NSIL_len - 5, to$ = NSIL_len - 1; i$ <= to$; ++i$) {
+          x = i$;
+          filteredList.push(noSharedItemsList[x]);
+        }
+        for (i$ = SIL_len - 7, to$ = SIL_len - 1; i$ <= to$; ++i$) {
+          y = i$;
+          filteredList.push(sharedItemsList[y]);
+        }
+      } else if (NSIL_len > 4 && SIL_len <= 6) {
+        filteredList = sharedItemsList;
+        for (i$ = NSIL_len - 1; i$ >= 0; --i$) {
+          x = i$;
+          if (filteredList.length < 10) {
+            filteredList.push(noSharedItemsList[x]);
+          } else {
+            return filteredList;
+          }
+        }
+      } else if (NSIL_len <= 4 && SIL_len > 6) {
+        filteredList = noSharedItemsList;
+        for (i$ = SIL_len - 1; i$ >= 0; --i$) {
+          x = i$;
+          if (filteredList.length < 10) {
+            filteredList.push(sharedItemsList[x]);
+          } else {
+            return filteredList;
+          }
+        }
+      }
+      return filteredList;
+    },
     updateItems: function(firstvisit){
       var self;
       self = this;
       return getUsername(function(username){
-        return getItems("feeditems_" + username, function(docs){
-          if (docs == null || docs.length == null) {
-            docs = [];
-          }
-          return getBoolParam('noadmin', function(noadmin){
-            if (self.hide_admin_console != null && self.hide_admin_console) {
-              noadmin = true;
+        return getClassmates(username, function(classmates){
+          return getItems("feeditems_" + username, function(docs){
+            if (docs == null || docs.length == null) {
+              docs = [];
             }
-            if (docs.length === 0 || (!noadmin && docs.map(function(it){
-              return it.itemtype;
-            }).indexOf('admin') === -1)) {
-              docs = [{
-                itemtype: 'admin',
-                social: {
-                  poster: 'tablet'
-                },
-                updatetime: 0
-              }].concat(docs);
-            }
-            return getFinishedItems(function(finished_items){
-              var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x, noFinishedItemsList;
-              self.finished_items = finished_items;
-              for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
-                doc = ref$[i$];
-                if (doc.social == null) {
-                  doc.social = {};
-                }
-                doc.social.myname = username;
-                res$ = [];
-                for (j$ = 0, len1$ = finished_items.length; j$ < len1$; ++j$) {
-                  x = finished_items[j$];
-                  if (itemtype_and_data_matches(doc, x)) {
-                    res$.push(x);
+            return getBoolParam('noadmin', function(noadmin){
+              if (self.hide_admin_console != null && self.hide_admin_console) {
+                noadmin = true;
+              }
+              if (docs.length === 0 || (!noadmin && docs.map(function(it){
+                return it.itemtype;
+              }).indexOf('admin') === -1)) {
+                docs = [{
+                  itemtype: 'admin',
+                  social: {
+                    poster: 'tablet'
+                  },
+                  updatetime: 0
+                }].concat(docs);
+              }
+              return getFinishedItems(function(finished_items){
+                var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x, noFinishedItemsList, sortedItems, filteredItems;
+                self.finished_items = finished_items;
+                for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
+                  doc = ref$[i$];
+                  if (doc.social == null) {
+                    doc.social = {};
+                  }
+                  doc.social.myname = username;
+                  res$ = [];
+                  for (j$ = 0, len1$ = finished_items.length; j$ < len1$; ++j$) {
+                    x = finished_items[j$];
+                    if (itemtype_and_data_matches(doc, x)) {
+                      res$.push(x);
+                    }
+                  }
+                  matching_finished_items = res$;
+                  if (matching_finished_items.length > 0) {
+                    doc.social.finishedby = matching_finished_items[0].social.finishedby;
                   }
                 }
-                matching_finished_items = res$;
-                if (matching_finished_items.length > 0) {
-                  doc.social.finishedby = matching_finished_items[0].social.finishedby;
+                noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username);
+                console.log('removed finished items');
+                sortedItems = self.sortByUpdateTime(noFinishedItemsList);
+                console.log('sorted by update time');
+                filteredItems = self.filterItems(sortedItems, classmates);
+                console.log('filtered items');
+                self.items = self.sortByUpdateTime(filteredItems);
+                console.log('sorted by update time again');
+                if (firstvisit != null && firstvisit) {
+                  return addlog({
+                    event: 'visitfeed'
+                  });
                 }
-              }
-              noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username);
-              self.items = self.sortByUpdateTime(noFinishedItemsList);
-              if (firstvisit != null && firstvisit) {
-                return addlog({
-                  event: 'visitfeed'
-                });
-              }
+              });
             });
           });
         });

@@ -92,7 +92,7 @@ export getPosterLists = ->
     'other':
      [
         'tablet'
-        'kiley'
+        'teacherb'
      ]
   }
 

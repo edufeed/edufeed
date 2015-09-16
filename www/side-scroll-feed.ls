@@ -157,7 +157,7 @@ Polymer {
       if b? and b.updatetime?
         b_updatetime = b.updatetime
       return b_updatetime - a_updatetime
-  # This removes all items finished by the user from their feed
+  # removeFinishedItems removes all items finished by the user from their feed
   removeFinishedItems: (origItems, finishedItems, username) ->
     # If no items have been finished by anyone, return the original feed items
     if finishedItems.length == 0
@@ -179,9 +179,54 @@ Polymer {
         else
           newItemsList.push(item)
     return newItemsList
+  # filterItems sets the feed so that there are
+  # at min 4 items suggested by the system.
+  # The rest can be shared by classmates.
+  filterItems: (origItems, classmates) ->
+    # Separate the shared and system-suggested items
+    noSharedItemsList = []
+    sharedItemsList = []
+    for item in origItems
+      if not item.social?
+        noSharedItemsList.push(item)
+      else if item.social.poster not in classmates
+        noSharedItemsList.push(item)
+      else
+        sharedItemsList.push(item)
+
+    # Get ready to filter the list
+    filteredList = []
+
+    NSIL_len = noSharedItemsList.length
+    SIL_len = sharedItemsList.length
+
+    if NSIL_len <= 4 and SIL_len <= 6
+      filteredList = noSharedItemsList ++ sharedItemsList
+    else if NSIL_len > 4 and SIL_len > 6
+      for x from NSIL_len-5 to NSIL_len-1
+        filteredList.push(noSharedItemsList[x])
+      for y from SIL_len-7 to SIL_len-1
+        filteredList.push(sharedItemsList[y])
+    else if NSIL_len > 4 and SIL_len <= 6
+      filteredList = sharedItemsList
+      for x from NSIL_len-1 to 0 by -1
+        if filteredList.length < 10
+          filteredList.push(noSharedItemsList[x])
+        else
+          return filteredList
+    else if NSIL_len <= 4 and SIL_len > 6
+      filteredList = noSharedItemsList
+      for x from SIL_len-1 to 0 by -1
+        if filteredList.length < 10
+          filteredList.push(sharedItemsList[x])
+        else
+          return filteredList
+    return filteredList
+
   updateItems: (firstvisit) ->
     self = this
     username <- getUsername()
+    classmates <- getClassmates(username)
     docs <- getItems "feeditems_#{username}"
     if not docs? or not docs.length?
       docs = []
@@ -201,7 +246,13 @@ Polymer {
       if matching_finished_items.length > 0
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username)
-    self.items = self.sortByUpdateTime(noFinishedItemsList)
+    console.log 'removed finished items'
+    sortedItems = self.sortByUpdateTime(noFinishedItemsList)
+    console.log 'sorted by update time'
+    filteredItems = self.filterItems(sortedItems, classmates)
+    console.log 'filtered items'
+    self.items = self.sortByUpdateTime(filteredItems)
+    console.log 'sorted by update time again'
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
   shareActivity: (evt) ->
