@@ -163,9 +163,9 @@ function InitProblem() {
     addend2 = sum - addend1;
 
     // if addend1 is two digits, shift its x position
-    var addend1_xPos = 650;
+    var addend1_xPos = 680;
     if (addend1 >= 10) {
-        addend1_xPos = 620;
+        addend1_xPos = 650;
     }
 
     problem_g.append("text")
@@ -186,10 +186,10 @@ function InitProblem() {
 
     // if addend2 is two digits, shift its x position
     var addend2_text = "⬜";
-    var addend2_xPos = 650;
+    var addend2_xPos = 680;
     if (addend2 >= 10) {
         addend2_text = "⬜⬜";
-        addend2_xPos = 620;
+        addend2_xPos = 650;
     }
 
     problem_g.append("text")
@@ -209,9 +209,9 @@ function InitProblem() {
         .attr("stroke", "black");
 
     // if the sum is two digits, shift its x position
-    var sum_xPos = 650;
+    var sum_xPos = 680;
     if (sum >= 10){
-        sum_xPos = 620;
+        sum_xPos = 650;
     }
 
     problem_g.append("text")
