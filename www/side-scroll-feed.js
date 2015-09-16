@@ -229,20 +229,24 @@
       newItemsList = [];
       for (i$ = 0, len$ = origItems.length; i$ < len$; ++i$) {
         item = origItems[i$];
-        res$ = [];
-        for (j$ = 0, len1$ = finishedItems.length; j$ < len1$; ++j$) {
-          x = finishedItems[j$];
-          if (itemtype_and_data_matches(item, x)) {
-            res$.push(x);
+        if (item.social == null) {
+          newItemsList.push(item);
+        } else {
+          res$ = [];
+          for (j$ = 0, len1$ = finishedItems.length; j$ < len1$; ++j$) {
+            x = finishedItems[j$];
+            if (itemtype_and_data_matches(item, x)) {
+              res$.push(x);
+            }
           }
-        }
-        matching_finished_item = res$;
-        if (matching_finished_item.length > 0) {
-          if (!in$(username, matching_finished_item[0].social.finishedby)) {
+          matching_finished_item = res$;
+          if (matching_finished_item.length > 0) {
+            if (!in$(username, matching_finished_item[0].social.finishedby)) {
+              newItemsList.push(item);
+            }
+          } else {
             newItemsList.push(item);
           }
-        } else {
-          newItemsList.push(item);
         }
       }
       return newItemsList;

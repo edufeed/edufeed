@@ -8,13 +8,15 @@ export getTaskSuggestionFormulas = ->
     #'sametypeplusextra': addNewItemSuggestions_sametypeplusextra
   }
 
-chooseRandomPoster = (usersClass) ->
+getClassPosters = (usersClass) ->
   posterLists = getPosterLists()
   classname = usersClass
   if classname not in ['class1', 'class2', 'class3']
     classname = 'other'
+  return posterLists[classname]
 
-  classPosters = posterLists[classname]
+chooseRandomPoster = (usersClass) ->
+  classPosters = getClassPosters(usersClass)
   /*console.log 'class posters: ' + classPosters*/
   randomPoster = classPosters[Math.floor(Math.random() * classPosters.length)]
   /*console.log 'randomly chosen poster: ' + randomPoster*/
@@ -117,23 +119,54 @@ processTaskSuggestions = (task_suggestions, callback) ->
     if callback?
       callback(null, null)
 
+# Returns the number of feed items that were *recommended* to the user
+# (not shared/posted by another user to this user)
+getNumItemsRecommendedNotShared = (current_feed_items, usersClass) ->
+  numItemsRecommended = 0
+  for item in current_feed_items
+    if item.social?
+      classPosters = getClassPosters(usersClass)
+      if item.social.poster in classPosters
+        numItemsRecommended += 1
+  return numItemsRecommended
+
 export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
+  # Don't add any new items if the feed already has 10 items
   if current_feed_items.length > 10
     callback
     return
-  username <- getUsername()
-  usersClass <- getUsersClass(username)
-  suggestionformula <- getParam('suggestionformula')
-  items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
-  itemtype = getItemType(finished_item)
-  options = {username, usersClass, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype}
-  task_suggestion_formula = null
-  console.log 'addNewItemSuggestions'
-  if suggestionformula?
-    task_suggestion_formula = getTaskSuggestionFormulas()[suggestionformula]
-  if not task_suggestion_formula?
-    task_suggestion_formula = getTaskSuggestionFormulas().default
-  task_suggestions = task_suggestion_formula(options)
-  console.log 'task suggestions are:'
-  console.log task_suggestions
-  processTaskSuggestions(task_suggestions, callback)
+  else
+    # If there is room to make recommendations, do so
+    username <- getUsername()
+    usersClass <- getUsersClass(username)
+
+    numItemsRecommended = getNumItemsRecommendedNotShared(current_feed_items, usersClass)
+
+    sharedItemsQueue = [] #Should be a function here
+
+    # If there are already at least 4 items in the feed that have been recommended to the user
+    # And there are still items to be shared to this user, then add the first to the feed
+    if numItemsRecommended >= 4 and sharedItemsQueue.length > 0
+      # Set the oldest shared item from the queue to be the suggested task
+      sharedItem = [sharedItemsQueue[0]]
+      # Post the suggested tasks to the feed
+      console.log 'task shared is:'
+      console.log sharedItem
+      processTaskSuggestions(sharedItem, callback)
+    else
+    # Otherwise, recommend tasks normally
+      suggestionformula <- getParam('suggestionformula')
+      items_finished_by_user = getItemsFinishedByUser(username, all_finished_items)
+      itemtype = getItemType(finished_item)
+      options = {username, usersClass, finished_item, current_feed_items, all_finished_items, items_finished_by_user, itemtype}
+      task_suggestion_formula = null
+      console.log 'addNewItemSuggestions'
+      if suggestionformula?
+        task_suggestion_formula = getTaskSuggestionFormulas()[suggestionformula]
+      if not task_suggestion_formula?
+        task_suggestion_formula = getTaskSuggestionFormulas().default
+      task_suggestions = task_suggestion_formula(options)
+      console.log 'task suggestions are:'
+      console.log task_suggestions
+      processTaskSuggestions(task_suggestions, callback)
+    

@@ -165,15 +165,19 @@ Polymer {
     newItemsList = []
     # Otherwise, for each item in the feed
     for item in origItems
-      # Check if it has been finished
-      matching_finished_item = [x for x in finishedItems when itemtype_and_data_matches(item, x)]
-      if matching_finished_item.length > 0
-        # If it hasn't been finished by this user, it can go on the feed
-        if username not in matching_finished_item[0].social.finishedby
-          newItemsList.push(item)
-      # If it hasn't been finished anyone, it can go on the feed
-      else
+      # Hack. Not sure how to check if it's been finished if it isn't social.
+      if not item.social?
         newItemsList.push(item)
+      # Check if it has been finished
+      else
+        matching_finished_item = [x for x in finishedItems when itemtype_and_data_matches(item, x)]
+        if matching_finished_item.length > 0
+          # If it hasn't been finished by this user, it can go on the feed
+          if username not in matching_finished_item[0].social.finishedby
+            newItemsList.push(item)
+        # If it hasn't been finished anyone, it can go on the feed
+        else
+          newItemsList.push(item)
     return newItemsList
   updateItems: (firstvisit) ->
     self = this
