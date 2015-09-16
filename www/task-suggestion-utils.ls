@@ -118,6 +118,9 @@ processTaskSuggestions = (task_suggestions, callback) ->
       callback(null, null)
 
 export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
+  if current_feed_items.length > 10
+    callback
+    return
   username <- getUsername()
   usersClass <- getUsersClass(username)
   suggestionformula <- getParam('suggestionformula')

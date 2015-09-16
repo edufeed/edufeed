@@ -157,6 +157,24 @@ Polymer {
       if b? and b.updatetime?
         b_updatetime = b.updatetime
       return b_updatetime - a_updatetime
+  # This removes all items finished by the user from their feed
+  removeFinishedItems: (origItems, finishedItems, username) ->
+    # If no items have been finished by anyone, return the original feed items
+    if finishedItems.length == 0
+      return origItems
+    newItemsList = []
+    # Otherwise, for each item in the feed
+    for item in origItems
+      # Check if it has been finished
+      matching_finished_item = [x for x in finishedItems when itemtype_and_data_matches(item, x)]
+      if matching_finished_item.length > 0
+        # If it hasn't been finished by this user, it can go on the feed
+        if username not in matching_finished_item[0].social.finishedby
+          newItemsList.push(item)
+      # If it hasn't been finished anyone, it can go on the feed
+      else
+        newItemsList.push(item)
+    return newItemsList
   updateItems: (firstvisit) ->
     self = this
     username <- getUsername()
@@ -178,7 +196,8 @@ Polymer {
       matching_finished_items = [x for x in finished_items when itemtype_and_data_matches(doc, x)]
       if matching_finished_items.length > 0
         doc.social.finishedby = matching_finished_items[0].social.finishedby
-    self.items = self.sortByUpdateTime(docs)
+    noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username)
+    self.items = self.sortByUpdateTime(noFinishedItemsList)
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
   shareActivity: (evt) ->
