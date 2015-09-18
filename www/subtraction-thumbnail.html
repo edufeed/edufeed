@@ -1,0 +1,31 @@
+<link rel="import" href="polymer-utils.html">
+
+<dom-module id="subtraction-thumbnail">
+  <style>
+    :host {
+      display: inline-block;
+      vertical-align: top;
+      width: 350px;
+      height: 350px;
+      overflow: hidden;
+    }
+    #contentframe {
+        display: block;
+        width: 250px;
+        height: 350px;
+        overflow: hidden;
+        margin: none;
+        padding: none;
+        border: none;
+      }
+  </style>
+  <template>
+      <img src="thumbnails/subtraction.png" class="subtractionthumbnail" />
+      <div id="contentframe" style="text-align:right; font-family:'Arial Rounded MT'; font-size: 48px; color: black; position: absolute; bottom:-65px">
+      <p>{{sub}}</p>
+      <p><u>- ?</u></p>
+      <p>{{diff}}</p>
+      </div>
+  </template>
+    <script src="subtraction-thumbnail.js"></script>  
+</dom-module>

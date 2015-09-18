@@ -127,6 +127,9 @@ export getAllFeedItems = ->
   addition =
     [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
 
+  subtraction =
+    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: 'tablet'}} for [subval, diffval] in [[2,1], [3,1], [5,1], [4,2], [6,2], [10,2], [6,3], [9,3], [10,5]]]
+
   admin =
     [{itemtype: 'admin', social: {poster: 'tablet'}}]
 
@@ -163,6 +166,7 @@ export getAllFeedItems = ->
     readaloud
     balance
     addition
+	subtraction
     lettervideo
     numbervideo
     fillblank
@@ -206,6 +210,9 @@ export getSampleFeedItems = ->
   addition =
     [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
 
+  subtraction =
+    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: 'tablet'}} for [subval, diffval] in [[2,1], [3,1], [4,2]]]
+
   admin =
     [{itemtype: 'admin', social: {poster: 'tablet'}}]
 
@@ -231,7 +238,7 @@ export getSampleFeedItems = ->
     [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
 
   defaults =
-    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)
+    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ subtraction.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)
 
   feed_items_cache := {
     defaults
@@ -242,6 +249,7 @@ export getSampleFeedItems = ->
     readaloud
     balance
     addition
+	subtraction
     lettervideo
     numbervideo
     fillblank
