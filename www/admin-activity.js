@@ -26,7 +26,7 @@
               return getBoolParam('hidesharebutton', function(hidesharebutton){
                 return getBoolParam('hidehelpbutton', function(hidehelpbutton){
                   return getBoolParam('maketransparentbutton', function(maketransparentbutton){
-                    return getParam('showposterthumbnail', function(showposterthumbnail){
+                    return getBoolParam('showposterthumbnail', function(showposterthumbnail){
                       return getParam('suggestionformula', function(suggestionformula){
                         self.S('#skipsharescreen').prop('checked', skipsharescreen);
                         self.S('#hidesharebutton').prop('checked', hidesharebutton);
@@ -199,7 +199,8 @@
       } else {
         this.fire('hide-poster-thumbnail', this);
       }
-      return setParam('showposterthumbnail', checked);
+      setParam('showposterthumbnail', checked);
+      return window.location.reload();
     },
     skipsharescreen_changed: function(evt){
       var checked;

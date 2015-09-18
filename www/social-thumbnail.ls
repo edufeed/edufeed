@@ -32,17 +32,17 @@ Polymer {
       this.$$('#doneicon').style.display = 'none'
   ready: ->
     self = this
-    this.addEventListener 'show-poster-thumbnail', ->
-      self.$$('#posterontop').style.display = 'in-line'
-      #self.$$('#thumbnailwrapper').style.display = 'none'
-    this.addEventListener 'hide-poster-thumbnail', ->
-      self.$$('#posterontop').style.display = 'none'
-      #self.$$('#thumbnailwrapper').style.display = 'in-line'
     posterthumbnailshown <- getBoolParam('showposterthumbnail')
     if posterthumbnailshown
-      self.$$('#posterontop').style.display = 'in-line'
-      #self.$$('#thumbnailwrapper').style.display = 'none'
+      self.$$('#posterontop').style.display = 'inline'
+      self.$$('#thumbnailwrapper').style.opacity = 0.0
+      self.$$('#posterbelow').style.display = 'none'
+      self.$$('#calloutbubble').style.display = 'none'
+      self.$$('#bubble').style.display = 'inline'
     else
       self.$$('#posterontop').style.display = 'none'
-      #self.$$('#thumbnailwrapper').style.display = 'in-line'
+      self.$$('#thumbnailwrapper').style.opacity = 1.0
+      self.$$('#posterbelow').style.display = 'inline'
+      self.$$('#calloutbubble').style.display = 'inline'
+      self.$$('#bubble').style.display = 'none'
 }

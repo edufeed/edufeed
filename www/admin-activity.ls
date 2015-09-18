@@ -18,7 +18,7 @@ RegisterActivity {
     hidesharebutton <- getBoolParam('hidesharebutton')
     hidehelpbutton <- getBoolParam('hidehelpbutton')
     maketransparentbutton <- getBoolParam('maketransparentbutton')
-    showposterthumbnail <- getParam('showposterthumbnail')
+    showposterthumbnail <- getBoolParam('showposterthumbnail')
     suggestionformula <- getParam('suggestionformula')
     self.S('#skipsharescreen').prop('checked', skipsharescreen)
     self.S('#hidesharebutton').prop('checked', hidesharebutton)
@@ -117,6 +117,7 @@ RegisterActivity {
     else
       this.fire 'hide-poster-thumbnail', this
     setParam 'showposterthumbnail', checked
+    window.location.reload()
   skipsharescreen_changed: (evt) ->
     checked = false
     if evt? and evt.target? and evt.target.checked? and evt.target.checked == true

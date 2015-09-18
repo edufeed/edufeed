@@ -28,7 +28,7 @@
       pointer-events: none;
     }
     #posterontop {
-        display: in-line;
+        display: none;
         position: absolute;
         width: 350px;
         height: 350px;
@@ -39,7 +39,16 @@
         pointer-events: none;
     }
     #thumbnailwrapper {
-        display: in-line;
+        opacity: 1.0;
+    }
+    #posterbelow {
+        display: inline;
+    }
+    #calloutbubble {
+        display: inline;
+    }
+    #bubble {
+        display: none;
     }
   </style>
   <template>
@@ -54,7 +63,8 @@
         <div style="width: 100%; height: 100%; background-color: white"></div>
       </div>
     </div>
-    <img width="370px" height="400px" src="callout-bubble.svg">
+    <img width="370px" height="400px" id="calloutbubble" src="callout-bubble.svg">
+    <img width="370px" height="400px" id="bubble" src="bubble.svg" >
     <div>
       <user-avatar id="posterbelow" style="float: left" username="{{poster}}"></user-avatar>
       <div style="float: left; width: 270px">
