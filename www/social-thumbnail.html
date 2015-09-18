@@ -27,8 +27,25 @@
       z-index: 3;
       pointer-events: none;
     }
+    #posterontop {
+        display: in-line;
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        top: 10px;
+        left: 10px;
+        opacity: 1.0;
+        z-index: 3;
+        pointer-events: none;
+    }
+    #posterbelow {
+        display: in-line;
+    }
   </style>
   <template>
+    <div style="position: relative">
+      <user-avatar id="posterontop" username="{{poster}}" size="l"></user-avatar>
+    </div>
     <div style="position: relative">
       <img src="done-icon.svg" id="doneicon">
     </div>
@@ -39,7 +56,7 @@
     </div>
     <img width="370px" height="400px" src="callout-bubble.svg">
     <div>
-      <user-avatar style="float: left" username="{{poster}}"></user-avatar>
+      <user-avatar id="posterbelow" style="float: left" username="{{poster}}"></user-avatar>
       <div style="float: left; width: 270px">
       <template is="dom-repeat" items="{{finishedby}}" as="user">
         <user-avatar username="{{user}}" size="s" style="vertical-align: top"></user-avatar>
