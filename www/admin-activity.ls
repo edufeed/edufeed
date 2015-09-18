@@ -113,9 +113,9 @@ RegisterActivity {
     if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
       checked = true
     if checked
-      this.fire 'poster-on-top', this
+      this.fire 'show-poster-thumbnail', this
     else
-      this.fire 'poster-below', this
+      this.fire 'hide-poster-thumbnail', this
     setParam 'showposterthumbnail', checked
   skipsharescreen_changed: (evt) ->
     checked = false

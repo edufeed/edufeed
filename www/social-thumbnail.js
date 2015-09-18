@@ -19,10 +19,6 @@
         type: Boolean,
         computed: 'compute_finished(finishedby, myname)',
         observer: 'finished_changed'
-      },
-      posterthumbnail: {
-        type: Boolean,
-        observer: 'posterthumbnail_changed'
       }
     },
     compute_finished: function(finishedby, myname){
@@ -38,25 +34,14 @@
         return this.$$('#doneicon').style.display = 'none';
       }
     },
-    posterthumbnail_changed: function(changed){
-      if (changed) {
-        this.$$('#posterbelow').hide();
-        this.$$('#posterontop').show();
-        return this.$$('thumbnailwrapper').hide();
-      } else {
-        this.$$('#posterbelow').show();
-        this.$$('#posterontop').hide();
-        return this.$$('#thumbnailwrapper').hide();
-      }
-    },
     ready: function(){
       var self;
       self = this;
-      this.addEventListener('poster-on-top', function(){
+      this.addEventListener('show-poster-thumbnail', function(){
         return self.$$('#posterontop').style.display = 'in-line';
       });
-      this.addEventListener('poster-below', function(){
-        return self.$$('#posterbelow').style.display = 'in-line';
+      this.addEventListener('hide-poster-thumbnail', function(){
+        return self.$$('#posterontop').style.display = 'none';
       });
       return getBoolParam('showposterthumbnail', function(posterthumbnailshown){
         if (posterthumbnailshown) {

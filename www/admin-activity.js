@@ -195,9 +195,9 @@
         checked = true;
       }
       if (checked) {
-        this.fire('poster-on-top', this);
+        this.fire('show-poster-thumbnail', this);
       } else {
-        this.fire('poster-below', this);
+        this.fire('hide-poster-thumbnail', this);
       }
       return setParam('showposterthumbnail', checked);
     },
