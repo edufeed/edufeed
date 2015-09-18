@@ -33,7 +33,7 @@
   };
   all_feed_items_cache = null;
   out$.getAllFeedItems = getAllFeedItems = function(){
-    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, addition, ref1$, addval, sumval, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, addition, subtraction, ref1$, addval, sumval, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial;
     if (all_feed_items_cache != null) {
       return all_feed_items_cache;
     }
@@ -144,6 +144,21 @@
       });
     }
     addition = res$;
+    res$ = [];
+    for (i$ = 0, len$ = (ref$ = [[1, 2], [1, 3], [1, 5], [2, 4], [2, 6], [2, 10], [3, 6], [3, 9], [5, 10]]).length; i$ < len$; ++i$) {
+        ref1$ = ref$[i$], subval = ref1$[0], diffval = ref1$[1];
+        res$.push({
+            itemtype: 'subtraction',
+            data: {
+                diff: diffval,
+                sub: subval
+            },
+            social: {
+                poster: 'tablet'
+            }
+        });
+    }
+    subtraction = res$;
     admin = [{
       itemtype: 'admin',
       social: {
@@ -258,6 +273,7 @@
       readaloud: readaloud,
       balance: balance,
       addition: addition,
+      subtraction: subtraction,
       lettervideo: lettervideo,
       numbervideo: numbervideo,
       fillblank: fillblank,
@@ -267,7 +283,7 @@
   };
   feed_items_cache = null;
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, addition, ref1$, addval, sumval, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial, defaults;
+      var wordlist, readinglist, videolists, fillblanklist, wordcategories, bars, res$, i$, ref$, len$, levelnum, dots, data, typeletter, word, typeword, balance, number, addition, ref1$, addval, sumval, subtraction, ref1$, subval, diffval, admin, example, iframe, lettervideo, videoid, numbervideo, readaloud, sentences, fillblank, sentence, category, fillblanksocial, defaults;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
@@ -378,6 +394,21 @@
       });
     }
     addition = res$;
+    res$ = [];
+    for (i$ = 0, len$ = (ref$ = [[2, 1], [3, 1], [4, 2]]).length; i$ < len$; ++i$) {
+        ref1$ = ref$[i$], subval = ref1$[0], diffval = ref1$[1];
+        res$.push({
+            itemtype: 'subtraction',
+            data: {
+                diff: diffval,
+                sub: subval
+            },
+            social: {
+                poster: 'tablet'
+            }
+        });
+    }
+    subtraction = res$;
     admin = [{
       itemtype: 'admin',
       social: {
@@ -485,7 +516,7 @@
       });
     }
     fillblanksocial = res$;
-    defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), addition.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1), fillblanksocial.slice(0, 1));
+    defaults = dots.slice(0, 1).concat(typeletter.slice(0, 1), typeword.slice(0, 1), balance.slice(0, 1), addition.slice(0, 1), subtraction.slice(0, 1), lettervideo.slice(0, 1), numbervideo.slice(0, 1), readaloud.slice(0, 1), fillblanksocial.slice(0, 1));
     feed_items_cache = {
       defaults: defaults,
       bars: bars,
@@ -495,6 +526,7 @@
       readaloud: readaloud,
       balance: balance,
       addition: addition,
+      subtraction: subtraction,
       lettervideo: lettervideo,
       numbervideo: numbervideo,
       fillblank: fillblank,
