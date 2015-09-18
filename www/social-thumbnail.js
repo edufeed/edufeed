@@ -37,17 +37,19 @@
     ready: function(){
       var self;
       self = this;
-      this.addEventListener('show-poster-thumbnail', function(){
-        return self.$$('#posterontop').style.display = 'in-line';
-      });
-      this.addEventListener('hide-poster-thumbnail', function(){
-        return self.$$('#posterontop').style.display = 'none';
-      });
       return getBoolParam('showposterthumbnail', function(posterthumbnailshown){
         if (posterthumbnailshown) {
-          return self.$$('#posterontop').style.display = 'in-line';
+          self.$$('#posterontop').style.display = 'inline';
+          self.$$('#thumbnailwrapper').style.opacity = 0.0;
+          self.$$('#posterbelow').style.display = 'none';
+          self.$$('#calloutbubble').style.display = 'none';
+          return self.$$('#bubble').style.display = 'inline';
         } else {
-          return self.$$('#posterontop').style.display = 'none';
+          self.$$('#posterontop').style.display = 'none';
+          self.$$('#thumbnailwrapper').style.opacity = 1.0;
+          self.$$('#posterbelow').style.display = 'inline';
+          self.$$('#calloutbubble').style.display = 'inline';
+          return self.$$('#bubble').style.display = 'none';
         }
       });
     }

@@ -93,10 +93,18 @@ function SpokenEquation(thisVal, correct) {
     var minuend_int = parseInt(minuend)
 
     equation.push(minuend.toString());
-    equation.push('plus');
+    equation.push('minus');
     equation.push(thisVal.toString());
     equation.push('equals');
-    equation.push((minuend_int - thisVal).toString());
+    var difference = minuend_int - thisVal;
+    if (difference < 0)
+    {
+        equation.push('negative');
+        equation.push((-1 * difference).toString());
+    }
+    else {
+        equation.push(difference.toString());
+    }
     
     if (correct)
     {
