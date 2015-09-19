@@ -14,7 +14,7 @@
     var posterLists, classname;
     posterLists = getPosterLists();
     classname = usersClass;
-    if (classname !== 'class1' && classname !== 'class2' && classname !== 'class3') {
+    if (classname !== 'classa' && classname !== 'classb' && classname !== 'classc' && classname !== 'classtest') {
       classname = 'other';
     }
     return posterLists[classname];

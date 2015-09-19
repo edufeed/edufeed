@@ -11,7 +11,7 @@ export getTaskSuggestionFormulas = ->
 getClassPosters = (usersClass) ->
   posterLists = getPosterLists()
   classname = usersClass
-  if classname not in ['class1', 'class2', 'class3']
+  if classname not in ['classa', 'classb', 'classc', 'classtest']
     classname = 'other'
   return posterLists[classname]
 

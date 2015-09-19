@@ -10,6 +10,7 @@ export getFeedWordList = ->
     'bird'
     'lion'
     'tiger'
+    'elephant'
     'fish'
     'city'
     'house'
@@ -54,6 +55,7 @@ export getWordCategories = ->
       'lion'
       'tiger'
       'fish'
+      'elephant'
     ]
     'fruit': [
       'apple'
@@ -72,27 +74,32 @@ export getFeedVideoLists = ->
 
 export getPosterLists = ->
   {
-    'class1':
+    'classa':
       [
         'tablet'
       ]
 
-    'class2':
+    'classb':
       [
         'tablet'
         'teacherb'
       ]
 
-    'class3':
+    'classc':
       [
         'tablet'
         'teacherc'
       ]
 
+    'classtest':
+      [
+      'tablet'
+      'teacherb'
+      ]
+
     'other':
      [
         'tablet'
-        'teacherb'
      ]
   }
 
@@ -110,7 +117,7 @@ export getAllFeedItems = ->
     [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'tablet'}} for levelnum in [0 to 2]]
 
   dots =
-    [{itemtype: 'dots', data: data, social: {poster: 'tablet'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
+    [{itemtype: 'dots', data: data, social: {poster: 'tablet'}} for data in [{numdots: 4, targetformula: '1x2=_'}, {numdots: 4, targetformula: '2x1=_'}, {numdots: 4, targetformula: '3x1=_'}, {numdots: 4, targetformula: '3x2=_'} {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
 
   typeletter =
     [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
@@ -125,10 +132,10 @@ export getAllFeedItems = ->
     [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 2, 3, 5, 10, 14, 57, 129, 206, 329, 453, 511, 933]]
 
   addition =
-    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [5,10]]]
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [1,5], [2,4], [2,6], [2,10], [3,6], [3,9], [4,7], [4,8], [5,6], [6,9], [5,10]]]
 
   subtraction =
-    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: 'tablet'}} for [subval, diffval] in [[2,1], [3,1], [5,1], [4,2], [6,2], [10,2], [6,3], [9,3], [10,5]]]
+    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: 'tablet'}} for [subval, diffval] in [[2,1], [3,1], [5,1], [4,2], [6,2], [10,4], [6,3], [9,3], [9,4], [10,5], [10,3]]]
 
   admin =
     [{itemtype: 'admin', social: {poster: 'tablet'}}]
@@ -166,9 +173,9 @@ export getAllFeedItems = ->
     readaloud
     balance
     addition
-	subtraction
-    lettervideo
-    numbervideo
+    subtraction
+    #lettervideo
+    #numbervideo
     fillblank
     fillblanksocial
     #admin
@@ -180,6 +187,99 @@ export getAllFeedItems = ->
 
 feed_items_cache = null
 
+export chooseRandomPoster = (classtype) ->
+  if classtype == 'tablet'
+    return classtype
+  classPosterLists = getPosterLists()
+  classPosters = []
+  if classPosterLists[classtype] == undefined
+    classPosters = classPosterLists['other']
+  else
+    classPosters = classPosterLists[classtype]
+  randomPoster = classPosters[Math.floor(Math.random() * classPosters.length)]
+  return randomPoster
+
+export barsTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  bars =
+    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: randomPoster}} for levelnum in [0 to 2]]
+  return bars
+
+export dotsTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  dots =
+    [{itemtype: 'dots', data: data, social: {poster: randomPoster}} for data in [{numdots: 4, targetformula: '1x2=_'}, {numdots: 4, targetformula: '2x1=_'}, {numdots: 4, targetformula: '3x1=_'}, {numdots: 4, targetformula: '3x2=_'} {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
+  return dots
+
+export typeletterTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  wordlist = getFeedWordList()
+  typeletter = 
+    [{itemtype: 'typeletter', data: {word: word}, social: {poster: randomPoster, finishedby: []}} for word in wordlist]
+  return typeletter
+
+export typewordTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  wordlist = getFeedWordList()
+  typeword =
+    [{itemtype: 'typeword', data: {word: word}, social: {poster: randomPoster, finishedby: []}} for word in wordlist]
+  return typeword
+
+export balanceTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  balance = 
+    [{itemtype: 'balance', data: {number: number}, social: {poster: randomPoster}} for number in [1, 3, 9, 20, 34, 100]]
+  return balance
+
+export additionTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  addition = 
+    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: randomPoster}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
+  return addition
+
+export subtractionTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  subtraction =
+    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: randomPoster}} for [subval, diffval] in [[2,1], [3,1], [4,2]]]
+  return subtraction
+
+export lettervideoTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  videolists = getFeedVideoLists()
+  lettervideo =
+    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: randomPoster}} for videoid in videolists.lettervideo]
+  return lettervideo
+
+export numbervideoTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  videolists = getFeedVideoLists()
+  numbervideo =
+    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: randomPoster}} for videoid in videolists.numbervideo]
+  return numbervideo
+
+export readaloudTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  readinglist = getFeedReadingList()
+  readaloud =
+    [{itemtype: 'readaloud', data: {sentences}, social: {poster: randomPoster}} for sentences in readinglist]
+  return readaloud
+
+export fillblankTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  fillblanklist = getFillBlankSentencesWithCategories()
+  wordcategories = getWordCategories()
+  fillblank =
+    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: randomPoster}} for [sentence, category] in fillblanklist]
+  return fillblank
+
+export fillblanksocialTasks = (classtype) ->
+  randomPoster = chooseRandomPoster(classtype)
+  fillblanklist = getFillBlankSentencesWithCategories()
+  wordcategories = getWordCategories()
+  fillblanksocial =
+    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
+  return fillblanksocial
+
 export getSampleFeedItems = ->
   if feed_items_cache?
     return feed_items_cache
@@ -189,29 +289,73 @@ export getSampleFeedItems = ->
   fillblanklist = getFillBlankSentencesWithCategories()
   wordcategories = getWordCategories()
 
-  bars =
-    [{itemtype: 'bars', data: {level: levelnum}, social: {poster: 'tablet'}} for levelnum in [0 to 2]]
+  classA = 'classa'
+  classB = 'classb'
+  classC = 'classc'
+  tablet = 'tablet'
 
-  dots =
-    [{itemtype: 'dots', data: data, social: {poster: 'tablet'}} for data in [{numdots: 7, targetformula: '_x_=_'}, {numdots: 4, targetformula: '3x4=_'}, {numdots: 6, targetformula: '_x6=18'}, {numdots: 5, targetformula: '3x_=15'}, {numdots: 8, targetformula: '_x_=24'}]]
+  bars_a = barsTasks(classA)
+  bars_b = barsTasks(classB)
+  bars_c = barsTasks(classC)
+  bars = barsTasks(tablet)
 
-  typeletter =
-    [{itemtype: 'typeletter', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
+  dots_a = dotsTasks(classA)
+  dots_b = dotsTasks(classB)
+  dots_c = dotsTasks(classC)
+  dots = dotsTasks(tablet)
 
-  typeword =
-    [{itemtype: 'typeword', data: {word: word}, social: {poster: 'tablet', finishedby: []}} for word in wordlist]
-
+  typeletter_a = typeletterTasks(classA)
+  typeletter_b = typeletterTasks(classB)
+  typeletter_c = typeletterTasks(classC)
+  typeletter = typeletterTasks(tablet)
+  
+  typeword_a = typewordTasks(classA)
+  typeword_b = typewordTasks(classB)
+  typeword_c = typewordTasks(classC)
+  typeword = typewordTasks(tablet)
+  
   #balance =
   #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
 
-  balance =
-    [{itemtype: 'balance', data: {number: number}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
+  balance_a = balanceTasks(classA)
+  balance_b = balanceTasks(classB)
+  balance_c = balanceTasks(classC)
+  balance = balanceTasks(tablet)
+  
+  addition_a = additionTasks(classA)
+  addition_b = additionTasks(classB)
+  addition_c = additionTasks(classC)
+  addition = additionTasks(tablet)
+  
+  subtraction_a = subtractionTasks(classA)
+  subtraction_b = subtractionTasks(classB)
+  subtraction_c = subtractionTasks(classC)
+  subtraction = subtractionTasks(tablet)
 
-  addition =
-    [{itemtype: 'addition', data: {sum: sumval, add: addval}, social: {poster: 'tablet'}} for [addval, sumval] in [[1,2], [1,3], [2,4]]]
+  lettervideo_a = lettervideoTasks(classA)
+  lettervideo_b = lettervideoTasks(classB)
+  lettervideo_c = lettervideoTasks(classC)
+  lettervideo = lettervideoTasks(tablet)
 
-  subtraction =
-    [{itemtype: 'subtraction', data: {diff: diffval, sub: subval}, social: {poster: 'tablet'}} for [subval, diffval] in [[2,1], [3,1], [4,2]]]
+  numbervideo_a = numbervideoTasks(classA)
+  numbervideo_b = numbervideoTasks(classB)
+  numbervideo_c = numbervideoTasks(classC)
+  numbervideo = numbervideoTasks(tablet)
+  
+  readaloud_a = readaloudTasks(classA)
+  readaloud_b = readaloudTasks(classB)
+  readaloud_c = readaloudTasks(classC)
+  readaloud = readaloudTasks(tablet)
+
+  fillblank_a = fillblankTasks(classA)
+  fillblank_b = fillblankTasks(classB)
+  fillblank_c = fillblankTasks(classC)
+  fillblank = fillblankTasks(tablet)
+
+  fillblanksocial_a = fillblanksocialTasks(classA)
+  fillblanksocial_b = fillblanksocialTasks(classB)
+  fillblanksocial_c = fillblanksocialTasks(classC)
+  fillblanksocial = fillblanksocialTasks(tablet)
 
   admin =
     [{itemtype: 'admin', social: {poster: 'tablet'}}]
@@ -222,26 +366,23 @@ export getSampleFeedItems = ->
   iframe =
     [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'tablet', finishedby: []}}]
 
-  lettervideo =
-    [{itemtype: 'video', data: {itemcategory: 'lettervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.lettervideo]
-
-  numbervideo =
-    [{itemtype: 'video', data: {itemcategory: 'numbervideo', videoid: videoid}, social: {poster: 'tablet'}} for videoid in videolists.numbervideo]
-
-  readaloud =
-    [{itemtype: 'readaloud', data: {sentences}, social: {poster: 'tablet'}} for sentences in readinglist]
-
-  fillblank =
-    [{itemtype: 'fillblank', data: {sentence, wordoptions: wordcategories[category]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
-
-  fillblanksocial =
-    [{itemtype: 'fillblanksocial', data: {sentence, wordoptions: wordcategories[category], firstentered: wordcategories[category][0]}, social: {poster: 'tablet'}} for [sentence, category] in fillblanklist]
-
   defaults =
-    dots.slice(0, 1) ++ typeletter.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ subtraction.slice(0, 1) ++ lettervideo.slice(0, 1) ++ numbervideo.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblanksocial.slice(0, 1)
-
+    dots.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ subtraction.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblank.slice(0, 1)
+  
+  defaults_a = 
+    dots_a.slice(0, 1) ++ typeword_a.slice(0, 1) ++ balance_a.slice(0, 1) ++ addition_a.slice(0, 1) ++ subtraction_a.slice(0, 1) ++ readaloud_a.slice(0, 1) ++ fillblank_a.slice(0, 1)
+  
+  defaults_b =
+    dots_b.slice(0, 1) ++ typeword_b.slice(0, 1) ++ balance_b.slice(0, 1) ++ addition_b.slice(0, 1) ++ subtraction_b.slice(0, 1) ++ readaloud_b.slice(0, 1) ++ fillblank_b.slice(0, 1)
+  
+  defaults_c =
+    dots_c.slice(0, 1) ++ typeword_c.slice(0, 1) ++ balance_c.slice(0, 1) ++ addition_c.slice(0, 1) ++ subtraction_c.slice(0, 1) ++ readaloud_c.slice(0, 1) ++ fillblank_c.slice(0, 1)
+  
   feed_items_cache := {
     defaults
+    defaults_a
+    defaults_b
+    defaults_c
     bars
     dots
     typeword
@@ -249,9 +390,9 @@ export getSampleFeedItems = ->
     readaloud
     balance
     addition
-	subtraction
-    lettervideo
-    numbervideo
+    subtraction
+    #lettervideo
+    #numbervideo
     fillblank
     fillblanksocial
     admin
