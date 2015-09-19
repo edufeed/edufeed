@@ -30,6 +30,21 @@ Polymer {
       this.$$('#doneicon').style.display = 'inline'
     else
       this.$$('#doneicon').style.display = 'none'
+  getBubblesList: ->
+    bubbles = [
+      'bubble.svg'
+      'bubble-red.svg'
+      'bubble-orange.svg'
+      'bubble-yellow.svg'
+      'bubble-green.svg'
+      'bubble-blue.svg'
+      'bubble-purple.svg'
+    ]
+    return bubbles
+  chooseRandomBubbleColor: ->
+    bubbles = this.getBubblesList()
+    randomBubble = bubbles[Math.floor(Math.random() * bubbles.length)]
+    return randomBubble
   ready: ->
     self = this
     posterthumbnailshown <- getBoolParam('showposterthumbnail')
@@ -37,6 +52,8 @@ Polymer {
       self.$$('#posterontop').style.display = 'inline'
       self.$$('#thumbnailwrapper').style.opacity = 0.0
       self.$$('#posterbelow').style.display = 'none'
+      if self.$$('#calloutbubble').style.display != 'none'
+        self.$$('#bubble').src = self.chooseRandomBubbleColor()
       self.$$('#calloutbubble').style.display = 'none'
       self.$$('#bubble').style.display = 'inline'
     else
