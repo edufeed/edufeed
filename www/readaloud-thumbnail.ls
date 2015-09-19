@@ -30,5 +30,5 @@ RegisterActivity {
     end_curword()
     return output
   splitWordsInSentences: (sentences) ->
-    return [this.splitWordsInSentence(sentence) for sentence in sentences]
+    return [this.splitWordsInSentence(sentences[0])]
 }

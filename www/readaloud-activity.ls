@@ -16,6 +16,7 @@ RegisterActivity {
       this.fire 'task-freeplay', this
     , 0
     setTimeout ~>
-      this.$$('#' + this.getSentenceId(0)).playSentence()
+      #this.$$('#' + this.getSentenceId(0)).playSentenceAtOnce()
+      synthesize_word 'touch the speaker buttons to hear the joke'
     , 100
 }

@@ -415,7 +415,7 @@ function SpokenNum()
         number.push(one.toString());
     }
 
-    number.push('task_completed'); //hack to play the success sound
+    number.push('success'); //hack to play the success sound
 
     return number;
 }

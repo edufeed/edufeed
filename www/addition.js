@@ -100,7 +100,7 @@ function SpokenEquation(thisVal, correct) {
     
     if (correct)
     {
-        equation.push('task_completed');
+        equation.push('success');
     }
     else
     {

@@ -67,8 +67,24 @@ Polymer {
       done: ->
         self.S('.highlighted').removeClass('highlighted')
     }
+  separateSentences: ->
+    self  = this
+    sentences = self.text.toLowerCase()
+    playlist = []
+    currentWord = ''
+    for letter from 0 to sentences.length-1
+      if sentences[letter] not in ['?', '.', '!', ':']
+        if !(sentences[letter] == ' ' and currentWord == '')
+          currentWord += sentences[letter]
+      else
+        playlist.push(currentWord)
+        currentWord = ''
+    return playlist
+  playSentenceAtOnce: ->
+    self = this
+    play_multiple_sounds self.separateSentences()
   sentenceClicked: (obj, evt) ->
-    this.playSentence()
+    this.playSentenceAtOnce()
   playWord: (wordidx) ->
     self = this
     word = this.wordlist[wordidx]
