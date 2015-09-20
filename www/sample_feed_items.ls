@@ -10,7 +10,6 @@ export getFeedWordList = ->
     'bird'
     'lion'
     'tiger'
-    'elephant'
     'fish'
     'city'
     'house'
@@ -55,7 +54,6 @@ export getWordCategories = ->
       'lion'
       'tiger'
       'fish'
-      'elephant'
     ]
     'fruit': [
       'apple'

@@ -2,7 +2,7 @@
 (function(){
   var getFeedWordList, getFeedReadingList, getFillBlankSentencesWithCategories, getWordCategories, getFeedVideoLists, getPosterLists, all_feed_items_cache, getAllFeedItems, feed_items_cache, chooseRandomPoster, barsTasks, dotsTasks, typeletterTasks, typewordTasks, balanceTasks, additionTasks, subtractionTasks, lettervideoTasks, numbervideoTasks, readaloudTasks, fillblankTasks, fillblanksocialTasks, getSampleFeedItems, out$ = typeof exports != 'undefined' && exports || this;
   out$.getFeedWordList = getFeedWordList = function(){
-    return ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'elephant', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
+    return ['cat', 'dog', 'white', 'black', 'blue', 'red', 'bee', 'bird', 'lion', 'tiger', 'fish', 'city', 'house', 'roof', 'tree', 'river', 'apple', 'banana', 'cherry', 'orange', 'pear'];
   };
   out$.getFeedReadingList = getFeedReadingList = function(){
     return [['Why do elephants never forget?', 'Because nobody ever tells them anything!'], ['What do you get when you cross a parrot with a centipede?', 'A walkie talkie!'], ['What is the strongest animal?', 'A snail. He carries his house on his back!'], ['What has six eyes but cannot see?', 'Three blind mice!']];
@@ -13,7 +13,7 @@
   out$.getWordCategories = getWordCategories = function(){
     return {
       'color': ['red', 'blue', 'black', 'white'],
-      'animal': ['cat', 'dog', 'bee', 'bird', 'lion', 'tiger', 'fish', 'elephant'],
+      'animal': ['cat', 'dog', 'bee', 'bird', 'lion', 'tiger', 'fish'],
       'fruit': ['apple', 'banana', 'cherry', 'orange', 'pear']
     };
   };

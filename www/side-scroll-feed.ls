@@ -183,44 +183,85 @@ Polymer {
   # at min 4 items suggested by the system.
   # The rest can be shared by classmates.
   filterItems: (origItems, classmates) ->
-    # Separate the shared and system-suggested items
+    maxLength = 10
+    sharedMax = 6
+    noSharedMax = 4
+
+    if origItems.length <= maxLength
+      console.log 'origItems only has ' + origItems.length + ' items'
+      return origItems
+
+    # Get ready to filter the list
+    filteredList = []
+    adminItem = []
+
+    # Separate the shared and system-suggested (no shared) items
     noSharedItemsList = []
     sharedItemsList = []
     for item in origItems
-      if not item.social?
+      if item.itemtype == 'admin'
+        adminItem.push(item)
+      else if not item.social?
         noSharedItemsList.push(item)
       else if item.social.poster not in classmates
         noSharedItemsList.push(item)
       else
         sharedItemsList.push(item)
 
-    # Get ready to filter the list
-    filteredList = []
+    console.log 'origItems length: ' + origItems.length
+    console.log 'noSharedItemsList length: ' + noSharedItemsList.length
+    console.log 'sharedItemsList length: ' + sharedItemsList.length
 
     NSIL_len = noSharedItemsList.length
     SIL_len = sharedItemsList.length
 
-    if NSIL_len <= 4 and SIL_len <= 6
+    if NSIL_len <= noSharedMax and SIL_len <= sharedMax
       filteredList = noSharedItemsList ++ sharedItemsList
-    else if NSIL_len > 4 and SIL_len > 6
-      for x from NSIL_len-5 to NSIL_len-1
+    else if NSIL_len > noSharedMax and SIL_len > sharedMax
+      # Newest items stay in feed
+      for x from 0 to noSharedMax-1
         filteredList.push(noSharedItemsList[x])
-      for y from SIL_len-7 to SIL_len-1
+      for y from 0 to sharedMax-1
         filteredList.push(sharedItemsList[y])
-    else if NSIL_len > 4 and SIL_len <= 6
+
+      /* Oldest items stay in feed
+      for x from NSIL_len-1 to NSIL_len-noSharedMax by -1
+        filteredList.push(noSharedItemsList[x])
+      for y from SIL_len-1 to SIL_len-sharedMax by -1
+        filteredList.push(sharedItemsList[y])*/
+
+    else if NSIL_len > noSharedMax and SIL_len <= sharedMax
       filteredList = sharedItemsList
-      for x from NSIL_len-1 to 0 by -1
-        if filteredList.length < 10
+      
+      # Oldest items stay in feed
+      # for x from NSIL_len-1 to 0 by -1
+
+      # Newest items stay in feed
+      for x from 0 to NSIL_len-1
+        if filteredList.length < maxLength
           filteredList.push(noSharedItemsList[x])
         else
+          console.log 'filtered list length: ' + filteredList.length
+          filteredList = filteredList ++ adminItem
           return filteredList
-    else if NSIL_len <= 4 and SIL_len > 6
+
+    else if NSIL_len <= noSharedMax and SIL_len > sharedMax
       filteredList = noSharedItemsList
-      for x from SIL_len-1 to 0 by -1
-        if filteredList.length < 10
+
+      # Oldest items stay in feed
+      # for x from SIL_len-1 to SIL_len-sharedMax by -1
+
+      # Newest items stay in feed
+      for x from 0 to sharedMax-1
+        if filteredList.length < maxLength
           filteredList.push(sharedItemsList[x])
         else
+          console.log 'filtered list length: ' + filteredList.length
+          filteredList = filteredList ++ adminItem
           return filteredList
+
+    console.log 'filtered list length: ' + filteredList.length
+    filteredList = filteredList ++ adminItem
     return filteredList
 
   updateItems: (firstvisit) ->
@@ -246,13 +287,9 @@ Polymer {
       if matching_finished_items.length > 0
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username)
-    console.log 'removed finished items'
     sortedItems = self.sortByUpdateTime(noFinishedItemsList)
-    console.log 'sorted by update time'
     filteredItems = self.filterItems(sortedItems, classmates)
-    console.log 'filtered items'
     self.items = self.sortByUpdateTime(filteredItems)
-    console.log 'sorted by update time again'
     if firstvisit? and firstvisit
       addlog {event: 'visitfeed'}
   shareActivity: (evt) ->

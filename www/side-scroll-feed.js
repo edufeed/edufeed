@@ -252,12 +252,23 @@
       return newItemsList;
     },
     filterItems: function(origItems, classmates){
-      var noSharedItemsList, sharedItemsList, i$, len$, item, filteredList, NSIL_len, SIL_len, to$, x, y;
+      var maxLength, sharedMax, noSharedMax, filteredList, adminItem, noSharedItemsList, sharedItemsList, i$, len$, item, NSIL_len, SIL_len, to$, x, y;
+      maxLength = 10;
+      sharedMax = 6;
+      noSharedMax = 4;
+      if (origItems.length <= maxLength) {
+        console.log('origItems only has ' + origItems.length + ' items');
+        return origItems;
+      }
+      filteredList = [];
+      adminItem = [];
       noSharedItemsList = [];
       sharedItemsList = [];
       for (i$ = 0, len$ = origItems.length; i$ < len$; ++i$) {
         item = origItems[i$];
-        if (item.social == null) {
+        if (item.itemtype === 'admin') {
+          adminItem.push(item);
+        } else if (item.social == null) {
           noSharedItemsList.push(item);
         } else if (!in$(item.social.poster, classmates)) {
           noSharedItemsList.push(item);
@@ -265,41 +276,54 @@
           sharedItemsList.push(item);
         }
       }
-      filteredList = [];
+      console.log('origItems length: ' + origItems.length);
+      console.log('noSharedItemsList length: ' + noSharedItemsList.length);
+      console.log('sharedItemsList length: ' + sharedItemsList.length);
       NSIL_len = noSharedItemsList.length;
       SIL_len = sharedItemsList.length;
-      if (NSIL_len <= 4 && SIL_len <= 6) {
+      if (NSIL_len <= noSharedMax && SIL_len <= sharedMax) {
         filteredList = noSharedItemsList.concat(sharedItemsList);
-      } else if (NSIL_len > 4 && SIL_len > 6) {
-        for (i$ = NSIL_len - 5, to$ = NSIL_len - 1; i$ <= to$; ++i$) {
+      } else if (NSIL_len > noSharedMax && SIL_len > sharedMax) {
+        for (i$ = 0, to$ = noSharedMax - 1; i$ <= to$; ++i$) {
           x = i$;
           filteredList.push(noSharedItemsList[x]);
         }
-        for (i$ = SIL_len - 7, to$ = SIL_len - 1; i$ <= to$; ++i$) {
+        for (i$ = 0, to$ = sharedMax - 1; i$ <= to$; ++i$) {
           y = i$;
           filteredList.push(sharedItemsList[y]);
         }
-      } else if (NSIL_len > 4 && SIL_len <= 6) {
+        /* Oldest items stay in feed
+        for x from NSIL_len-1 to NSIL_len-noSharedMax by -1
+          filteredList.push(noSharedItemsList[x])
+        for y from SIL_len-1 to SIL_len-sharedMax by -1
+          filteredList.push(sharedItemsList[y])*/
+      } else if (NSIL_len > noSharedMax && SIL_len <= sharedMax) {
         filteredList = sharedItemsList;
-        for (i$ = NSIL_len - 1; i$ >= 0; --i$) {
+        for (i$ = 0, to$ = NSIL_len - 1; i$ <= to$; ++i$) {
           x = i$;
-          if (filteredList.length < 10) {
+          if (filteredList.length < maxLength) {
             filteredList.push(noSharedItemsList[x]);
           } else {
+            console.log('filtered list length: ' + filteredList.length);
+            filteredList = filteredList.concat(adminItem);
             return filteredList;
           }
         }
-      } else if (NSIL_len <= 4 && SIL_len > 6) {
+      } else if (NSIL_len <= noSharedMax && SIL_len > sharedMax) {
         filteredList = noSharedItemsList;
-        for (i$ = SIL_len - 1; i$ >= 0; --i$) {
+        for (i$ = 0, to$ = sharedMax - 1; i$ <= to$; ++i$) {
           x = i$;
-          if (filteredList.length < 10) {
+          if (filteredList.length < maxLength) {
             filteredList.push(sharedItemsList[x]);
           } else {
+            console.log('filtered list length: ' + filteredList.length);
+            filteredList = filteredList.concat(adminItem);
             return filteredList;
           }
         }
       }
+      console.log('filtered list length: ' + filteredList.length);
+      filteredList = filteredList.concat(adminItem);
       return filteredList;
     },
     updateItems: function(firstvisit){
@@ -348,13 +372,9 @@
                   }
                 }
                 noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username);
-                console.log('removed finished items');
                 sortedItems = self.sortByUpdateTime(noFinishedItemsList);
-                console.log('sorted by update time');
                 filteredItems = self.filterItems(sortedItems, classmates);
-                console.log('filtered items');
                 self.items = self.sortByUpdateTime(filteredItems);
-                console.log('sorted by update time again');
                 if (firstvisit != null && firstvisit) {
                   return addlog({
                     event: 'visitfeed'
