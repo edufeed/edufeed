@@ -201,7 +201,7 @@ Results will look like follows. The code that does the log analysis is in [log-a
   }
 }
 ```
-### Saving Logs to JSON and CSV Files
+### Saving Log Analysis Results to JSON and CSV Files
 
 If it is your first time saving log files, run `npm install json2csv`. Make sure you have a folder named 'logs' in the edufeed directory.
 
