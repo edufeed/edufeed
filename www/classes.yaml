@@ -132,4 +132,20 @@ classsystem:
     - tablet
     - teachera
     - teacherb
-    - teacherc  
+    - teacherc
+
+classx1:
+  users:
+    - extra1
+
+classx2:
+  users:
+    - extra2
+
+classx3:
+  users:
+    - extra3
+
+classx4:
+  users:
+    - extra4
