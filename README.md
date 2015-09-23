@@ -201,6 +201,14 @@ Results will look like follows. The code that does the log analysis is in [log-a
   }
 }
 ```
+### Saving Logs to JSON and CSV Files
+
+If it is your first time saving log files, run `npm install json2csv`. Make sure you have a folder named 'logs' in the edufeed directory.
+
+On the server, run the command `node scripts/log_to_csv.js geza` (substituting `geza` with the username you want to save log analysis results for)
+
+The JSON file will look the same as the view of the log file shown above. The CSV file will be saved in the same folder.
+
 
 ### Viewing Logs
 
