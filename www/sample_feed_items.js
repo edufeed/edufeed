@@ -277,10 +277,8 @@
     }
     fillblanksocial = res$;
     all_feed_items_cache = {
-      dots: dots,
       typeword: typeword,
       typeletter: typeletter,
-      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,
@@ -669,20 +667,18 @@
         finishedby: []
       }
     }];
-    defaults = dots.slice(0, 1).concat(typeword.slice(0, 1), balance.slice(0, 1), addition.slice(0, 1), subtraction.slice(0, 1), readaloud.slice(0, 1), fillblank.slice(0, 1));
-    defaults_a = dots_a.slice(0, 1).concat(typeword_a.slice(0, 1), balance_a.slice(0, 1), addition_a.slice(0, 1), subtraction_a.slice(0, 1), readaloud_a.slice(0, 1), fillblank_a.slice(0, 1));
-    defaults_b = dots_b.slice(0, 1).concat(typeword_b.slice(0, 1), balance_b.slice(0, 1), addition_b.slice(0, 1), subtraction_b.slice(0, 1), readaloud_b.slice(0, 1), fillblank_b.slice(0, 1));
-    defaults_c = dots_c.slice(0, 1).concat(typeword_c.slice(0, 1), balance_c.slice(0, 1), addition_c.slice(0, 1), subtraction_c.slice(0, 1), readaloud_c.slice(0, 1), fillblank_c.slice(0, 1));
+    defaults = typeword.slice(0, 1).concat(balance.slice(0, 1), addition.slice(0, 1), subtraction.slice(0, 1), fillblank.slice(0, 1), fillblanksocial.slice(1, 2));
+    defaults_a = typeword_a.slice(0, 1).concat(balance_a.slice(0, 1), addition_a.slice(0, 1), subtraction_a.slice(0, 1), fillblank_a.slice(0, 1), fillblanksocial_a.slice(1, 2));
+    defaults_b = typeword_b.slice(0, 1).concat(balance_b.slice(0, 1), addition_b.slice(0, 1), subtraction_b.slice(0, 1), fillblank_b.slice(0, 1), fillblanksocial_b.slice(1, 2));
+    defaults_c = typeword_c.slice(0, 1).concat(balance_c.slice(0, 1), addition_c.slice(0, 1), subtraction_c.slice(0, 1), fillblank_c.slice(0, 1), fillblanksocial_c.slice(1, 2));
     feed_items_cache = {
       defaults: defaults,
       defaults_a: defaults_a,
       defaults_b: defaults_b,
       defaults_c: defaults_c,
       bars: bars,
-      dots: dots,
       typeword: typeword,
       typeletter: typeletter,
-      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,

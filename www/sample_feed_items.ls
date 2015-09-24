@@ -165,10 +165,10 @@ export getAllFeedItems = ->
   all_feed_items_cache := {
     #defaults
     #bars
-    dots
+    #dots
     typeword
     typeletter
-    readaloud
+    #readaloud
     balance
     addition
     subtraction
@@ -365,16 +365,16 @@ export getSampleFeedItems = ->
     [{itemtype: 'iframe', data: {activitypage: 'iframe-activity-example.html', thumbnailpage: 'iframe-thumbnail-example.html', params: {foo: 'somefooval', bar: 'somebarval'}}, social: {poster: 'tablet', finishedby: []}}]
 
   defaults =
-    dots.slice(0, 1) ++ typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ subtraction.slice(0, 1) ++ readaloud.slice(0, 1) ++ fillblank.slice(0, 1)
+    typeword.slice(0, 1) ++ balance.slice(0, 1) ++ addition.slice(0, 1) ++ subtraction.slice(0, 1) ++ fillblank.slice(0, 1) ++ fillblanksocial.slice(1, 2)
   
   defaults_a = 
-    dots_a.slice(0, 1) ++ typeword_a.slice(0, 1) ++ balance_a.slice(0, 1) ++ addition_a.slice(0, 1) ++ subtraction_a.slice(0, 1) ++ readaloud_a.slice(0, 1) ++ fillblank_a.slice(0, 1)
+    typeword_a.slice(0, 1) ++ balance_a.slice(0, 1) ++ addition_a.slice(0, 1) ++ subtraction_a.slice(0, 1) ++ fillblank_a.slice(0, 1) ++ fillblanksocial_a.slice(1, 2)
   
   defaults_b =
-    dots_b.slice(0, 1) ++ typeword_b.slice(0, 1) ++ balance_b.slice(0, 1) ++ addition_b.slice(0, 1) ++ subtraction_b.slice(0, 1) ++ readaloud_b.slice(0, 1) ++ fillblank_b.slice(0, 1)
+    typeword_b.slice(0, 1) ++ balance_b.slice(0, 1) ++ addition_b.slice(0, 1) ++ subtraction_b.slice(0, 1) ++ fillblank_b.slice(0, 1) ++ fillblanksocial_b.slice(1, 2)
   
   defaults_c =
-    dots_c.slice(0, 1) ++ typeword_c.slice(0, 1) ++ balance_c.slice(0, 1) ++ addition_c.slice(0, 1) ++ subtraction_c.slice(0, 1) ++ readaloud_c.slice(0, 1) ++ fillblank_c.slice(0, 1)
+    typeword_c.slice(0, 1) ++ balance_c.slice(0, 1) ++ addition_c.slice(0, 1) ++ subtraction_c.slice(0, 1) ++ fillblank_c.slice(0, 1) ++ fillblanksocial_c.slice(1, 2)
   
   feed_items_cache := {
     defaults
@@ -382,10 +382,10 @@ export getSampleFeedItems = ->
     defaults_b
     defaults_c
     bars
-    dots
+    #dots
     typeword
     typeletter
-    readaloud
+    #readaloud
     balance
     addition
     subtraction
