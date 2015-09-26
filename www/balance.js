@@ -1,24 +1,24 @@
 ﻿function SetDefaultPosition() {
     // coin icons
     pane_g.append("rect")
-                .attr("x", iconX + 120)
-                .attr("y", iconY + 10)
+                .attr("x", iconX + 180)
+                .attr("y", iconY)
                 .attr("width", iconW)
                 .attr("height", iconH)
                 .attr("class", "coin1icon")
                 .call(dragcoin1);
     pane_g.append("rect")
-                .attr("x", iconX + 60)
-                .attr("y", iconY + 5)
-                .attr("width", iconW + 10)
-                .attr("height", iconH + 10)
+                .attr("x", iconX + 90)
+                .attr("y", iconY)
+                .attr("width", iconW)
+                .attr("height", iconH)
                 .attr("class", "coin10icon")
                 .call(dragcoin10);
     pane_g.append("rect")
                 .attr("x", iconX)
                 .attr("y", iconY)
-                .attr("width", iconW + 20)
-                .attr("height", iconH + 20)
+                .attr("width", iconW)
+                .attr("height", iconH)
                 .attr("class", "coin100icon")
                 .call(dragcoin100);
 
@@ -100,15 +100,15 @@ function DefineCoinDragEvents() {
                 mousedrag1y = d3.event.y * scale;
 
                 d3.select(this)
-                    .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                    .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                    .attr("x", mousedrag1x)
+                    .attr("y", mousedrag1y);
             }
         })
         .on("dragend", function () {
 
             d3.select(this)
-                .attr("x", iconX + 120)
-                .attr("y", iconY + 10);
+                .attr("x", iconX + 180)
+                .attr("y", iconY);
 
             var newPoint = ComputeRotatedCoordinates(rotationX, rotationY, mousedrag1x, mousedrag1y, -1 * rotationDeg);
             var newMouseX = newPoint[0];
@@ -164,15 +164,15 @@ function DefineCoinDragEvents() {
                 mousedrag10y = d3.event.y * scale;
 
                 d3.select(this)
-                    .attr("x", Math.max(0, Math.min(width - 20, d3.event.x * scale)))
-                    .attr("y", Math.max(0, Math.min(height - 20, d3.event.y * scale)));
+                    .attr("x", mousedrag10x)
+                    .attr("y", mousedrag10y);
             }
         })
         .on("dragend", function () {
 
             d3.select(this)
-                .attr("x", iconX + 60)
-                .attr("y", iconY + 5);
+                .attr("x", iconX + 90)
+                .attr("y", iconY);
 
             var newPoint = ComputeRotatedCoordinates(rotationX, rotationY, mousedrag10x, mousedrag10y, -1 * rotationDeg);
             var newMouseX = newPoint[0];
@@ -228,8 +228,8 @@ function DefineCoinDragEvents() {
                 mousedrag100y = d3.event.y * scale;
 
                 d3.select(this)
-                    .attr("x", Math.max(0, Math.min(width - 20, mousedrag100x)))
-                    .attr("y", Math.max(0, Math.min(height - 20, mousedrag100y)));
+                    .attr("x", mousedrag100x)
+                    .attr("y", mousedrag100y);
             }
         })
         .on("dragend", function () {
@@ -390,6 +390,35 @@ function RotateBeam()
                 finishActivity();
             });
     }
+
+    // redraw H, T and O so it appears in the front of the coins
+    d3.select("#H").remove();
+    balacebeam_g.append("text")
+                .text("H")
+                .attr("id", "H")
+                .attr("class", "hto")
+                .attr("x", bagX + 20)
+                .attr("y", bagY + 40)
+                .call(nodrag);
+
+    d3.select("#T").remove();
+    balacebeam_g.append("text")
+                .text("T")
+                .attr("id", "T")
+                .attr("class", "hto")
+                .attr("x", bagX + 20 + bagW + 10)
+                .attr("y", bagY + 40)
+                .call(nodrag);
+
+    d3.select("#O").remove();
+    balacebeam_g.append("text")
+                .text("O")
+                .attr("id", "O")
+                .attr("class", "hto")
+                .attr("x", bagX + 20 + 2 * (bagW + 10))
+                .attr("y", bagY + 40)
+                .call(nodrag);
+
 }
 
 // Set up the number to be spoken

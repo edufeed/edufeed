@@ -22,9 +22,9 @@
         var bagX = 10;
         var bagY = 90;
 
-        var iconW = 20;
-        var iconH = 20;
-        var iconX = 10;
+        var iconW = 40;
+        var iconH = 40;
+        var iconX = 20;
         var iconY = 5;
 
         var rotationX = 235;
