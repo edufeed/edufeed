@@ -34,6 +34,17 @@
       }
       return totalChecked;
     },
+    switchCheckmark: function(avatar){
+      var classmates, i$, len$, classmate;
+      classmates = this.S('#classmate_avatars').children();
+      for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
+        classmate = classmates[i$];
+        if (classmate.checked) {
+          classmate.checked = false;
+        }
+      }
+      return avatar.prop('checked', true);
+    },
     ready: function(){
       var self;
       self = this;
@@ -86,14 +97,10 @@
                 'display': 'inline-block'
               });
               avatar.click(function(){
-                var sharedWith;
-                if (avatar.prop('checked')) {
-                  return avatar.prop('checked', false);
+                if (!avatar.prop('checked')) {
+                  return self.switchCheckmark(avatar);
                 } else {
-                  sharedWith = self.numClassmatesChecked();
-                  if (sharedWith < maxSharedWith) {
-                    return avatar.prop('checked', true);
-                  }
+                  return avatar.prop('checked', false);
                 }
               });
               return avatar.appendTo(self.S('#classmate_avatars'));
