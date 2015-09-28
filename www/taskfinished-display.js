@@ -7,8 +7,32 @@
       return $(this.$$(pattern));
     },
     closeTaskFinishedDisplay: function(){
+      var classmates, i$, len$, classmate, name;
       console.log('close task finished display!');
+      classmates = this.S('#classmate_avatars').children();
+      for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
+        classmate = classmates[i$];
+        if (classmate.checked) {
+          name = classmate.attributes['username'].value;
+          this.fire('share-activity', {
+            username: name
+          });
+          console.log('shared with: ' + name);
+        }
+      }
       return this.fire('close-taskfinished', this);
+    },
+    numClassmatesChecked: function(){
+      var totalChecked, classmates, i$, len$, classmate;
+      totalChecked = 0;
+      classmates = this.S('#classmate_avatars').children();
+      for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
+        classmate = classmates[i$];
+        if (classmate.checked) {
+          totalChecked += 1;
+        }
+      }
+      return totalChecked;
     },
     ready: function(){
       var self;
@@ -24,11 +48,11 @@
           self.style.opacity = 1.0;
         }
         setTimeout(function(){
-          return synthesize_word('with whom do you want to share this activity');
+          return synthesize_word('share this with one friend');
         }, 1000);
         return getUsername(function(username){
           return getClassmates(username, function(all_classmates){
-            var res$, i$, len$, x, classmates, classmatesPicked, maxShared, i, results$ = [];
+            var res$, i$, len$, x, classmates, classmatesPicked, maxShareTo, i, maxSharedWith, results$ = [];
             res$ = [];
             for (i$ = 0, len$ = all_classmates.length; i$ < len$; ++i$) {
               x = all_classmates[i$];
@@ -39,17 +63,18 @@
             all_classmates = res$;
             classmates = [];
             classmatesPicked = 0;
-            maxShared = 5;
-            if (all_classmates.length <= maxShared) {
-              maxShared = all_classmates.length;
+            maxShareTo = 5;
+            if (all_classmates.length <= maxShareTo) {
+              maxShareTo = all_classmates.length;
             }
-            while (classmatesPicked < maxShared) {
+            while (classmatesPicked < maxShareTo) {
               i = Math.floor(Math.random() * all_classmates.length);
               if (!in$(all_classmates[i], classmates)) {
                 classmates.push(all_classmates[i]);
                 classmatesPicked += 1;
               }
             }
+            maxSharedWith = 1;
             for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
               results$.push((fn$.call(this, classmates[i$])));
             }
@@ -61,10 +86,15 @@
                 'display': 'inline-block'
               });
               avatar.click(function(){
-                avatar.prop('checked', true);
-                return self.fire('share-activity', {
-                  username: classmate
-                });
+                var sharedWith;
+                if (avatar.prop('checked')) {
+                  return avatar.prop('checked', false);
+                } else {
+                  sharedWith = self.numClassmatesChecked();
+                  if (sharedWith < maxSharedWith) {
+                    return avatar.prop('checked', true);
+                  }
+                }
               });
               return avatar.appendTo(self.S('#classmate_avatars'));
             }

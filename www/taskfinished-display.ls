@@ -6,7 +6,23 @@ Polymer {
     return $(this.$$(pattern))
   closeTaskFinishedDisplay: ->
     console.log 'close task finished display!'
+
+    # share with checked classmates
+    classmates = this.S('#classmate_avatars').children()
+    for classmate in classmates
+      if classmate.checked
+        name = classmate.attributes['username'].value
+        this.fire 'share-activity', {username: name}
+        console.log 'shared with: ' + name
+
     this.fire 'close-taskfinished', this
+  numClassmatesChecked: ->
+    totalChecked = 0
+    classmates = this.S('#classmate_avatars').children()
+    for classmate in classmates
+      if classmate.checked
+        totalChecked += 1
+    return totalChecked
   ready: ->
     self = this
     skipsharescreen <- getBoolParam('skipsharescreen')
@@ -20,7 +36,7 @@ Polymer {
       self.style.opacity = 1.0
     setTimeout ->
       #play_success_sound ->
-      synthesize_word 'with whom do you want to share this activity'
+      synthesize_word 'share this with one friend'
     , 1000
     username <- getUsername()
     all_classmates <- getClassmates(username)
@@ -29,22 +45,28 @@ Polymer {
     # Randomly choose 3 classmates to potentially share with
     classmates = []
     classmatesPicked = 0
-    maxShared = 5
-    if all_classmates.length <= maxShared
-      maxShared = all_classmates.length
+    maxShareTo = 5
+    if all_classmates.length <= maxShareTo
+      maxShareTo = all_classmates.length
 
-    while classmatesPicked < maxShared
+    while classmatesPicked < maxShareTo
       i = Math.floor(Math.random() * all_classmates.length)
       if all_classmates[i] not in classmates
         classmates.push(all_classmates[i])
         classmatesPicked += 1
-
+    
+    maxSharedWith = 1
     for let classmate in classmates
       avatar = $("<user-avatar username='#{classmate}' size='m'>").css({'cursor': 'pointer', 'display': 'inline-block'})
       avatar.click ->
         #synthesize_multiple_words ['shared with', classmate]
-        avatar.prop('checked', true)
-        self.fire 'share-activity', {username: classmate}
+        if avatar.prop('checked')
+          avatar.prop('checked', false)
+        else
+          sharedWith = self.numClassmatesChecked()
+          if sharedWith < maxSharedWith
+            avatar.prop('checked', true)
+        #self.fire 'share-activity', {username: classmate}
       avatar.appendTo self.S('#classmate_avatars')
     #username <- getUsername()
     #console.log 'your username is:'
