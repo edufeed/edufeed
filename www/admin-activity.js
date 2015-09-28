@@ -27,36 +27,46 @@
                 return getBoolParam('hidehelpbutton', function(hidehelpbutton){
                   return getBoolParam('maketransparentbutton', function(maketransparentbutton){
                     return getBoolParam('showposterthumbnail', function(showposterthumbnail){
-                      return getParam('suggestionformula', function(suggestionformula){
-                        self.S('#skipsharescreen').prop('checked', skipsharescreen);
-                        self.S('#hidesharebutton').prop('checked', hidesharebutton);
-                        self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
-                        self.S('#maketransparentbutton').prop('checked', maketransparentbutton);
-                        self.S('#showposterthumbnail').prop('checked', showposterthumbnail);
-                        return getAllUsers(function(all_users){
-                          var fastlogin_buttons, i$, len$;
-                          fastlogin_buttons = $(self).find('#fastlogin_buttons');
-                          for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
-                            (fn$.call(this, all_users[i$]));
-                          }
-                          console.log(suggestionformula);
-                          return setTimeout(function(){
-                            if (suggestionformula != null && suggestionformula.length > 0) {
-                              return self.S('#selectsuggestionformula').val(suggestionformula);
-                            } else {
-                              return self.S('#selectsuggestionformula').val('default');
-                            }
-                          }, 0);
-                          function fn$(current_user){
-                            var new_fastlogin_button;
-                            new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
-                              self.S('#usernameinput').val(current_user);
-                              self.S('#passwordinput').val(current_user);
-                              return self.setUsername();
+                      return getBoolParam('controlcondition', function(controlcondition){
+                        return getBoolParam('condition1', function(condition1){
+                          return getBoolParam('condition2', function(condition2){
+                            return getParam('suggestionformula', function(suggestionformula){
+                              self.S('#skipsharescreen').prop('checked', skipsharescreen);
+                              self.S('#hidesharebutton').prop('checked', hidesharebutton);
+                              self.S('#hidehelpbutton').prop('checked', hidehelpbutton);
+                              self.S('#maketransparentbutton').prop('checked', maketransparentbutton);
+                              self.S('#showposterthumbnail').prop('checked', showposterthumbnail);
+                              self.S('#controlcondition').prop('checked', controlcondition);
+                              self.S('#condition1').prop('checked', condition1);
+                              self.S('#condition2').prop('checked', condition2);
+                              return getAllUsers(function(all_users){
+                                var fastlogin_buttons, i$, len$;
+                                fastlogin_buttons = $(self).find('#fastlogin_buttons');
+                                for (i$ = 0, len$ = all_users.length; i$ < len$; ++i$) {
+                                  (fn$.call(this, all_users[i$]));
+                                }
+                                console.log(suggestionformula);
+                                return setTimeout(function(){
+                                  if (suggestionformula != null && suggestionformula.length > 0) {
+                                    return self.S('#selectsuggestionformula').val(suggestionformula);
+                                  } else {
+                                    /*hack to default to one_more_of_the_sametype*/
+                                    return self.S('#selectsuggestionformula').val('one_more_of_the_sametype');
+                                  }
+                                }, 0);
+                                function fn$(current_user){
+                                  var new_fastlogin_button;
+                                  new_fastlogin_button = $("<button class='btn btn-lg btn-primary'>").text(current_user).click(function(){
+                                    self.S('#usernameinput').val(current_user);
+                                    self.S('#passwordinput').val(current_user);
+                                    return self.setUsername();
+                                  });
+                                  new_fastlogin_button.appendTo(fastlogin_buttons);
+                                  fastlogin_buttons.append(' ');
+                                }
+                              });
                             });
-                            new_fastlogin_button.appendTo(fastlogin_buttons);
-                            fastlogin_buttons.append(' ');
-                          }
+                          });
                         });
                       });
                     });
@@ -187,6 +197,57 @@
       console.log('hideAdminActivity');
       this.fire('hide-admin-activity', this);
       return this.fire('task-left', this);
+    },
+    controlcondition_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        setParam('hidesharebutton', true);
+        setParam('hidehelpbutton', true);
+        setParam('showposterthumbnail', false);
+        setParam('skipsharescreen', true);
+        setParam('condition1', false);
+        setParam('condition2', false);
+      }
+      setParam('controlcondition', checked);
+      return window.location.reload();
+    },
+    condition1_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        setParam('hidesharebutton', true);
+        setParam('hidehelpbutton', true);
+        setParam('showposterthumbnail', false);
+        setParam('skipsharescreen', false);
+        setParam('controlcondition', false);
+        setParam('condition2', false);
+      }
+      setParam('condition1', checked);
+      return window.location.reload();
+    },
+    condition2_changed: function(evt){
+      var checked;
+      checked = false;
+      if (evt != null && evt.target != null && evt.target.checked != null && evt.target.checked === true) {
+        checked = true;
+      }
+      if (checked) {
+        setParam('hidesharebutton', true);
+        setParam('hidehelpbutton', true);
+        setParam('showposterthumbnail', true);
+        setParam('skipsharescreen', false);
+        setParam('condition1', false);
+        setParam('controlcondition', false);
+      }
+      setParam('condition2', checked);
+      return window.location.reload();
     },
     showposterthumbnail_changed: function(evt){
       var checked;
