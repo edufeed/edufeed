@@ -139,11 +139,23 @@
       var thumbnail, this$ = this;
       thumbnail = makeSocialThumbnail(item);
       thumbnail.find('#thumbnail').click(function(){
-        addlog({
-          event: 'task-started',
-          item: item
-        });
-        return this$.openItem(item);
+        var password;
+        if (item.itemtype !== 'admin') {
+          addlog({
+            event: 'task-started',
+            item: item
+          });
+          return this$.openItem(item);
+        } else {
+          password = prompt("Password: ");
+          if (password === 'edu') {
+            addlog({
+              event: 'task-started',
+              item: item
+            });
+            return this$.openItem(item);
+          }
+        }
       });
       if (idx == null) {
         return this.S('#thumbnails').append(thumbnail);

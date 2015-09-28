@@ -56,6 +56,8 @@ node scripts/create_users
 
 Visit the feed page, and open the admin console (it should be the first feed item). It will have a place for you to log in.
 
+The password to get into the admin window is `edu`, which can be reset to any string in `openItem` in [side-scroll-feed.ls](https://github.com/edufeed/edufeed/blob/master/www/side-scroll-feed.ls).
+
 ## Offline Caching and Customization
 
 ### Customizing Feed Items

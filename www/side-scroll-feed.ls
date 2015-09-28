@@ -109,8 +109,14 @@ Polymer {
   addItemToFeed: (item, idx) ->
     thumbnail = makeSocialThumbnail item
     thumbnail.find('#thumbnail').click ~>
-      addlog {event: 'task-started', item: item}
-      this.openItem item
+      if item.itemtype != 'admin'
+        addlog {event: 'task-started', item: item}
+        this.openItem item
+      else
+        password = prompt("Password: ")
+        if password == 'edu'
+          addlog {event: 'task-started', item: item}
+          this.openItem item
     if not idx?
       this.S('#thumbnails').append thumbnail
     else
