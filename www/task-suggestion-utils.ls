@@ -131,8 +131,9 @@ getNumItemsRecommendedNotShared = (current_feed_items, usersClass) ->
   return numItemsRecommended
 
 export addNewItemSuggestions = (finished_item, current_feed_items, all_finished_items, callback) ->
-  # Don't add any new items if the feed already has 10 items
-  if current_feed_items.length > 10
+  # Don't add any new items if the feed already has specified # items
+  maxItems = 999
+  if current_feed_items.length > maxItems
     callback
     return
   else

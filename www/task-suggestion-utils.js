@@ -200,7 +200,9 @@
     return numItemsRecommended;
   };
   out$.addNewItemSuggestions = addNewItemSuggestions = function(finished_item, current_feed_items, all_finished_items, callback){
-    if (current_feed_items.length > 10) {
+    var maxItems;
+    maxItems = 999;
+    if (current_feed_items.length > maxItems) {
       callback;
     } else {
       return getUsername(function(username){
