@@ -29,8 +29,8 @@ Polymer {
     # Randomly choose 3 classmates to potentially share with
     classmates = []
     classmatesPicked = 0
-    maxShared = 3
-    if all_classmates.length <= 3
+    maxShared = 5
+    if all_classmates.length <= maxShared
       maxShared = all_classmates.length
 
     while classmatesPicked < maxShared
@@ -42,7 +42,7 @@ Polymer {
     for let classmate in classmates
       avatar = $("<user-avatar username='#{classmate}' size='m'>").css({'cursor': 'pointer', 'display': 'inline-block'})
       avatar.click ->
-        synthesize_multiple_words ['shared with', classmate]
+        #synthesize_multiple_words ['shared with', classmate]
         avatar.prop('checked', true)
         self.fire 'share-activity', {username: classmate}
       avatar.appendTo self.S('#classmate_avatars')

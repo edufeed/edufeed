@@ -39,8 +39,8 @@
             all_classmates = res$;
             classmates = [];
             classmatesPicked = 0;
-            maxShared = 3;
-            if (all_classmates.length <= 3) {
+            maxShared = 5;
+            if (all_classmates.length <= maxShared) {
               maxShared = all_classmates.length;
             }
             while (classmatesPicked < maxShared) {
@@ -61,7 +61,6 @@
                 'display': 'inline-block'
               });
               avatar.click(function(){
-                synthesize_multiple_words(['shared with', classmate]);
                 avatar.prop('checked', true);
                 return self.fire('share-activity', {
                   username: classmate

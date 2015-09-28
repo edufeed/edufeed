@@ -28,8 +28,8 @@ Polymer {
       this.$$('#profilepic').width = 350
       this.$$('#profilepic').height = 350
     else if this.size == 'm'
-      this.$$('#profilepic').width = 200
-      this.$$('#profilepic').height = 200
+      this.$$('#profilepic').width = 150
+      this.$$('#profilepic').height = 150
   usernameChanged: (newname, oldname) ->
     if newname == oldname
       return

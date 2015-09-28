@@ -30,8 +30,8 @@
         this.$$('#profilepic').width = 350;
         return this.$$('#profilepic').height = 350;
       } else if (this.size === 'm') {
-        this.$$('#profilepic').width = 200;
-        return this.$$('#profilepic').height = 200;
+        this.$$('#profilepic').width = 150;
+        return this.$$('#profilepic').height = 150;
       }
     },
     usernameChanged: function(newname, oldname){
