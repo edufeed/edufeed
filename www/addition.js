@@ -146,7 +146,7 @@ function Tap() {
 
         var equation = SpokenEquation(thisVal, true);
         play_multiple_sounds(equation, function () {
-            setTimeout(finishActivity, 3000); // wait 3 seconds before going to the finished screen
+            setTimeout(finishActivity, 1000); // wait 3 seconds before going to the finished screen
         });
     }
     else {
@@ -155,7 +155,7 @@ function Tap() {
         setTimeout(function () {
             additionbar_g.select("#addend1bar").attr("width", parseInt(addend1, 10) * 20);
             additionbar_g.select("#blankbar").attr("width", parseInt(addend2, 10) * 20);
-        }, 7000); // wait 7 seconds to finish spoken equation
+        }, 1000); // wait 7 seconds to finish spoken equation
     }
 }
 

@@ -1,4 +1,5 @@
 current_play_id = null
+audio_disabled = true
 
 get_new_play_id = ->
   play_id = Math.floor(Math.random() * 9999999999)
@@ -23,6 +24,10 @@ export play_sound = (wordpath, callback) ->
 play_sound_real = (play_id, wordpath, callback) ->
   callback_called = false
   if current_play_id != play_id
+    if callback?
+      callback()
+    return
+  if audio_disabled
     if callback?
       callback()
     return
