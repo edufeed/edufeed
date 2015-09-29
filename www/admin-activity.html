@@ -59,11 +59,9 @@
     <br>
     <br>
     <div>Conditions:</div>
-      <form action="">
-          <input type="radio" id="controlcondition" on-click="controlcondition_changed" />Control Condition (1A)<br>
-          <input type="radio" id="condition1" on-click="condition1_changed" />Condition 1 (1B)<br>
-          <input type="radio" id="condition2" on-click="condition2_changed" />Condition 2 (1C)
-      </form>
+      <button class="btn btn-lg btn-primary" on-click="setcontrolcondition">Control Condition</button><br><br>
+      <button class="btn btn-lg btn-primary" on-click="setcondition1">Condition 1</button><br><br>
+      <button class="btn btn-lg btn-primary" on-click="setcondition2">Condition 2</button>
     <br>
     <div>Poster thumbnails: </div>
     <label><input type="checkbox" id="showposterthumbnail" on-click="showposterthumbnail_changed"> Change to poster thumbnails</label><br>

@@ -39,9 +39,6 @@ classa13:
     - mahesh
 classa14:
   users:
-    - maryjessica
-classa14:
-  users:
     - melwin
 classa15:
   users:
@@ -64,7 +61,16 @@ classa20:
 classa21:
   users:
     - vidhyashree
-   
+classa22:
+  users:
+    - pavithrac
+classa23:
+  users:
+    - manasa
+classa24:
+  users:
+    - maryjessica
+
 classb:
   users:
     - amruthashree
@@ -108,7 +114,7 @@ classc:
     - mishel
     - namitha
     - nikitham
-    - pavithrac
+    - pavithraa
     - prabhakaran
     - ree
     - sadhana

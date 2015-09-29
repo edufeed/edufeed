@@ -19,18 +19,12 @@ RegisterActivity {
     hidehelpbutton <- getBoolParam('hidehelpbutton')
     maketransparentbutton <- getBoolParam('maketransparentbutton')
     showposterthumbnail <- getBoolParam('showposterthumbnail')
-    controlcondition <- getBoolParam('controlcondition')
-    condition1 <- getBoolParam('condition1')
-    condition2 <- getBoolParam('condition2')
     suggestionformula <- getParam('suggestionformula')
     self.S('#skipsharescreen').prop('checked', skipsharescreen)
     self.S('#hidesharebutton').prop('checked', hidesharebutton)
     self.S('#hidehelpbutton').prop('checked', hidehelpbutton)
     self.S('#maketransparentbutton').prop('checked', maketransparentbutton)
     self.S('#showposterthumbnail').prop('checked', showposterthumbnail)
-    self.S('#controlcondition').prop('checked', controlcondition)
-    self.S('#condition1').prop('checked', condition1)
-    self.S('#condition2').prop('checked', condition2)
     all_users <- getAllUsers()
     fastlogin_buttons = $(self).find('#fastlogin_buttons')
     for let current_user in all_users
@@ -57,6 +51,25 @@ RegisterActivity {
     setUsername username, ->
       setPassword password, ->
         setCouchURL couchserver, ->
+          usersClass <- getUsersClass(username)
+          if usersClass == 'classb'
+            setParam 'hidesharebutton', true
+            setParam 'hidehelpbutton', true
+            setParam 'skipsharescreen', false
+            setParam 'showposterthumbnail', false
+            console.log 'Condition 1'
+          if usersClass == 'classc'
+            setParam 'hidesharebutton', true
+            setParam 'hidehelpbutton', true
+            setParam 'skipsharescreen', false
+            setParam 'showposterthumbnail', true
+            console.log 'Condition 2'
+          if usersClass.slice(0,6) == 'classa'
+            setParam 'hidesharebutton', true
+            setParam 'hidehelpbutton', true
+            setParam 'skipsharescreen', true
+            setParam 'showposterthumbnail', false
+            console.log 'Control Condition'
           window.location.reload()
   deleteLocalFeedItemsDb: ->
     self = this
@@ -116,52 +129,28 @@ RegisterActivity {
     console.log 'hideAdminActivity'
     this.fire 'hide-admin-activity', this
     this.fire 'task-left', this
-  controlcondition_changed: (evt) ->
-    checked = false
-    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
-      checked = true
-
-    if checked
-      setParam 'hidesharebutton', true
-      setParam 'hidehelpbutton', true
-      setParam 'showposterthumbnail', false
-      setParam 'skipsharescreen', true
-      setParam 'condition1', false
-      setParam 'condition2', false
-      
-    setParam 'controlcondition', checked
-    window.location.reload()
-  
-  condition1_changed: (evt) ->
-    checked = false
-    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
-      checked = true
-
-    if checked
-      setParam 'hidesharebutton', true
-      setParam 'hidehelpbutton', true
-      setParam 'showposterthumbnail', false
-      setParam 'skipsharescreen', false
-      setParam 'controlcondition', false
-      setParam 'condition2', false
-
-    setParam 'condition1', checked
+  setcontrolcondition: (evt) ->
+    setParam 'hidesharebutton', true
+    setParam 'hidehelpbutton', true
+    setParam 'skipsharescreen', true
+    setParam 'showposterthumbnail', false
+    console.log 'Control Condition'
     window.location.reload()
 
-  condition2_changed: (evt) ->
-    checked = false
-    if evt? and evt.target? and evt.target.checked? and evt.target.checked == true
-      checked = true
+  setcondition1: (evt) ->
+    setParam 'hidesharebutton', true
+    setParam 'hidehelpbutton', true
+    setParam 'skipsharescreen', false
+    setParam 'showposterthumbnail', false
+    console.log 'Condition 1'
+    window.location.reload()
 
-    if checked
-      setParam 'hidesharebutton', true
-      setParam 'hidehelpbutton', true
-      setParam 'showposterthumbnail', true
-      setParam 'skipsharescreen', false
-      setParam 'condition1', false
-      setParam 'controlcondition', false
-    
-    setParam 'condition2', checked
+  setcondition2: (evt) ->
+    setParam 'hidesharebutton', true
+    setParam 'hidehelpbutton', true
+    setParam 'skipsharescreen', false
+    setParam 'showposterthumbnail', true
+    console.log 'Condition 2'
     window.location.reload()
 
   showposterthumbnail_changed: (evt) ->
