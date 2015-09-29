@@ -84,30 +84,20 @@
       }());
     },
     reallySetUsername: function(username, password, couchserver){
+      var self;
+      self = this;
       return setUsername(username, function(){
         return setPassword(password, function(){
           return setCouchURL(couchserver, function(){
             return getUsersClass(username, function(usersClass){
               if (usersClass === 'classb') {
-                setParam('hidesharebutton', true);
-                setParam('hidehelpbutton', true);
-                setParam('skipsharescreen', false);
-                setParam('showposterthumbnail', false);
-                console.log('Condition 1');
+                self.condition1();
               }
               if (usersClass === 'classc') {
-                setParam('hidesharebutton', true);
-                setParam('hidehelpbutton', true);
-                setParam('skipsharescreen', false);
-                setParam('showposterthumbnail', true);
-                console.log('Condition 2');
+                self.condition2();
               }
               if (usersClass.slice(0, 6) === 'classa') {
-                setParam('hidesharebutton', true);
-                setParam('hidehelpbutton', true);
-                setParam('skipsharescreen', true);
-                setParam('showposterthumbnail', false);
-                console.log('Control Condition');
+                self.controlcondition();
               }
               return window.location.reload();
             });
@@ -213,6 +203,21 @@
       return this.fire('task-left', this);
     },
     setcontrolcondition: function(evt){
+      var self;
+      self = this;
+      return self.controlcondition();
+    },
+    setcondition1: function(evt){
+      var self;
+      self = this;
+      return self.condition1();
+    },
+    setcondition2: function(evt){
+      var self;
+      self = this;
+      return self.condition2();
+    },
+    controlcondition: function(){
       setParam('hidesharebutton', true);
       setParam('hidehelpbutton', true);
       setParam('skipsharescreen', true);
@@ -220,7 +225,7 @@
       console.log('Control Condition');
       return window.location.reload();
     },
-    setcondition1: function(evt){
+    condition1: function(){
       setParam('hidesharebutton', true);
       setParam('hidehelpbutton', true);
       setParam('skipsharescreen', false);
@@ -228,7 +233,7 @@
       console.log('Condition 1');
       return window.location.reload();
     },
-    setcondition2: function(evt){
+    condition2: function(){
       setParam('hidesharebutton', true);
       setParam('hidehelpbutton', true);
       setParam('skipsharescreen', false);

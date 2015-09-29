@@ -48,28 +48,17 @@ RegisterActivity {
   getSuggestionFormulas: ->
     return [k for k,v of getTaskSuggestionFormulas()]
   reallySetUsername: (username, password, couchserver) ->
+    self = this
     setUsername username, ->
       setPassword password, ->
         setCouchURL couchserver, ->
           usersClass <- getUsersClass(username)
           if usersClass == 'classb'
-            setParam 'hidesharebutton', true
-            setParam 'hidehelpbutton', true
-            setParam 'skipsharescreen', false
-            setParam 'showposterthumbnail', false
-            console.log 'Condition 1'
+            self.condition1()
           if usersClass == 'classc'
-            setParam 'hidesharebutton', true
-            setParam 'hidehelpbutton', true
-            setParam 'skipsharescreen', false
-            setParam 'showposterthumbnail', true
-            console.log 'Condition 2'
+            self.condition2()
           if usersClass.slice(0,6) == 'classa'
-            setParam 'hidesharebutton', true
-            setParam 'hidehelpbutton', true
-            setParam 'skipsharescreen', true
-            setParam 'showposterthumbnail', false
-            console.log 'Control Condition'
+            self.controlcondition()
           window.location.reload()
   deleteLocalFeedItemsDb: ->
     self = this
@@ -130,6 +119,18 @@ RegisterActivity {
     this.fire 'hide-admin-activity', this
     this.fire 'task-left', this
   setcontrolcondition: (evt) ->
+    self = this
+    self.controlcondition()
+
+  setcondition1: (evt) ->
+    self = this
+    self.condition1()
+
+  setcondition2: (evt) ->
+    self = this
+    self.condition2()
+    
+  controlcondition: ->
     setParam 'hidesharebutton', true
     setParam 'hidehelpbutton', true
     setParam 'skipsharescreen', true
@@ -137,7 +138,7 @@ RegisterActivity {
     console.log 'Control Condition'
     window.location.reload()
 
-  setcondition1: (evt) ->
+  condition1: ->
     setParam 'hidesharebutton', true
     setParam 'hidehelpbutton', true
     setParam 'skipsharescreen', false
@@ -145,7 +146,7 @@ RegisterActivity {
     console.log 'Condition 1'
     window.location.reload()
 
-  setcondition2: (evt) ->
+  condition2: ->
     setParam 'hidesharebutton', true
     setParam 'hidehelpbutton', true
     setParam 'skipsharescreen', false
