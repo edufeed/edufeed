@@ -11,7 +11,7 @@ classes_file = 'www/classes.yaml'
 create_user = (username, callback) ->
   does_user_exist username, (user_exists) ->
     if user_exists
-	  console.log username + ' already exists.'
+      console.log username + ' already exists.'
       callback(null, null)
       return
     console.log 'create_user ' + username

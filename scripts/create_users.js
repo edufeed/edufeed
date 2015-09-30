@@ -7,8 +7,8 @@
   classes_file = 'www/classes.yaml';
   create_user = function(username, callback){
     return does_user_exist(username, function(user_exists){
-        if (user_exists) {
-        console.log(username + ' already exists. ')
+      if (user_exists) {
+        console.log(username + ' already exists.');
         callback(null, null);
         return;
       }
