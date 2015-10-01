@@ -5,7 +5,7 @@ require! {
 }
 
 {couchdb_url} = require '../couchdb_utils'
-{getLogAnalysisResultsAsString} = require '../www/log-analysis'
+{getLogAnalysisResultsAsString, getLogAnalysisResults} = require '../www/log-analysis'
 
 nano = require('nano')(couchdb_url)
 
@@ -16,7 +16,8 @@ main = ->
     return
   allusers = []
   allusers_set = {}
-  for classname,classinfo of yamlfile.readFileSync('www/classes.yaml')
+  all_classes = yamlfile.readFileSync('www/classes.yaml')
+  for classname,classinfo of all_classes
     if not classinfo.users?
       continue
     for username in classinfo.users
@@ -32,12 +33,24 @@ main = ->
       return
     logs = [x.doc for x in results.rows]
     callback(null, {username, logs})
-  all_logs = []
+  output = {
+    users: {}
+    classes: {}
+    aggregate: {}
+  }
   for {username,logs} in all_results
+    output.users[username] = getLogAnalysisResults(logs)
+  all_logs = []
+  for {logs} in all_results
     all_logs = all_logs.concat logs
-    console.log username
-    console.log getLogAnalysisResultsAsString(logs)
-  console.log 'aggregate results'
-  console.log getLogAnalysisResultsAsString(all_logs)
+  output.aggregate = getLogAnalysisResults(all_logs)
+  for classname,classinfo of all_classes
+    if not classinfo.users?
+      continue
+    class_logs = []
+    for username in classinfo.users
+      class_logs = class_logs.concat output.users[username]
+    output.classes[classname] = getLogAnalysisResults(class_logs)
+  console.log JSON.stringify(output, null, 2)
 
 main()
