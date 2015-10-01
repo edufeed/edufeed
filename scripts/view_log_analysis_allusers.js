@@ -56,12 +56,17 @@
         });
       });
     }, function(all_errors, all_results){
-      var output, i$, len$, ref$, username, logs, all_logs, classname, classinfo, class_logs, ref1$;
+      var output, username_to_logs, i$, len$, ref$, username, logs, all_logs, classname, classinfo, class_logs, ref1$;
       output = {
         users: {},
         classes: {},
         aggregate: {}
       };
+      username_to_logs = {};
+      for (i$ = 0, len$ = all_results.length; i$ < len$; ++i$) {
+        ref$ = all_results[i$], username = ref$.username, logs = ref$.logs;
+        username_to_logs[username] = logs;
+      }
       for (i$ = 0, len$ = all_results.length; i$ < len$; ++i$) {
         ref$ = all_results[i$], username = ref$.username, logs = ref$.logs;
         output.users[username] = getLogAnalysisResults(logs);
@@ -80,7 +85,7 @@
         class_logs = [];
         for (i$ = 0, len$ = (ref1$ = classinfo.users).length; i$ < len$; ++i$) {
           username = ref1$[i$];
-          class_logs = class_logs.concat(output.users[username]);
+          class_logs = class_logs.concat(username_to_logs[username]);
         }
         output.classes[classname] = getLogAnalysisResults(class_logs);
       }

@@ -38,6 +38,9 @@ main = ->
     classes: {}
     aggregate: {}
   }
+  username_to_logs = {}
+  for {username,logs} in all_results
+    username_to_logs[username] = logs
   for {username,logs} in all_results
     output.users[username] = getLogAnalysisResults(logs)
   all_logs = []
@@ -49,7 +52,7 @@ main = ->
       continue
     class_logs = []
     for username in classinfo.users
-      class_logs = class_logs.concat output.users[username]
+      class_logs = class_logs.concat username_to_logs[username]
     output.classes[classname] = getLogAnalysisResults(class_logs)
   console.log JSON.stringify(output, null, 2)
 
