@@ -2,25 +2,73 @@ export getFeedWordList = ->
   [
     'cat'
     'dog'
+    'ant'
+    'auto'
+    'ball'
     'white'
     'black'
     'blue'
     'red'
     'bee'
+    'car'
+    'sun'
+    'egg'
+    'hat'
     'bird'
     'lion'
     'tiger'
     'fish'
+    'duck'
     'city'
     'house'
     'roof'
+    'boat'
     'tree'
+    'cold'
+    'corn'
     'river'
     'apple'
+    'india'
+    'milk'
+    'sock'
+    'sofa'
+    'rain'
+    'star'
     'banana'
     'cherry'
     'orange'
     'pear'
+    'broom'
+    'igloo'
+    'bicycle'
+    'carrot'
+    'chair'
+    'circle'
+    'triangle'
+    'square'
+    'cricket'
+    'dance'
+    'football'
+    'tennis'
+    'hockey'
+    'horse'
+    'house'
+    'table'
+    'train'
+    'lettuce'
+    'mouse'
+    'octopus'
+    'onion'
+    'paint'
+    'pencil'
+    'pillow'
+    'rabbit'
+    'read'
+    'sing'
+    'swim'
+    'write'
+    'zebra'
+    'draw'
   ]
 
 export getFeedReadingList = ->
@@ -36,6 +84,13 @@ export getFillBlankSentencesWithCategories = ->
     ['My favorite color is ________.', 'color']
     ['My favorite animal is the ________.', 'animal']
     ['My favorite fruit is the ________.', 'fruit']
+    ['My favorite shape is the ________.', 'shape']
+    ['My favorite sport is ________.', 'sport']
+    ['My favorite vegetable is _______.', 'vegetable']
+    ['My favorite type of furniture is a ________.', 'furniture']
+    ['I like to ________.', 'activity']
+    ['My favorite type of weather is ________.', 'weather']
+    ['My favorite transportation is the ________.', 'transportation']
   ]
 
 export getWordCategories = ->
@@ -54,6 +109,7 @@ export getWordCategories = ->
       'lion'
       'tiger'
       'fish'
+      'octopus'
     ]
     'fruit': [
       'apple'
@@ -61,6 +117,52 @@ export getWordCategories = ->
       'cherry'
       'orange'
       'pear'
+    ]
+    'shape': [
+      'circle'
+      'square'
+      'triangle'
+      'star'
+    ]
+    'sport': [
+      'cricket'
+      'football'
+      'hockey'
+      'tennis'
+    ]
+    'vegetable': [
+      'carrot'
+      'lettuce'
+      'corn'
+      'onion'
+    ]
+    'furniture': [
+      'bed'
+      'chair'
+      'sofa'
+      'table'
+    ]
+    'weather': [
+      'sunny'
+      'cold'
+      'rainy'
+    ]
+    'activity': [
+      'read'
+      'write'
+      'paint'
+      'swim'
+      'sing'
+      'dance'
+      'draw'
+    ]
+    'transportation': [
+      'boat'
+      'car'
+      'auto'
+      'plane'
+      'train'
+      'bicycle'
     ]
   }
 

@@ -112,6 +112,7 @@ american_accent: speechsynth_en/american_accent
 amruthashree: speechsynth_en/amruthashree.mp3
 anilha: speechsynth_en/anilha.mp3
 animal: speechsynth_en/animal.mp3
+ant: speechsynth_en/ant.mp3
 anwesha: speechsynth_en/anwesha.mp3
 anything: speechsynth_en/anything.mp3
 apple: speechsynth_en/apple.mp3
@@ -119,30 +120,46 @@ arbina: speechsynth_en/arbina.mp3
 archana: speechsynth_en/archana.mp3
 arun: speechsynth_en/arun.mp3
 asha: speechsynth_en/asha.mp3
+auto: speechsynth_en/auto.mp3
 avery: speechsynth_en/avery.mp3
 ayyana: speechsynth_en/ayyana.mp3
 back: speechsynth_en/back.mp3
+badminton: speechsynth_en/badminton.mp3
+ball: speechsynth_en/ball.mp3
 banana: speechsynth_en/banana.mp3
 because nobody ever tells them anything: speechsynth_en/because nobody ever tells them anything.mp3
 because: speechsynth_en/because.mp3
+bed: speechsynth_en/bed.mp3
 bee: speechsynth_en/bee.mp3
 beena: speechsynth_en/beena.mp3
 bhagya: speechsynth_en/bhagya.mp3
+bicycle: speechsynth_en/bicycle.mp3
 bird: speechsynth_en/bird.mp3
 black: speechsynth_en/black.mp3
 blind: speechsynth_en/blind.mp3
 blue: speechsynth_en/blue.mp3
+boat: speechsynth_en/boat.mp3
 brinda: speechsynth_en/brinda.mp3
+broom: speechsynth_en/broom.mp3
 but: speechsynth_en/but.mp3
 cannot: speechsynth_en/cannot.mp3
 carries: speechsynth_en/carries.mp3
+carrot: speechsynth_en/carrot.mp3
 cat: speechsynth_en/cat.mp3
 centipede: speechsynth_en/centipede.mp3
+chair: speechsynth_en/chair.mp3
 cherry: speechsynth_en/cherry.mp3
+circle: speechsynth_en/circle.mp3
 city: speechsynth_en/city.mp3
+cold: speechsynth_en/cold.mp3
 color: speechsynth_en/color.mp3
 congratulations: speechsynth_en/congratulations.mp3
+corn: speechsynth_en/corn.mp3
+cricket: speechsynth_en/cricket.mp3
 cross: speechsynth_en/cross.mp3
+cucumber: speechsynth_en/cucumber.mp3
+dance: speechsynth_en/dance.mp3
+dancing: speechsynth_en/dancing.mp3
 daniel: speechsynth_en/daniel.mp3
 deepaka: speechsynth_en/deepaka.mp3
 deepakc: speechsynth_en/deepakc.mp3
@@ -153,7 +170,10 @@ dineshb: speechsynth_en/dineshb.mp3
 dineshc: speechsynth_en/dineshc.mp3
 do: speechsynth_en/do.mp3
 dog: speechsynth_en/dog.mp3
+draw: speechsynth_en/draw.mp3
+duck: speechsynth_en/duck.mp3
 ed: speechsynth_en/ed.mp3
+egg: speechsynth_en/egg.mp3
 elephant: speechsynth_en/elephant.mp3
 elephants: speechsynth_en/elephants.mp3
 equals: speechsynth_en/equals.mp3
@@ -162,8 +182,10 @@ eyes: speechsynth_en/eyes.mp3
 favorite: speechsynth_en/favorite.mp3
 fill in the blank: speechsynth_en/fill in the blank.mp3
 fish: speechsynth_en/fish.mp3
+football: speechsynth_en/football.mp3
 forget: speechsynth_en/forget.mp3
 fruit: speechsynth_en/fruit.mp3
+furniture: speechsynth_en/furniture.mp3
 get: speechsynth_en/get.mp3
 geza: speechsynth_en/geza.mp3
 gokul: speechsynth_en/gokul.mp3
@@ -174,15 +196,21 @@ gowthum: speechsynth_en/gowthum.mp3
 great: speechsynth_en/great.mp3
 guestuser: speechsynth_en/guestuser.mp3
 has: speechsynth_en/has.mp3
+hat: speechsynth_en/hat.mp3
 he carries his house on his back: speechsynth_en/he carries his house on his back.mp3
 he: speechsynth_en/he.mp3
 hemanth: speechsynth_en/hemanth.mp3
 his: speechsynth_en/his.mp3
+hockey: speechsynth_en/hockey.mp3
 holim: speechsynth_en/holim.mp3
+hot: speechsynth_en/hot.mp3
 house: speechsynth_en/house.mp3
 how: speechsynth_en/how.mp3
 hundred: speechsynth_en/hundred.mp3
+i: speechsynth_en/i.mp3
+igloo: speechsynth_en/igloo.mp3
 in: speechsynth_en/in.mp3
+india: speechsynth_en/india.mp3
 instead touch the letter that makes the sound: speechsynth_en/instead touch the letter that makes the sound.mp3
 instead type the letter: speechsynth_en/instead type the letter.mp3
 is: speechsynth_en/is.mp3
@@ -196,6 +224,7 @@ keerthana: speechsynth_en/keerthana.mp3
 kelsey: speechsynth_en/kelsey.mp3
 kiley: speechsynth_en/kiley.mp3
 letter: speechsynth_en/letter.mp3
+lettuce: speechsynth_en/lettuce.mp3
 like: speechsynth_en/like.mp3
 lion: speechsynth_en/lion.mp3
 lohith: speechsynth_en/lohith.mp3
@@ -207,6 +236,7 @@ manigandan: speechsynth_en/manigandan.mp3
 maryjessica: speechsynth_en/maryjessica.mp3
 melwin: speechsynth_en/melwin.mp3
 mice: speechsynth_en/mice.mp3
+milk: speechsynth_en/milk.mp3
 mini: speechsynth_en/mini.mp3
 minus: speechsynth_en/minus.mp3
 mishel: speechsynth_en/mishel.mp3
@@ -219,19 +249,32 @@ negative: speechsynth_en/negative.mp3
 never: speechsynth_en/never.mp3
 nikitham: speechsynth_en/nikitham.mp3
 nobody: speechsynth_en/nobody.mp3
+octopus: speechsynth_en/octopus.mp3
+of: speechsynth_en/of.mp3
 'on': speechsynth_en/on.mp3
+onion: speechsynth_en/onion.mp3
 orange: speechsynth_en/orange.mp3
+paint: speechsynth_en/paint.mp3
+painting: speechsynth_en/painting.mp3
 parrot: speechsynth_en/parrot.mp3
 pavithraa: speechsynth_en/pavithraa.mp3
 pavithrac: speechsynth_en/pavithrac.mp3
 pear: speechsynth_en/pear.mp3
+pencil: speechsynth_en/pencil.mp3
+pillow: speechsynth_en/pillow.mp3
+plane: speechsynth_en/plane.mp3
 plus: speechsynth_en/plus.mp3
 poojitha: speechsynth_en/poojitha.mp3
 poorna: speechsynth_en/poorna.mp3
 prabhakaran: speechsynth_en/prabhakaran.mp3
 priya: speechsynth_en/priya.mp3
 pushpa: speechsynth_en/pushpa.mp3
+rabbit: speechsynth_en/rabbit.mp3
+rain: speechsynth_en/rain.mp3
+rainy: speechsynth_en/rainy.mp3
 rajesh: speechsynth_en/rajesh.mp3
+read: speechsynth_en/read.mp3
+reading: speechsynth_en/reading.mp3
 red: speechsynth_en/red.mp3
 ree: speechsynth_en/ree.mp3
 river: speechsynth_en/river.mp3
@@ -249,30 +292,43 @@ savitha: speechsynth_en/savitha.mp3
 says: speechsynth_en/says.mp3
 see: speechsynth_en/see.mp3
 select a color: speechsynth_en/select a color.mp3
+shape: speechsynth_en/shape.mp3
 share this activity with one friend: speechsynth_en/share this activity with one friend.mp3
 share this with a friend: speechsynth_en/share this with a friend.mp3
 share this with one friend: speechsynth_en/share this with one friend.mp3
 share: speechsynth_en/share.mp3
 shared with: speechsynth_en/shared with.mp3
 shruthi: speechsynth_en/shruthi.mp3
+sing: speechsynth_en/sing.mp3
+singing: speechsynth_en/singing.mp3
 six: speechsynth_en/six.mp3
 snail: speechsynth_en/snail.mp3
+sock: speechsynth_en/sock.mp3
+sofa: speechsynth_en/sofa.mp3
 spell the word: speechsynth_en/spell the word.mp3
 spelled: speechsynth_en/spelled.mp3
+sport: speechsynth_en/sport.mp3
+square: speechsynth_en/square.mp3
+star: speechsynth_en/star.mp3
 starts with the letter: speechsynth_en/starts with the letter.mp3
 starts with the sound: speechsynth_en/starts with the sound.mp3
 starts: speechsynth_en/starts.mp3
 strongest: speechsynth_en/strongest.mp3
 success: speechsynth_en/success.mp3
 sumithra: speechsynth_en/sumithra.mp3
+sun: speechsynth_en/sun.mp3
 supriya: speechsynth_en/supriya.mp3
 swetha: speechsynth_en/swetha.mp3
+swim: speechsynth_en/swim.mp3
+swimming: speechsynth_en/swimming.mp3
+table: speechsynth_en/table.mp3
 tablet: speechsynth_en/tablet.mp3
 talkie: speechsynth_en/talkie.mp3
 teachera: speechsynth_en/teachera.mp3
 teacherb: speechsynth_en/teacherb.mp3
 teacherc: speechsynth_en/teacherc.mp3
 tells: speechsynth_en/tells.mp3
+tennis: speechsynth_en/tennis.mp3
 the word: speechsynth_en/the word.mp3
 the: speechsynth_en/the.mp3
 them: speechsynth_en/them.mp3
@@ -283,14 +339,20 @@ tiger: speechsynth_en/tiger.mp3
 to: speechsynth_en/to.mp3
 touch the letter that makes the sound: speechsynth_en/touch the letter that makes the sound.mp3
 touch the speaker buttons to hear the joke: speechsynth_en/touch the speaker buttons to hear the joke.mp3
+train: speechsynth_en/train.mp3
+transportation: speechsynth_en/transportation.mp3
 tree: speechsynth_en/tree.mp3
+triangle: speechsynth_en/triangle.mp3
 try again: speechsynth_en/try again.mp3
 type the letter: speechsynth_en/type the letter.mp3
 type the word: speechsynth_en/type the word.mp3
 type: speechsynth_en/type.mp3
+umbrella: speechsynth_en/umbrella.mp3
+vegetable: speechsynth_en/vegetable.mp3
 vidhyashree: speechsynth_en/vidhyashree.mp3
 walkie: speechsynth_en/walkie.mp3
 want: speechsynth_en/want.mp3
+weather: speechsynth_en/weather.mp3
 what do you get when you cross a parrot with a centipede: speechsynth_en/what do you get when you cross a parrot with a centipede.mp3
 what has six eyes but cannot see: speechsynth_en/what has six eyes but cannot see.mp3
 what is the strongest animal: speechsynth_en/what is the strongest animal.mp3
@@ -307,6 +369,8 @@ with whom do you want to share this activity: speechsynth_en/with whom do you wa
 with: speechsynth_en/with.mp3
 word: speechsynth_en/word.mp3
 would: speechsynth_en/would.mp3
+write: speechsynth_en/write.mp3
+writing: speechsynth_en/writing.mp3
 wrong: speechsynth_en/wrong.mp3
 yashodha: speechsynth_en/yashodha.mp3
 you spelled the word: speechsynth_en/you spelled the word.mp3
