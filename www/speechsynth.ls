@@ -78,6 +78,10 @@ synthesize_word_uncached_real = (play_id, word, synth_lang, callback) ->
     if callback?
       callback()
     return
+  if audio_disabled
+    if callback?
+      callback()
+    return
   console.log 'word is not cached: ' + word
   msg = new SpeechSynthesisUtterance()
   msg.text = word

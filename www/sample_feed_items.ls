@@ -48,7 +48,6 @@ export getFeedWordList = ->
     'square'
     'cricket'
     'dance'
-    'football'
     'tennis'
     'hockey'
     'horse'
@@ -86,7 +85,7 @@ export getFillBlankSentencesWithCategories = ->
     ['My favorite fruit is the ________.', 'fruit']
     ['My favorite shape is the ________.', 'shape']
     ['My favorite sport is ________.', 'sport']
-    ['My favorite vegetable is _______.', 'vegetable']
+    ['My favorite vegetable is ________.', 'vegetable']
     ['My favorite type of furniture is a ________.', 'furniture']
     ['I like to ________.', 'activity']
     ['My favorite type of weather is ________.', 'weather']

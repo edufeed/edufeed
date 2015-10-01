@@ -102,6 +102,12 @@
       }
       return;
     }
+    if (audio_disabled) {
+      if (callback != null) {
+        callback();
+      }
+      return;
+    }
     console.log('word is not cached: ' + word);
     msg = new SpeechSynthesisUtterance();
     msg.text = word;

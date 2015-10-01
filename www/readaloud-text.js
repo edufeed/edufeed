@@ -113,7 +113,7 @@
       return play_multiple_sounds(self.separateSentences());
     },
     sentenceClicked: function(obj, evt){
-      return this.playSentenceAtOnce();
+      return this.playSentence();
     },
     playWord: function(wordidx){
       var self, word, wordspan;

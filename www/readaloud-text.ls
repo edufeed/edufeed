@@ -84,7 +84,11 @@ Polymer {
     self = this
     play_multiple_sounds self.separateSentences()
   sentenceClicked: (obj, evt) ->
-    this.playSentenceAtOnce()
+    this.playSentence()
+    # If you set audio to true, the playsentenceatonce
+    # Will not work for fillblank activities, as it is
+    # implemented now
+    #this.playSentenceAtOnce()
   playWord: (wordidx) ->
     self = this
     word = this.wordlist[wordidx]
