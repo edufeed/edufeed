@@ -28,7 +28,8 @@ Polymer {
   # Switches the checkmark to the avatar sent to the function
   # and removes all checkmarks from other avatars
   switchCheckmark: (avatar) ->
-    classmates = this.S('#classmate_avatars').children()
+    self = this
+    classmates = self.S('#classmate_avatars').children()
     for classmate in classmates
       if classmate.checked
         classmate.checked = false
@@ -68,14 +69,30 @@ Polymer {
     maxSharedWith = 1
     for let classmate in classmates
       avatar = $("<user-avatar username='#{classmate}' size='m'>").css({'cursor': 'pointer', 'display': 'inline-block'})
+      big_avatar = $("<user-avatar username='#{classmate}' size='l'>").css({'display': 'none'})
       avatar.click ->
         #synthesize_multiple_words ['shared with', classmate]
 
         # Only check the last one tapped
+        # & change the UI to only show the big
+        # Avatar
+        if not avatar.prop('checked')
+          self.switchCheckmark(avatar)
+          self.S('#classmate_avatars').css({'display':'none'})
+          big_avatar.css({'display': 'inline'})
+          self.S('#finishedbutton').css({'display':'none'})
+        else
+          avatar.prop('checked', false)
+          big_avatar.css({'display': 'none'})
+
+      big_avatar.click ->
+        self.closeTaskFinishedDisplay()
+
+        /* # Only check the last one tapped
         if not avatar.prop('checked')
           self.switchCheckmark(avatar)
         else
-          avatar.prop('checked', false)
+          avatar.prop('checked', false)*/
 
         /* # Only toggle on and off checking
         if avatar.prop('checked')
@@ -87,6 +104,7 @@ Polymer {
         #self.fire 'share-activity', {username: classmate}
           
       avatar.appendTo self.S('#classmate_avatars')
+      big_avatar.appendTo self.S('#sharedwith')
     #username <- getUsername()
     #console.log 'your username is:'
     #console.log username
