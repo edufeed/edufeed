@@ -194,8 +194,15 @@ Polymer {
     noSharedMax = 4
 
     if origItems.length <= maxLength
+      # Hack
+      # Make sure that there are no left over readaloud and dots activites
       console.log 'origItems only has ' + origItems.length + ' items'
-      return origItems
+
+      newOrigItems = []
+      for item in origItems
+        if item.itemtype != 'dots' and item.itemtype != 'readaloud'
+          newOrigItems.push(item)
+      return newOrigItems
 
     # Get ready to filter the list
     filteredList = []
@@ -207,12 +214,13 @@ Polymer {
     for item in origItems
       if item.itemtype == 'admin'
         adminItem.push(item)
-      else if not item.social?
-        noSharedItemsList.push(item)
-      else if item.social.poster not in classmates
-        noSharedItemsList.push(item)
-      else
-        sharedItemsList.push(item)
+      else if item.itemtype != 'dots' and item.itemtype != 'readaloud'
+        if not item.social?
+          noSharedItemsList.push(item)
+        else if item.social.poster not in classmates
+          noSharedItemsList.push(item)
+        else
+          sharedItemsList.push(item)
 
     console.log 'origItems length: ' + origItems.length
     console.log 'noSharedItemsList length: ' + noSharedItemsList.length
