@@ -64,7 +64,7 @@
         }, 1000);
         return getUsername(function(username){
           return getClassmates(username, function(all_classmates){
-            var res$, i$, len$, x, classmates, classmatesPicked, maxShareTo, i, maxSharedWith, results$ = [];
+            var res$, i$, len$, x, classmates, classmatesPicked, maxShareTo, i;
             res$ = [];
             for (i$ = 0, len$ = all_classmates.length; i$ < len$; ++i$) {
               x = all_classmates[i$];
@@ -86,45 +86,52 @@
                 classmatesPicked += 1;
               }
             }
-            maxSharedWith = 1;
-            for (i$ = 0, len$ = classmates.length; i$ < len$; ++i$) {
-              results$.push((fn$.call(this, classmates[i$])));
-            }
-            return results$;
-            function fn$(classmate){
-              var avatar, big_avatar;
-              avatar = $("<user-avatar username='" + classmate + "' size='m'>").css({
-                'cursor': 'pointer',
-                'display': 'inline-block'
-              });
-              big_avatar = $("<user-avatar username='" + classmate + "' size='l'>").css({
-                'display': 'none'
-              });
-              avatar.click(function(){
-                if (!avatar.prop('checked')) {
-                  self.switchCheckmark(avatar);
-                  self.S('#classmate_avatars').css({
-                    'display': 'none'
-                  });
-                  big_avatar.css({
-                    'display': 'inline'
-                  });
-                  return self.S('#finishedbutton').css({
-                    'display': 'none'
-                  });
-                } else {
-                  avatar.prop('checked', false);
-                  return big_avatar.css({
-                    'display': 'none'
-                  });
-                }
-              });
-              big_avatar.click(function(){
-                return self.closeTaskFinishedDisplay();
-              });
-              avatar.appendTo(self.S('#classmate_avatars'));
-              return big_avatar.appendTo(self.S('#sharedwith'));
-            }
+            return getUsersBFF(username, function(bestFriend){
+              var i, maxSharedWith, i$, ref$, len$, results$ = [];
+              if (bestFriend != null) {
+                i = Math.floor(Math.random() * classmates.length);
+                classmates[i] = bestFriend;
+              }
+              maxSharedWith = 1;
+              for (i$ = 0, len$ = (ref$ = classmates).length; i$ < len$; ++i$) {
+                results$.push((fn$.call(this, ref$[i$])));
+              }
+              return results$;
+              function fn$(classmate){
+                var avatar, big_avatar;
+                avatar = $("<user-avatar username='" + classmate + "' size='m'>").css({
+                  'cursor': 'pointer',
+                  'display': 'inline-block'
+                });
+                big_avatar = $("<user-avatar username='" + classmate + "' size='l'>").css({
+                  'display': 'none'
+                });
+                avatar.click(function(){
+                  if (!avatar.prop('checked')) {
+                    self.switchCheckmark(avatar);
+                    self.S('#classmate_avatars').css({
+                      'display': 'none'
+                    });
+                    big_avatar.css({
+                      'display': 'inline'
+                    });
+                    return self.S('#finishedbutton').css({
+                      'display': 'none'
+                    });
+                  } else {
+                    avatar.prop('checked', false);
+                    return big_avatar.css({
+                      'display': 'none'
+                    });
+                  }
+                });
+                big_avatar.click(function(){
+                  return self.closeTaskFinishedDisplay();
+                });
+                avatar.appendTo(self.S('#classmate_avatars'));
+                return big_avatar.appendTo(self.S('#sharedwith'));
+              }
+            });
           });
         });
       });

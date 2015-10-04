@@ -93,6 +93,19 @@ export getClasses = memoizeSingleAsync (callback) ->
     data = jsyaml.safeLoad(yamltxt)
     callback data
 
+export getBFFs = memoizeSingleAsync (callback) ->
+  $.get '/bestfriends.yaml', (yamltxt) ->
+    data = jsyaml.safeLoad(yamltxt)
+    callback data
+
+export getUsersBFF = (username, callback) ->
+  friends <- getBFFs()
+  if username in Object.keys(friends)
+    if friends[username]?
+      callback friends[username]
+      return
+  callback null
+
 export getUsersClass = (username, callback) ->
   classes <- getClasses()
   for classname, classinfo of classes

@@ -65,6 +65,13 @@ Polymer {
       if all_classmates[i] not in classmates
         classmates.push(all_classmates[i])
         classmatesPicked += 1
+
+    # Make sure we add the users best friend
+    bestFriend <- getUsersBFF(username)
+    if bestFriend?
+      # Randomly replace one of the sharees
+      i = Math.floor(Math.random() * classmates.length)
+      classmates[i] = bestFriend
     
     maxSharedWith = 1
     for let classmate in classmates
