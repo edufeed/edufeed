@@ -387,7 +387,7 @@ function RotateBeam()
         var number = SpokenNum()
 
         play_multiple_sounds(number, function() {
-                setTimeout(finishActivity, 1000); // wait 1 second before going to the finished screen
+                setTimeout(finishActivity, 2000); // wait 2 seconds before going to the finished screen
             });
     }
 

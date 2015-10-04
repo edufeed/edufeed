@@ -66,8 +66,8 @@
     <img width="370px" height="400px" id="calloutbubble" src="callout-bubble.svg">
     <img width="370px" height="400px" id="bubble" src="bubble.svg" >
     <div>
+      <div style="float: left; width: 270px; vertical-align: text-top">
       <user-avatar id="posterbelow" style="float: left" username="{{poster}}"></user-avatar>
-      <div style="float: left; width: 270px">
       <template is="dom-repeat" items="{{finishedby}}" as="user">
         <user-avatar username="{{user}}" size="s" style="vertical-align: top"></user-avatar>
       </template>
