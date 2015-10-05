@@ -44,7 +44,6 @@ export getFeedWordList = ->
     'carrot'
     'chair'
     'circle'
-    'triangle'
     'square'
     'cricket'
     'dance'
