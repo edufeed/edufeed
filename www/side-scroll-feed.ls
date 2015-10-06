@@ -195,12 +195,12 @@ Polymer {
 
     if origItems.length <= maxLength
       # Hack
-      # Make sure that there are no left over readaloud and dots activites
+      # Make sure that there are no left over readaloud, typeletter, and dots activites
       console.log 'origItems only has ' + origItems.length + ' items'
 
       newOrigItems = []
       for item in origItems
-        if item.itemtype != 'dots' and item.itemtype != 'readaloud'
+        if item.itemtype != 'dots' and item.itemtype != 'readaloud' and item.itemtype != 'typeletter' and item.itemtype != 'bars'
           newOrigItems.push(item)
       return newOrigItems
 
@@ -214,7 +214,7 @@ Polymer {
     for item in origItems
       if item.itemtype == 'admin'
         adminItem.push(item)
-      else if item.itemtype != 'dots' and item.itemtype != 'readaloud'
+      else if item.itemtype != 'dots' and item.itemtype != 'readaloud' and item.itemtype != 'typeletter' and item.itemtype != 'bars'
         if not item.social?
           noSharedItemsList.push(item)
         else if item.social.poster not in classmates
@@ -277,7 +277,10 @@ Polymer {
     console.log 'filtered list length: ' + filteredList.length
     filteredList = filteredList ++ adminItem
     return filteredList
-
+  itemtype_and_poster_matches: (item1, item2) ->
+    if item1.itemtype == item2.itemtype and item1.social.poster == item2.social.poster
+      return true
+    return false
   updateItems: (firstvisit) ->
     self = this
     username <- getUsername()
@@ -301,6 +304,7 @@ Polymer {
       if matching_finished_items.length > 0
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username)
+    noDuplicateItemsList = self.
     sortedItems = self.sortByUpdateTime(noFinishedItemsList)
     filteredItems = self.filterItems(sortedItems, classmates)
     self.items = self.sortByUpdateTime(filteredItems)
