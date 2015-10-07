@@ -347,6 +347,32 @@
       filteredList = filteredList.concat(adminItem);
       return filteredList;
     },
+    removeDuplicates: function(origItems){
+      var noDuplicates, isDuplicate, i$, len$, item1, j$, len1$, item2;
+      noDuplicates = [origItems[0]];
+      isDuplicate = false;
+      for (i$ = 0, len$ = origItems.length; i$ < len$; ++i$) {
+        item1 = origItems[i$];
+        for (j$ = 0, len1$ = noDuplicates.length; j$ < len1$; ++j$) {
+          item2 = noDuplicates[j$];
+          if (itemtype_and_data_matches(item2, item1)) {
+            if (item2.social != null && item1.social != null) {
+              if (item2.social.poster === item1.social.poster) {
+                isDuplicate = true;
+              }
+            } else {
+              isDuplicate = true;
+            }
+          }
+        }
+        if (!isDuplicate) {
+          noDuplicates.push(item1);
+        } else {
+          isDuplicate = false;
+        }
+      }
+      return noDuplicates;
+    },
     updateItems: function(firstvisit){
       var self;
       self = this;
@@ -372,7 +398,7 @@
                 }].concat(docs);
               }
               return getFinishedItems(function(finished_items){
-                var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x, noFinishedItemsList, sortedItems, filteredItems;
+                var i$, ref$, len$, doc, matching_finished_items, res$, j$, len1$, x, noFinishedItemsList, noDuplicateItemsList, sortedItems, filteredItems;
                 self.finished_items = finished_items;
                 for (i$ = 0, len$ = (ref$ = docs).length; i$ < len$; ++i$) {
                   doc = ref$[i$];
@@ -393,7 +419,8 @@
                   }
                 }
                 noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username);
-                sortedItems = self.sortByUpdateTime(noFinishedItemsList);
+                noDuplicateItemsList = self.removeDuplicates(noFinishedItemsList);
+                sortedItems = self.sortByUpdateTime(noDuplicateItemsList);
                 filteredItems = self.filterItems(sortedItems, classmates);
                 self.items = self.sortByUpdateTime(filteredItems);
                 if (firstvisit != null && firstvisit) {

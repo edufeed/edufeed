@@ -277,10 +277,23 @@ Polymer {
     console.log 'filtered list length: ' + filteredList.length
     filteredList = filteredList ++ adminItem
     return filteredList
-  itemtype_and_poster_matches: (item1, item2) ->
-    if item1.itemtype == item2.itemtype and item1.social.poster == item2.social.poster
-      return true
-    return false
+  # Remove any duplicate items from the feed
+  removeDuplicates: (origItems) ->
+    noDuplicates = [origItems[0]]
+    isDuplicate = false
+    for item1 in origItems
+      for item2 in noDuplicates
+        if itemtype_and_data_matches(item2, item1)
+          if item2.social? and item1.social?
+            if item2.social.poster == item1.social.poster
+              isDuplicate = true
+          else
+            isDuplicate = true
+      if not isDuplicate
+        noDuplicates.push(item1)
+      else
+        isDuplicate = false
+    return noDuplicates
   updateItems: (firstvisit) ->
     self = this
     username <- getUsername()
@@ -304,8 +317,8 @@ Polymer {
       if matching_finished_items.length > 0
         doc.social.finishedby = matching_finished_items[0].social.finishedby
     noFinishedItemsList = self.removeFinishedItems(docs, finished_items, username)
-    noDuplicateItemsList = self.
-    sortedItems = self.sortByUpdateTime(noFinishedItemsList)
+    noDuplicateItemsList = self.removeDuplicates(noFinishedItemsList)
+    sortedItems = self.sortByUpdateTime(noDuplicateItemsList)
     filteredItems = self.filterItems(sortedItems, classmates)
     self.items = self.sortByUpdateTime(filteredItems)
     if firstvisit? and firstvisit
