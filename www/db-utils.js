@@ -350,7 +350,50 @@
     callback finished_items
   */
   out$.getFinishedItems = getFinishedItems = function(callback){
-    return callback([]);
+    return getUsername(function(username){
+      var classmates, classmate_to_items;
+      classmates = [username];
+      classmate_to_items = {};
+      return async.each(classmates, function(classmate, ncallback){
+        return getItems("finisheditems_" + classmate, function(finished_items){
+          classmate_to_items[classmate] = finished_items;
+          return ncallback(null, null);
+        });
+      }, function(){
+        var output, i$, ref$, len$, classmate, items_finished_by_classmate, j$, len1$, item, matching_items, res$, k$, len2$, x;
+        output = [];
+        for (i$ = 0, len$ = (ref$ = classmates).length; i$ < len$; ++i$) {
+          classmate = ref$[i$];
+          items_finished_by_classmate = classmate_to_items[classmate];
+          for (j$ = 0, len1$ = items_finished_by_classmate.length; j$ < len1$; ++j$) {
+            item = items_finished_by_classmate[j$];
+            res$ = [];
+            for (k$ = 0, len2$ = output.length; k$ < len2$; ++k$) {
+              x = output[k$];
+              if (itemtype_and_data_matches(item, x)) {
+                res$.push(x);
+              }
+            }
+            matching_items = res$;
+            if (matching_items.length > 0) {
+              item = matching_items[0];
+            } else {
+              output.push(item);
+            }
+            if (item.social == null) {
+              item.social = {};
+            }
+            if (item.social.finishedby == null) {
+              item.social.finishedby = [];
+            }
+            if (item.social.finishedby.indexOf(classmate) === -1) {
+              item.social.finishedby.push(classmate);
+            }
+          }
+        }
+        return callback(output);
+      });
+    });
   };
   function repeatString$(str, n){
     for (var r = ''; n > 0; (n >>= 1) && (str += str)) if (n & 1) r += str;

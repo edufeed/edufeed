@@ -248,10 +248,10 @@ export getFinishedItems = (callback) ->
 */
 
 export getFinishedItems = (callback) ->
-  callback []
   # outputs a list of finished items, with the item.social.finishedby populated.
-  /*username <- getUsername()
-  classmates <- getClassmates(username)
+  username <- getUsername()
+  # only look at your own finished items.
+  classmates = [username] #getClassmates(username)
   classmate_to_items = {}
   async.each classmates, (classmate, ncallback) ->
     getItems "finisheditems_#{classmate}", (finished_items) ->
@@ -273,4 +273,4 @@ export getFinishedItems = (callback) ->
           item.social.finishedby = []
         if item.social.finishedby.indexOf(classmate) == -1
           item.social.finishedby.push classmate
-    callback output*/
+    callback output
