@@ -115,6 +115,8 @@ The speech is also cached in base64-format strings in the file [filecache.js](ht
 node scripts/make_filecache.js
 ```
 
+Another way to cache speech by hand and to ensure it has an Indian accent is by going to [http://soundoftext.com/](http://soundoftext.com/), changing the language to Hindi, and submitting and downloading the appropriate English word to the folder, as explained above.
+
 ## Generating the directory listing yaml files
 
 The script [make_directory_listings.ls](https://github.com/edufeed/edufeed/blob/master/scripts/make_directory_listings.ls) automates the task of generating the [image_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/image_paths.yaml), [profilepic_paths.yaml](https://github.com/edufeed/edufeed/blob/master/www/profilepic_paths.yaml), and [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en) files based on the contents of the corresponding directories ([images](https://github.com/edufeed/edufeed/tree/master/www/images), [profilepics](https://github.com/edufeed/edufeed/tree/master/www/profilepics), [speechsynth_en](https://github.com/edufeed/edufeed/tree/master/www/speechsynth_en)). Run it using:
@@ -134,6 +136,10 @@ node scripts/download_videos.js
 ```
 
 An example of adding a new activity consisting of a video playlist is shown [here](https://github.com/edufeed/edufeed/commit/d1ab10250cd454393361bf089a0f9b42dfcbe6ba)
+
+## Audio
+There is a global variable named `audio_disabled` in [speechsynth.ls](https://github.com/edufeed/edufeed/blob/master/www/speechsynth.ls#L2). If you set this variable to `true`, then all audio will be turned off in the device. Because of this, there is a timeout in [www/balance.js](https://github.com/edufeed/edufeed/blob/master/www/balance.js#L390), [www/addition.js](https://github.com/edufeed/edufeed/blob/master/www/addition.js#L149), and [www/subtraction.js](https://github.com/edufeed/edufeed/blob/master/www/subtraction.js#L161) so that it waits a second before moving onto the next screen.
+
 
 ## Logs
 
