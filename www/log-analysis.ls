@@ -9,8 +9,9 @@ item_matches_query = (item, query) ->
 export filter_by_query = (logs, query) ->
   return [x for x in logs when item_matches_query(x, query)]
 
-filter_out_activities = (logs, ignored_activities) ->
-  return [x for x in logs when ignored_activities.indexOf(x.itemtype) == -1]
+filter_out_activities = (logs, ignored_activities, ignore_before_timestamp) ->
+  noIgnoredActivities = [x for x in logs when ignored_activities.indexOf(x.itemtype) == -1]
+  return [x for x in noIgnoredActivities when x.updatetime >= ignore_before_timestamp]
 
 itemtype_and_data_matches_v2 = (item1, item2) ->
   # returns true if all keys and values in item1 are present in item2
@@ -25,7 +26,9 @@ export makeLogAnalyzer = (orig_logs, options) ->
     options = {}
   if not options.ignored_activities?
     options.ignored_activities = []
-  logs = filter_out_activities(orig_logs, options.ignored_activities)
+  if not options.ignore_before_timestamp?
+    options.ignore_before_timestamp = 0
+  logs = filter_out_activities(orig_logs, options.ignored_activities, options.ignore_before_timestamp)
 
   @select_query = (query) ~>
     return filter_by_query(logs, query)
@@ -166,7 +169,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
 export getLogAnalysisResults = (logs) ->
   #analyzer = makeLogAnalyzer(logs, {ignored_activities: ['admin']})
-  analyzer = makeLogAnalyzer(logs, {ignored_activities: []})
+  analyzer = makeLogAnalyzer(logs, {ignored_activities: ['typeletter', 'bars', 'dots', 'readaloud', 'lettervideo', 'numbervideo','admin'], ignore_before_timestamp: 1444029300000})
   return analyzer.getResults()
 
 export getLogAnalysisResultsAsString = (logs) ->
