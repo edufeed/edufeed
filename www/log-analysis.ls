@@ -1,3 +1,7 @@
+require! {
+  yamlfile
+}
+
 item_matches_query = (item, query) ->
   if not query?
     return true
@@ -30,6 +34,34 @@ export makeLogAnalyzer = (orig_logs, options) ->
     options.ignore_before_timestamp = 0
   logs = filter_out_activities(orig_logs, options.ignored_activities, options.ignore_before_timestamp)
 
+  @all_item_types = ~>
+    return ['typeword', 'typeletter', 'balance', 'addition', 'subtraction', 'fillblank', 'fillblanksocial']
+
+  @all_posters = ~>
+    allusers = []
+    allusers_set = {}
+    all_classes = yamlfile.readFileSync('www/classes.yaml')
+    for classname,classinfo of all_classes
+      if not classinfo.users?
+        continue
+      for username in classinfo.users
+        if not allusers_set[username]?
+          allusers_set[username] = true
+          allusers.push username
+    return allusers
+
+  @addAllItemTypes = (itemList) ~>
+    allItemTypes = all_item_types()
+    for itemtype in allItemTypes
+      if itemtype not in Object.keys(itemList)
+        itemList[itemtype] = 0
+    return itemList
+
+  @addAllPosters = (posterList, allPosters) ~>
+    for poster in allPosters
+      if poster not in Object.keys(posterList)
+        posterList[poster] = 0
+    return posterList
   @select_query = (query) ~>
     return filter_by_query(logs, query)
 
@@ -46,7 +78,8 @@ export makeLogAnalyzer = (orig_logs, options) ->
     return unique_share_events.length
 
   @target_users_for_sharing = ~>
-    target_users = {}
+    allPosters = all_posters()
+    target_users = addAllPosters({}, allPosters)
     all_share_events = select_query({event: 'shareactivity'})
     for share_event in all_share_events
       share_target = share_event.targetuser
@@ -59,7 +92,8 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
   @posters_for_event_type = (event_type) ~>
     matching_events = select_query({event: event_type})
-    posters = {}
+    allPosters = all_posters()
+    posters = addAllPosters({}, allPosters)
     for evt in matching_events
       item = evt.item
       if not item? or not item.social?
@@ -74,7 +108,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
   @itemtype_for_event_type = (event_type) ~>
     matching_events = select_query({event: event_type})
-    item_types = {}
+    item_types = addAllItemTypes({})
     for evt in matching_events
       item = evt.item
       if not item?
@@ -84,7 +118,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
         continue
       if not item_types[itemtype]?
         item_types[itemtype] = 0
-      item_types[itemtype] += 1
+      item_types[itemtype] += 1  
     return item_types
 
   @app_open_duration = ~>
@@ -113,7 +147,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
   @time_spent_on_activity_types = ~>
     open_events = select_query({event: 'app-still-open'})
-    output = {}
+    output = addAllItemTypes({})
     for evt in open_events
       if not evt.postinterval?
         continue
@@ -126,7 +160,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
   @active_time_spent_on_activity_types = ~>
     open_events = select_query({event: 'app-still-open'})
-    output = {}
+    output = addAllItemTypes({})
     for evt in open_events
       if not evt.postinterval?
         continue
@@ -146,6 +180,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
     return output
 
   @getResults = ~>
+    allPosters = all_posters()
     output = {}
     output['number of activities started'] = count_event_type('task-started')
     output['number of activities finished'] = count_event_type('task-finished')
@@ -161,8 +196,8 @@ export makeLogAnalyzer = (orig_logs, options) ->
     output['types of activities left'] = itemtype_for_event_type('task-left')
     output['total duration app has been open in seconds (within 10 seconds including idle time)'] = app_open_duration()
     output['total duration app has been active (excluding idle periods greater than 10 seconds)'] = app_active_duration()
-    output['total time spent on each activity type (within 10 seconds including idle time)'] = time_spent_on_activity_types()
-    output['total active time spent on each activity type (excluding idle periods greater than 10 seconds)'] = active_time_spent_on_activity_types()
+    output['total time spent on each activity type (within 10 seconds including idle time)'] = addAllItemTypes(time_spent_on_activity_types())
+    output['total active time spent on each activity type (excluding idle periods greater than 10 seconds)'] = addAllItemTypes(active_time_spent_on_activity_types())
     return output
 
   return this

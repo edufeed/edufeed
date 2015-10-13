@@ -22,6 +22,13 @@ main = ->
     console.log err
     return
   logs = [x.doc for x in results.rows]
-  console.log getLogAnalysisResultsAsString(logs)
+  logsString = getLogAnalysisResultsAsString(logs)
+  console.log logsString
+
+  (err) <- fs.writeFile("logs_#{username}.JSON", logsString)
+  if err
+    console.log err
+  else
+    console.log("log created for #{username}")
 
 main()
