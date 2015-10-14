@@ -191,8 +191,8 @@ export getPosterLists = ->
 
     'classtest':
       [
-      'tablet'
-      'teacherb'
+        'tablet'
+        'teacher'
       ]
 
     'other':
@@ -265,15 +265,15 @@ export getAllFeedItems = ->
   all_feed_items_cache := {
     #defaults
     #bars
-    #dots
+    dots
     typeword
     typeletter
-    #readaloud
+    readaloud
     balance
     addition
     subtraction
-    #lettervideo
-    #numbervideo
+    lettervideo
+    numbervideo
     fillblank
     fillblanksocial
     #admin
@@ -391,26 +391,27 @@ export getSampleFeedItems = ->
   classB = 'classb'
   classC = 'classc'
   tablet = 'tablet'
+  classtest = 'classtest'
 
   bars_a = barsTasks(classA)
   bars_b = barsTasks(classB)
   bars_c = barsTasks(classC)
-  bars = barsTasks(tablet)
+  bars = barsTasks(classtest)
 
   dots_a = dotsTasks(classA)
   dots_b = dotsTasks(classB)
   dots_c = dotsTasks(classC)
-  dots = dotsTasks(tablet)
+  dots = dotsTasks(classtest)
 
   typeletter_a = typeletterTasks(classA)
   typeletter_b = typeletterTasks(classB)
   typeletter_c = typeletterTasks(classC)
-  typeletter = typeletterTasks(tablet)
+  typeletter = typeletterTasks(classtest)
   
   typeword_a = typewordTasks(classA)
   typeword_b = typewordTasks(classB)
   typeword_c = typewordTasks(classC)
-  typeword = typewordTasks(tablet)
+  typeword = typewordTasks(classtest)
   
   #balance =
   #  [{itemtype: 'iframe', data: {activitypage: 'balance.html', thumbnailpage: 'balance.html', params: {number: number}}, social: {poster: 'tablet'}} for number in [1, 3, 9, 20, 34, 100]]
@@ -418,42 +419,42 @@ export getSampleFeedItems = ->
   balance_a = balanceTasks(classA)
   balance_b = balanceTasks(classB)
   balance_c = balanceTasks(classC)
-  balance = balanceTasks(tablet)
+  balance = balanceTasks(classtest)
   
   addition_a = additionTasks(classA)
   addition_b = additionTasks(classB)
   addition_c = additionTasks(classC)
-  addition = additionTasks(tablet)
+  addition = additionTasks(classtest)
   
   subtraction_a = subtractionTasks(classA)
   subtraction_b = subtractionTasks(classB)
   subtraction_c = subtractionTasks(classC)
-  subtraction = subtractionTasks(tablet)
+  subtraction = subtractionTasks(classtest)
 
   lettervideo_a = lettervideoTasks(classA)
   lettervideo_b = lettervideoTasks(classB)
   lettervideo_c = lettervideoTasks(classC)
-  lettervideo = lettervideoTasks(tablet)
+  lettervideo = lettervideoTasks(classtest)
 
   numbervideo_a = numbervideoTasks(classA)
   numbervideo_b = numbervideoTasks(classB)
   numbervideo_c = numbervideoTasks(classC)
-  numbervideo = numbervideoTasks(tablet)
+  numbervideo = numbervideoTasks(classtest)
   
   readaloud_a = readaloudTasks(classA)
   readaloud_b = readaloudTasks(classB)
   readaloud_c = readaloudTasks(classC)
-  readaloud = readaloudTasks(tablet)
+  readaloud = readaloudTasks(classtest)
 
   fillblank_a = fillblankTasks(classA)
   fillblank_b = fillblankTasks(classB)
   fillblank_c = fillblankTasks(classC)
-  fillblank = fillblankTasks(tablet)
+  fillblank = fillblankTasks(classtest)
 
   fillblanksocial_a = fillblanksocialTasks(classA)
   fillblanksocial_b = fillblanksocialTasks(classB)
   fillblanksocial_c = fillblanksocialTasks(classC)
-  fillblanksocial = fillblanksocialTasks(tablet)
+  fillblanksocial = fillblanksocialTasks(classtest)
 
   admin =
     [{itemtype: 'admin', social: {poster: 'tablet'}}]
@@ -481,16 +482,16 @@ export getSampleFeedItems = ->
     defaults_a
     defaults_b
     defaults_c
-    bars
-    #dots
+    #bars
+    dots
     typeword
     typeletter
-    #readaloud
+    readaloud
     balance
     addition
     subtraction
-    #lettervideo
-    #numbervideo
+    lettervideo
+    numbervideo
     fillblank
     fillblanksocial
     admin

@@ -35,7 +35,7 @@
       'classa': ['tablet'],
       'classb': ['tablet', 'teacherb'],
       'classc': ['tablet', 'teacherc'],
-      'classtest': ['tablet', 'teacherb'],
+      'classtest': ['tablet', 'teacher'],
       'other': ['tablet']
     };
   };
@@ -284,11 +284,15 @@
     }
     fillblanksocial = res$;
     all_feed_items_cache = {
+      dots: dots,
       typeword: typeword,
       typeletter: typeletter,
+      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,
+      lettervideo: lettervideo,
+      numbervideo: numbervideo,
       fillblank: fillblank,
       fillblanksocial: fillblanksocial
     };
@@ -581,7 +585,7 @@
     return fillblanksocial;
   };
   out$.getSampleFeedItems = getSampleFeedItems = function(){
-    var wordlist, readinglist, videolists, fillblanklist, wordcategories, classA, classB, classC, tablet, bars_a, bars_b, bars_c, bars, dots_a, dots_b, dots_c, dots, typeletter_a, typeletter_b, typeletter_c, typeletter, typeword_a, typeword_b, typeword_c, typeword, balance_a, balance_b, balance_c, balance, addition_a, addition_b, addition_c, addition, subtraction_a, subtraction_b, subtraction_c, subtraction, lettervideo_a, lettervideo_b, lettervideo_c, lettervideo, numbervideo_a, numbervideo_b, numbervideo_c, numbervideo, readaloud_a, readaloud_b, readaloud_c, readaloud, fillblank_a, fillblank_b, fillblank_c, fillblank, fillblanksocial_a, fillblanksocial_b, fillblanksocial_c, fillblanksocial, admin, example, iframe, defaults, defaults_a, defaults_b, defaults_c;
+    var wordlist, readinglist, videolists, fillblanklist, wordcategories, classA, classB, classC, tablet, classtest, bars_a, bars_b, bars_c, bars, dots_a, dots_b, dots_c, dots, typeletter_a, typeletter_b, typeletter_c, typeletter, typeword_a, typeword_b, typeword_c, typeword, balance_a, balance_b, balance_c, balance, addition_a, addition_b, addition_c, addition, subtraction_a, subtraction_b, subtraction_c, subtraction, lettervideo_a, lettervideo_b, lettervideo_c, lettervideo, numbervideo_a, numbervideo_b, numbervideo_c, numbervideo, readaloud_a, readaloud_b, readaloud_c, readaloud, fillblank_a, fillblank_b, fillblank_c, fillblank, fillblanksocial_a, fillblanksocial_b, fillblanksocial_c, fillblanksocial, admin, example, iframe, defaults, defaults_a, defaults_b, defaults_c;
     if (feed_items_cache != null) {
       return feed_items_cache;
     }
@@ -594,54 +598,55 @@
     classB = 'classb';
     classC = 'classc';
     tablet = 'tablet';
+    classtest = 'classtest';
     bars_a = barsTasks(classA);
     bars_b = barsTasks(classB);
     bars_c = barsTasks(classC);
-    bars = barsTasks(tablet);
+    bars = barsTasks(classtest);
     dots_a = dotsTasks(classA);
     dots_b = dotsTasks(classB);
     dots_c = dotsTasks(classC);
-    dots = dotsTasks(tablet);
+    dots = dotsTasks(classtest);
     typeletter_a = typeletterTasks(classA);
     typeletter_b = typeletterTasks(classB);
     typeletter_c = typeletterTasks(classC);
-    typeletter = typeletterTasks(tablet);
+    typeletter = typeletterTasks(classtest);
     typeword_a = typewordTasks(classA);
     typeword_b = typewordTasks(classB);
     typeword_c = typewordTasks(classC);
-    typeword = typewordTasks(tablet);
+    typeword = typewordTasks(classtest);
     balance_a = balanceTasks(classA);
     balance_b = balanceTasks(classB);
     balance_c = balanceTasks(classC);
-    balance = balanceTasks(tablet);
+    balance = balanceTasks(classtest);
     addition_a = additionTasks(classA);
     addition_b = additionTasks(classB);
     addition_c = additionTasks(classC);
-    addition = additionTasks(tablet);
+    addition = additionTasks(classtest);
     subtraction_a = subtractionTasks(classA);
     subtraction_b = subtractionTasks(classB);
     subtraction_c = subtractionTasks(classC);
-    subtraction = subtractionTasks(tablet);
+    subtraction = subtractionTasks(classtest);
     lettervideo_a = lettervideoTasks(classA);
     lettervideo_b = lettervideoTasks(classB);
     lettervideo_c = lettervideoTasks(classC);
-    lettervideo = lettervideoTasks(tablet);
+    lettervideo = lettervideoTasks(classtest);
     numbervideo_a = numbervideoTasks(classA);
     numbervideo_b = numbervideoTasks(classB);
     numbervideo_c = numbervideoTasks(classC);
-    numbervideo = numbervideoTasks(tablet);
+    numbervideo = numbervideoTasks(classtest);
     readaloud_a = readaloudTasks(classA);
     readaloud_b = readaloudTasks(classB);
     readaloud_c = readaloudTasks(classC);
-    readaloud = readaloudTasks(tablet);
+    readaloud = readaloudTasks(classtest);
     fillblank_a = fillblankTasks(classA);
     fillblank_b = fillblankTasks(classB);
     fillblank_c = fillblankTasks(classC);
-    fillblank = fillblankTasks(tablet);
+    fillblank = fillblankTasks(classtest);
     fillblanksocial_a = fillblanksocialTasks(classA);
     fillblanksocial_b = fillblanksocialTasks(classB);
     fillblanksocial_c = fillblanksocialTasks(classC);
-    fillblanksocial = fillblanksocialTasks(tablet);
+    fillblanksocial = fillblanksocialTasks(classtest);
     admin = [{
       itemtype: 'admin',
       social: {
@@ -683,12 +688,15 @@
       defaults_a: defaults_a,
       defaults_b: defaults_b,
       defaults_c: defaults_c,
-      bars: bars,
+      dots: dots,
       typeword: typeword,
       typeletter: typeletter,
+      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,
+      lettervideo: lettervideo,
+      numbervideo: numbervideo,
       fillblank: fillblank,
       fillblanksocial: fillblanksocial,
       admin: admin,
