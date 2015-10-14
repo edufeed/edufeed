@@ -24,7 +24,7 @@ main = ->
     console.log err
     return
   logs = [x.doc for x in results.rows]
-  #console.log getLogAnalysisResultsAsString(logs)
+  console.log getLogAnalysisResultsAsString(logs)
   results_string = getLogAnalysisResultsAsString(logs)
   results = JSON.parse(results_string)
   (err) <- fs.writeFile("logs/logs_#{username}.JSON", results_string)

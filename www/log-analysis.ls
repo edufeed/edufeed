@@ -22,6 +22,27 @@ filter_out_activities = (logs, ignored_activities, ignore_before_timestamp) ->
     return true
   return [x for x in noIgnoredActivities when x.updatetime >= ignore_before_timestamp]
 
+filter_out_duplicate_close = (logs) ->
+  expecting_close = false
+  last_closed = null
+  output = []
+  sorted_logs = logs[to].sort (x, y) ->
+    x.posttime - y.posttime
+  for evt in logs
+    {event} = evt
+    if event == 'task-started'
+      expecting_close = true
+    if ['task-left', 'task-finished'].indexOf(event) != -1
+      if not expecting_close
+        continue
+        #if evt.item? and evt.item.itemtype? and evt.item.itemtype == last_closed
+        #  continue
+      expecting_close = false
+      #if evt.item? and evt.item.itemtype?
+      #  last_closed = evt.item.itemtype
+    output.push evt
+  return output
+
 itemtype_and_data_matches_v2 = (item1, item2) ->
   # returns true if all keys and values in item1 are present in item2
   if item1.itemtype != item2.itemtype
@@ -37,7 +58,11 @@ export makeLogAnalyzer = (orig_logs, options) ->
     options.ignored_activities = []
   if not options.ignore_before_timestamp?
     options.ignore_before_timestamp = 0
+  if not options.ignore_duplicate_close?
+    options.ignore_duplicate_close = false
   logs = filter_out_activities(orig_logs, options.ignored_activities, options.ignore_before_timestamp)
+  if options.ignore_duplicate_close
+    logs = filter_out_duplicate_close(logs)
 
   @all_item_types = ~>
     return ['typeword', 'typeletter', 'balance', 'addition', 'subtraction', 'fillblank', 'fillblanksocial']
@@ -209,7 +234,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
 
 export getLogAnalysisResults = (logs) ->
   #analyzer = makeLogAnalyzer(logs, {ignored_activities: ['admin']})
-  analyzer = makeLogAnalyzer(logs, {ignored_activities: ['typeletter', 'bars', 'dots', 'readaloud', 'lettervideo', 'numbervideo','admin'], ignore_before_timestamp: 1444029300000})
+  analyzer = makeLogAnalyzer(logs, {ignored_activities: ['typeletter', 'bars', 'dots', 'readaloud', 'lettervideo', 'numbervideo','admin'], ignore_before_timestamp: 1444029300000, ignore_duplicate_close: true})
   return analyzer.getResults()
 
 export getLogAnalysisResultsAsString = (logs) ->

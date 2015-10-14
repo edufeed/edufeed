@@ -33,6 +33,7 @@
         res$.push(x.doc);
       }
       logs = res$;
+      console.log(getLogAnalysisResultsAsString(logs));
       results_string = getLogAnalysisResultsAsString(logs);
       results = JSON.parse(results_string);
       return fs.writeFile("logs/logs_" + username + ".JSON", results_string, function(err){
