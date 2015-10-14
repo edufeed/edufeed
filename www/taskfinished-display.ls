@@ -53,7 +53,7 @@ Polymer {
     all_classmates <- getClassmates(username)
     all_classmates = [x for x in all_classmates when x != username]
 
-    # Randomly choose 3 classmates to potentially share with
+    # Randomly choose classmates to potentially share with
     classmates = []
     classmatesPicked = 0
     maxShareTo = 5
@@ -68,7 +68,7 @@ Polymer {
 
     # Make sure we add the users best friend
     bestFriend <- getUsersBFF(username)
-    if bestFriend?
+    if bestFriend? and bestFriend not in classmates
       # Randomly replace one of the sharees
       i = Math.floor(Math.random() * classmates.length)
       classmates[i] = bestFriend
