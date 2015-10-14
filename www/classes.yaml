@@ -77,34 +77,17 @@ classc:
     - supriya
     - yashodha
 
-classtest:
-  users:
-    - ed
-    - guestuser
-    - avery
-    - kelsey
-    - kiley
-    - geza
-
 classsystem:
   users:
     - tablet
-    - teachera
     - teacherb
     - teacherc
 
-classx1:
+classtest:
   users:
-    - extra1
-
-classx2:
-  users:
-    - extra2
-
-classx3:
-  users:
-    - extra3
-
-classx4:
-  users:
-    - extra4
+    - geza
+    - kiley
+    - ed
+    - merrie
+    - andrew
+    - galen

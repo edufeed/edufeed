@@ -143,6 +143,8 @@ There is a global variable named `audio_disabled` in [speechsynth.ls](https://gi
 
 ## Logs
 
+If it is your first time saving log files, run `npm install json2csv`. Make sure you have a folder named 'logs' in the edufeed directory.
+
 ### Viewing Log Analysis Results
 
 You can view the log analysis results for the current user the following ways:
@@ -211,11 +213,15 @@ Results will look like follows. The code that does the log analysis is in [log-a
 ```
 ### Saving Log Analysis Results to JSON and CSV Files
 
-If it is your first time saving log files, run `npm install json2csv`. Make sure you have a folder named 'logs' in the edufeed directory.
+There are a few different ways to save log files as JSON and CSV files.
 
-On the server, run the command `node scripts/log_to_csv.js geza` (substituting `geza` with the username you want to save log analysis results for)
+First, to save individual logs:
+* On the server, run the command `node scripts/log_to_csv.js geza` (substituting `geza` with the username you want to save log analysis results for). This will create both a JSON file, that will look the same as the view of the log file shown above, and a CSV file. They will both be saved in the same folder.
+* Alternatively, if you just want to create a JSON file, you can run the command `node scripts/view_log_analysis.js geza` (substituting `geza` with the username you want to save the log analysis results for). This will print the log results and also save a JSON log file for the user.
 
-The JSON file will look the same as the view of the log file shown above. The CSV file will be saved in the same folder.
+To save logs for all users:
+* On the server, run the command `node scripts/view_log_analysis_allusers.js | grep -v 'fetching logs for' > class_output.json`, which will save a JSON file with all of the logs in it called `class_output.json`. This can be substituted with any JSON file name.
+* Next, run the command `node scripts/all_logs_json_to_csv.js class_output`, where `class_output` is the same name as the JSON file as above. This will convert the JSON file to a CSV file, which you can import into SPSS to run stats.
 
 
 ### Viewing Logs
@@ -282,6 +288,10 @@ Entry point is in [app.ls](https://github.com/edufeed/edufeed/blob/master/app.ls
 
 Open the admin console, go to `Add sample feed items`, and click the `defaults` button.
 
+### Local database Not Syncing to Remote Database
+
+If the remote database is not synced with the local database on the tab, first try connected to the Internet on the tab, opening the application, and logging into the users for which the db is not syncing. Wait a few seconds and recheck the remote database.
+
 ### Sync Errors
 
 If you are having sync errors and are using a standalone server, please ensure that
@@ -293,7 +303,7 @@ If you are having sync errors and are using a standalone server, please ensure t
 
 #### Database Errors
 
-One possible source of sync errors is that your database format is outdated. You can delete all server-side databases using the following command:
+Possible source of sync errors is that your database format is outdated. You can delete all server-side databases using the following command:
 
 ```
 node scripts/delete_all_databases
