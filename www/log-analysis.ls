@@ -10,7 +10,12 @@ export filter_by_query = (logs, query) ->
   return [x for x in logs when item_matches_query(x, query)]
 
 filter_out_activities = (logs, ignored_activities, ignore_before_timestamp) ->
-  noIgnoredActivities = [x for x in logs when ignored_activities.indexOf(x.itemtype) == -1]
+  noIgnoredActivities = logs.filter (x) ->
+    if ignored_activities.indexOf(x.itemtype) != -1
+      return false
+    if x.item? and x.item.itemtype? and ignored_activities.indexOf(x.item.itemtype) != -1
+      return false
+    return true
   return [x for x in noIgnoredActivities when x.updatetime >= ignore_before_timestamp]
 
 itemtype_and_data_matches_v2 = (item1, item2) ->
