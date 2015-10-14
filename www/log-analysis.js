@@ -1,5 +1,5 @@
 (function(){
-  var item_matches_query, filter_by_query, filter_out_activities, itemtype_and_data_matches_v2, makeLogAnalyzer, getLogAnalysisResults, getLogAnalysisResultsAsString, out$ = typeof exports != 'undefined' && exports || this;
+  var item_matches_query, filter_by_query, filter_out_activities, filter_out_duplicate_close, itemtype_and_data_matches_v2, makeLogAnalyzer, getLogAnalysisResults, getLogAnalysisResultsAsString, out$ = typeof exports != 'undefined' && exports || this, slice$ = [].slice;
   item_matches_query = function(item, query){
     var k, v;
     if (query == null) {
@@ -48,6 +48,30 @@
       return results$;
     }());
   };
+  filter_out_duplicate_close = function(logs){
+    var expecting_close, last_closed, output, sorted_logs, i$, len$, evt, event;
+    expecting_close = false;
+    last_closed = null;
+    output = [];
+    sorted_logs = slice$.call(logs, 0).sort(function(x, y){
+      return x.posttime - y.posttime;
+    });
+    for (i$ = 0, len$ = logs.length; i$ < len$; ++i$) {
+      evt = logs[i$];
+      event = evt.event;
+      if (event === 'task-started') {
+        expecting_close = true;
+      }
+      if (['task-left', 'task-finished'].indexOf(event) !== -1) {
+        if (!expecting_close) {
+          continue;
+        }
+        expecting_close = false;
+      }
+      output.push(evt);
+    }
+    return output;
+  };
   itemtype_and_data_matches_v2 = function(item1, item2){
     if (item1.itemtype !== item2.itemtype) {
       return false;
@@ -68,7 +92,13 @@
     if (options.ignore_before_timestamp == null) {
       options.ignore_before_timestamp = 0;
     }
+    if (options.ignore_duplicate_close == null) {
+      options.ignore_duplicate_close = false;
+    }
     logs = filter_out_activities(orig_logs, options.ignored_activities, options.ignore_before_timestamp);
+    if (options.ignore_duplicate_close) {
+      logs = filter_out_duplicate_close(logs);
+    }
     this.select_query = function(query){
       return filter_by_query(logs, query);
     };
@@ -284,7 +314,8 @@
     var analyzer;
     analyzer = makeLogAnalyzer(logs, {
       ignored_activities: ['typeletter', 'bars', 'dots', 'readaloud', 'lettervideo', 'numbervideo', 'admin'],
-      ignore_before_timestamp: 1444029300000
+      ignore_before_timestamp: 1444029300000,
+      ignore_duplicate_close: true
     });
     return analyzer.getResults();
   };
