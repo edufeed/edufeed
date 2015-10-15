@@ -265,15 +265,15 @@ export getAllFeedItems = ->
   all_feed_items_cache := {
     #defaults
     #bars
-    dots
-    typeword
+    #dots
+    #typeword
     typeletter
-    readaloud
+    #readaloud
     balance
     addition
     subtraction
-    lettervideo
-    numbervideo
+    #lettervideo
+    #numbervideo
     fillblank
     fillblanksocial
     #admin
@@ -483,15 +483,15 @@ export getSampleFeedItems = ->
     defaults_b
     defaults_c
     #bars
-    dots
-    typeword
+    #dots
+    #typeword
     typeletter
-    readaloud
+    #readaloud
     balance
     addition
     subtraction
-    lettervideo
-    numbervideo
+    #lettervideo
+    #numbervideo
     fillblank
     fillblanksocial
     admin

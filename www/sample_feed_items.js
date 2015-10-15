@@ -284,15 +284,10 @@
     }
     fillblanksocial = res$;
     all_feed_items_cache = {
-      dots: dots,
-      typeword: typeword,
       typeletter: typeletter,
-      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,
-      lettervideo: lettervideo,
-      numbervideo: numbervideo,
       fillblank: fillblank,
       fillblanksocial: fillblanksocial
     };
@@ -688,15 +683,10 @@
       defaults_a: defaults_a,
       defaults_b: defaults_b,
       defaults_c: defaults_c,
-      dots: dots,
-      typeword: typeword,
       typeletter: typeletter,
-      readaloud: readaloud,
       balance: balance,
       addition: addition,
       subtraction: subtraction,
-      lettervideo: lettervideo,
-      numbervideo: numbervideo,
       fillblank: fillblank,
       fillblanksocial: fillblanksocial,
       admin: admin,
