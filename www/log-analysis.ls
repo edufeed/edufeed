@@ -209,25 +209,151 @@ export makeLogAnalyzer = (orig_logs, options) ->
       output[evt.currentactivitytype] += evt.postinterval / 1000.0
     return output
 
+  @countTabletPosts = (posterList) ~>
+    totalTabletPosts = 0
+    for key in Object.keys(posterList)
+      if key == 'tablet'
+        totalTabletPosts += posterList[key]
+    return totalTabletPosts
+
+  @countTeacherPosts = (posterList) ~>
+    totalTeacherPosts = 0
+    for key in Object.keys(posterList)
+      if key == 'teacherb' or key == 'teacherc'
+        totalTeacherPosts += posterList[key]
+    return totalTeacherPosts
+
+  @countClassmatePosts = (posterList) ~>
+    totalClassmatePosts = 0
+    for key in Object.keys(posterList)
+      if key != 'tablet' and key != 'teacherb' and key != 'teacherc'
+        totalClassmatePosts += posterList[key]
+    return totalClassmatePosts
+
+  @calculatePercentage = (numer, denom) ~>
+    if denom == 0
+      return 0
+    else
+      return numer/denom
+
+  @calculatePercentageInDict = (activityDict, total) ~>
+    percentage = {}
+    for key in Object.keys(activityDict)
+      percentage[key] = calculatePercentage(activityDict[key], total)
+    return percentage
+
+  @calculatePercentagesOfStarted = (finishedOrLeft, started) ~>
+    percentage = {}
+    for key in Object.keys(started)
+      if started[key] != 0 and finishedOrLeft[key]?
+        percentage[key] = finishedOrLeft[key]/started[key]
+      else
+        percentage[key] = 0
+    return percentage
+
   @getResults = ~>
     allPosters = all_posters()
     output = {}
-    output['number of activities started'] = count_event_type('task-started')
-    output['number of activities finished'] = count_event_type('task-finished')
-    output['number of activities left'] = count_event_type('task-left')
-    output['number of total share events'] = count_event_type('shareactivity')
+
+    # Activities started, finished, and left (i.e., not finished)
+    numActivitiesStartedBySystem = count_event_type('task-started')
+    numActivitiesFinished = count_event_type('task-finished')
+    numActivitiesLeft = count_event_type('task-left')
+    numActivitiesStarted = numActivitiesFinished + numActivitiesLeft
+    diff = numActivitiesStartedBySystem - numActivitiesStarted
+    activeTime = app_active_duration()
+    output['number Activities Started As Reported By System'] = numActivitiesStartedBySystem
+    output['number Activities Started'] = numActivitiesStarted
+    output['number Activities Finished'] = numActivitiesFinished
+    output['number Activities Left'] = numActivitiesLeft
+    output['difference between started and finished or left activities'] = diff
+    output['percent Of Started That Were Finished'] = numActivitiesFinished/numActivitiesStarted
+    output['percent Of Started That Were Left'] = numActivitiesLeft/numActivitiesStarted
+    output['normalized Num Activities Started Over Active Time'] = numActivitiesStarted/activeTime
+    output['normalized Num Activities Left Over Active Time'] = numActivitiesLeft/activeTime
+    output['normalized num Activities Finished Over Active Time'] = numActivitiesFinished/activeTime
+    
+    # Share events
+    output['num Total Share Events'] = count_event_type('shareactivity')
     output['number of unique activities shared'] = count_unique_activity_shares()
     output['number of shares to each person in the class'] = target_users_for_sharing()
-    output['identities of posters for activities started'] = posters_for_event_type('task-started')
-    output['identities of posters for activities finished'] = posters_for_event_type('task-finished')
-    output['identities of posters for activities left'] = posters_for_event_type('task-left')
-    output['types of activities started'] = itemtype_for_event_type('task-started')
-    output['types of activities finished'] = itemtype_for_event_type('task-finished')
-    output['types of activities left'] = itemtype_for_event_type('task-left')
-    output['total duration app has been open in seconds (within 10 seconds including idle time)'] = app_open_duration()
-    output['total duration app has been active (excluding idle periods greater than 10 seconds)'] = app_active_duration()
-    output['total time spent on each activity type (within 10 seconds including idle time)'] = addAllItemTypes(time_spent_on_activity_types())
-    output['total active time spent on each activity type (excluding idle periods greater than 10 seconds)'] = addAllItemTypes(active_time_spent_on_activity_types())
+    
+    # Identities of the posters for each activity started
+    postersOfStartedActivities = posters_for_event_type('task-started')
+    classmatePostedStarted = countClassmatePosts(postersOfStartedActivities)
+    teacherPostedStarted = countTeacherPosts(postersOfStartedActivities)
+    tabletPostedStarted = countTabletPosts(postersOfStartedActivities)-diff #Hack to not count the admin starts?
+    output['posters For Activities Started'] = postersOfStartedActivities
+    output['classmate Posted Activites Started'] = classmatePostedStarted
+    output['teacher Posted Activities Started'] = teacherPostedStarted
+    output['tab Posted Activities Started'] = tabletPostedStarted
+
+    # Of all activities started, percent of them started by each poster
+    output['percent Classmate Posted Activities Started'] = classmatePostedStarted/numActivitiesStarted
+    output['percent Teacher Posted Activities Started'] = teacherPostedStarted/numActivitiesStarted
+    output['percent Tab Posted Activites Started'] = tabletPostedStarted/numActivitiesStarted
+
+    # Identities of the posters for each activity finished
+    postersOfFinishedActivities = posters_for_event_type('task-finished')
+    classmatePostedFinished = countClassmatePosts(postersOfFinishedActivities)
+    teacherPostedFinished = countTeacherPosts(postersOfFinishedActivities)
+    tabletPostedFinished = countTabletPosts(postersOfFinishedActivities)
+
+    output['posters For Activities Finished'] = postersOfFinishedActivities
+    output['total Classmate Posted Activities Finished'] = classmatePostedFinished
+    output['total Teacher Posted Activities Finished'] = teacherPostedFinished
+    output['total Tab Posted Activities Finished'] = tabletPostedFinished
+
+    # Percentage of the poster activities started that were finished
+    output['percent Classmate Posted Activities Finished'] = calculatePercentage(classmatePostedFinished,classmatePostedStarted)
+    output['percent Teacher Posted Activities Finished'] = calculatePercentage(teacherPostedFinished,teacherPostedStarted)
+    output['percent Tab Posted Activities Finished'] = calculatePercentage(tabletPostedFinished,tabletPostedStarted)
+
+    # Identities of the posters for each activity left (i.e., not finished)
+    postersOfLeftActivities = posters_for_event_type('task-left')
+    classmatePostedLeft = countClassmatePosts(postersOfLeftActivities)
+    teacherPostedLeft = countTeacherPosts(postersOfLeftActivities)
+    tabletPostedLeft = countTabletPosts(postersOfLeftActivities)
+
+    output['posters For Activities Left'] = postersOfLeftActivities
+    output['total Classmate Posted Activities Left'] = classmatePostedLeft
+    output['total Teacher Posted Activities Left'] = teacherPostedLeft
+    output['total Tab Posted Activities Left'] = tabletPostedLeft
+
+    # Percentage of the poster activities started that were left
+    output['percent Classmate Posted Activities Left'] = calculatePercentage(classmatePostedLeft,classmatePostedStarted)
+    output['percent Teacher Posted Activities Left'] = calculatePercentage(teacherPostedLeft,teacherPostedStarted)
+    output['percent Tab Posted Activities Left'] = calculatePercentage(tabletPostedLeft,tabletPostedStarted)
+
+    # By Activity Type
+    activityTypesStarted = itemtype_for_event_type('task-started')
+    output['total Num Of Each Activity Type Started'] = activityTypesStarted
+    output['percent Of Each Activity Type Started Over All Started'] = calculatePercentageInDict(activityTypesStarted, numActivitiesStarted)
+
+    activityTypesFinished = itemtype_for_event_type('task-finished')
+    output['total Num Of Each Activity Type Finished'] = activityTypesFinished
+    # Percentage of each activity type started that were finished
+    output['percent Of Started Activity Type Finished'] = calculatePercentagesOfStarted(activityTypesFinished, activityTypesStarted)
+
+    activityTypesLeft = itemtype_for_event_type('task-left')
+    output['total Num Of Each Activity Type Left'] = activityTypesLeft
+    # Percentage of each activity type started that were left
+    output['percent Of Started Activity Type Left'] = calculatePercentagesOfStarted(activityTypesLeft, activityTypesStarted)
+
+    # 'total duration app has been open in seconds (within 10 seconds including idle time)'
+    output['total Open Time'] = app_open_duration()
+
+    # 'total duration app has been active (excluding idle periods greater than 10 seconds)'
+    output['total Active Time'] = activeTime
+
+    # 'total time spent on each activity type (within 10 seconds including idle time)'
+    output['total Activity Open Time'] = addAllItemTypes(time_spent_on_activity_types())
+ 
+    activityActiveTime = addAllItemTypes(active_time_spent_on_activity_types())
+    # 'total active time spent on each activity type (excluding idle periods greater than 10 seconds)'
+    output['total Activity Active Time'] = activityActiveTime
+    output['percent Active Time per Activity'] = calculatePercentageInDict(activityActiveTime, activeTime)
+
     return output
 
   return this

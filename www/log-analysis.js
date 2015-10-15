@@ -335,26 +335,139 @@
       }
       return output;
     };
+    this.countTabletPosts = function(posterList){
+      var totalTabletPosts, i$, ref$, len$, key;
+      totalTabletPosts = 0;
+      for (i$ = 0, len$ = (ref$ = Object.keys(posterList)).length; i$ < len$; ++i$) {
+        key = ref$[i$];
+        if (key === 'tablet') {
+          totalTabletPosts += posterList[key];
+        }
+      }
+      return totalTabletPosts;
+    };
+    this.countTeacherPosts = function(posterList){
+      var totalTeacherPosts, i$, ref$, len$, key;
+      totalTeacherPosts = 0;
+      for (i$ = 0, len$ = (ref$ = Object.keys(posterList)).length; i$ < len$; ++i$) {
+        key = ref$[i$];
+        if (key === 'teacherb' || key === 'teacherc') {
+          totalTeacherPosts += posterList[key];
+        }
+      }
+      return totalTeacherPosts;
+    };
+    this.countClassmatePosts = function(posterList){
+      var totalClassmatePosts, i$, ref$, len$, key;
+      totalClassmatePosts = 0;
+      for (i$ = 0, len$ = (ref$ = Object.keys(posterList)).length; i$ < len$; ++i$) {
+        key = ref$[i$];
+        if (key !== 'tablet' && key !== 'teacherb' && key !== 'teacherc') {
+          totalClassmatePosts += posterList[key];
+        }
+      }
+      return totalClassmatePosts;
+    };
+    this.calculatePercentage = function(numer, denom){
+      if (denom === 0) {
+        return 0;
+      } else {
+        return numer / denom;
+      }
+    };
+    this.calculatePercentageInDict = function(activityDict, total){
+      var percentage, i$, ref$, len$, key;
+      percentage = {};
+      for (i$ = 0, len$ = (ref$ = Object.keys(activityDict)).length; i$ < len$; ++i$) {
+        key = ref$[i$];
+        percentage[key] = calculatePercentage(activityDict[key], total);
+      }
+      return percentage;
+    };
+    this.calculatePercentagesOfStarted = function(finishedOrLeft, started){
+      var percentage, i$, ref$, len$, key;
+      percentage = {};
+      for (i$ = 0, len$ = (ref$ = Object.keys(started)).length; i$ < len$; ++i$) {
+        key = ref$[i$];
+        if (started[key] !== 0 && finishedOrLeft[key] != null) {
+          percentage[key] = finishedOrLeft[key] / started[key];
+        } else {
+          percentage[key] = 0;
+        }
+      }
+      return percentage;
+    };
     this.getResults = function(){
-      var allPosters, output;
+      var allPosters, output, numActivitiesStartedBySystem, numActivitiesFinished, numActivitiesLeft, numActivitiesStarted, diff, activeTime, postersOfStartedActivities, classmatePostedStarted, teacherPostedStarted, tabletPostedStarted, postersOfFinishedActivities, classmatePostedFinished, teacherPostedFinished, tabletPostedFinished, postersOfLeftActivities, classmatePostedLeft, teacherPostedLeft, tabletPostedLeft, activityTypesStarted, activityTypesFinished, activityTypesLeft, activityActiveTime;
       allPosters = all_posters();
       output = {};
-      output['number of activities started'] = count_event_type('task-started');
-      output['number of activities finished'] = count_event_type('task-finished');
-      output['number of activities left'] = count_event_type('task-left');
-      output['number of total share events'] = count_event_type('shareactivity');
+      numActivitiesStartedBySystem = count_event_type('task-started');
+      numActivitiesFinished = count_event_type('task-finished');
+      numActivitiesLeft = count_event_type('task-left');
+      numActivitiesStarted = numActivitiesFinished + numActivitiesLeft;
+      diff = numActivitiesStartedBySystem - numActivitiesStarted;
+      activeTime = app_active_duration();
+      output['number Activities Started As Reported By System'] = numActivitiesStartedBySystem;
+      output['number Activities Started'] = numActivitiesStarted;
+      output['number Activities Finished'] = numActivitiesFinished;
+      output['number Activities Left'] = numActivitiesLeft;
+      output['difference between started and finished or left activities'] = diff;
+      output['percent Of Started That Were Finished'] = numActivitiesFinished / numActivitiesStarted;
+      output['percent Of Started That Were Left'] = numActivitiesLeft / numActivitiesStarted;
+      output['normalized Num Activities Started Over Active Time'] = numActivitiesStarted / activeTime;
+      output['normalized Num Activities Left Over Active Time'] = numActivitiesLeft / activeTime;
+      output['normalized num Activities Finished Over Active Time'] = numActivitiesFinished / activeTime;
+      output['num Total Share Events'] = count_event_type('shareactivity');
       output['number of unique activities shared'] = count_unique_activity_shares();
       output['number of shares to each person in the class'] = target_users_for_sharing();
-      output['identities of posters for activities started'] = posters_for_event_type('task-started');
-      output['identities of posters for activities finished'] = posters_for_event_type('task-finished');
-      output['identities of posters for activities left'] = posters_for_event_type('task-left');
-      output['types of activities started'] = itemtype_for_event_type('task-started');
-      output['types of activities finished'] = itemtype_for_event_type('task-finished');
-      output['types of activities left'] = itemtype_for_event_type('task-left');
-      output['total duration app has been open in seconds (within 10 seconds including idle time)'] = app_open_duration();
-      output['total duration app has been active (excluding idle periods greater than 10 seconds)'] = app_active_duration();
-      output['total time spent on each activity type (within 10 seconds including idle time)'] = addAllItemTypes(time_spent_on_activity_types());
-      output['total active time spent on each activity type (excluding idle periods greater than 10 seconds)'] = addAllItemTypes(active_time_spent_on_activity_types());
+      postersOfStartedActivities = posters_for_event_type('task-started');
+      classmatePostedStarted = countClassmatePosts(postersOfStartedActivities);
+      teacherPostedStarted = countTeacherPosts(postersOfStartedActivities);
+      tabletPostedStarted = countTabletPosts(postersOfStartedActivities) - diff;
+      output['posters For Activities Started'] = postersOfStartedActivities;
+      output['classmate Posted Activites Started'] = classmatePostedStarted;
+      output['teacher Posted Activities Started'] = teacherPostedStarted;
+      output['tab Posted Activities Started'] = tabletPostedStarted;
+      output['percent Classmate Posted Activities Started'] = classmatePostedStarted / numActivitiesStarted;
+      output['percent Teacher Posted Activities Started'] = teacherPostedStarted / numActivitiesStarted;
+      output['percent Tab Posted Activites Started'] = tabletPostedStarted / numActivitiesStarted;
+      postersOfFinishedActivities = posters_for_event_type('task-finished');
+      classmatePostedFinished = countClassmatePosts(postersOfFinishedActivities);
+      teacherPostedFinished = countTeacherPosts(postersOfFinishedActivities);
+      tabletPostedFinished = countTabletPosts(postersOfFinishedActivities);
+      output['posters For Activities Finished'] = postersOfFinishedActivities;
+      output['total Classmate Posted Activities Finished'] = classmatePostedFinished;
+      output['total Teacher Posted Activities Finished'] = teacherPostedFinished;
+      output['total Tab Posted Activities Finished'] = tabletPostedFinished;
+      output['percent Classmate Posted Activities Finished'] = calculatePercentage(classmatePostedFinished, classmatePostedStarted);
+      output['percent Teacher Posted Activities Finished'] = calculatePercentage(teacherPostedFinished, teacherPostedStarted);
+      output['percent Tab Posted Activities Finished'] = calculatePercentage(tabletPostedFinished, tabletPostedStarted);
+      postersOfLeftActivities = posters_for_event_type('task-left');
+      classmatePostedLeft = countClassmatePosts(postersOfLeftActivities);
+      teacherPostedLeft = countTeacherPosts(postersOfLeftActivities);
+      tabletPostedLeft = countTabletPosts(postersOfLeftActivities);
+      output['posters For Activities Left'] = postersOfLeftActivities;
+      output['total Classmate Posted Activities Left'] = classmatePostedLeft;
+      output['total Teacher Posted Activities Left'] = teacherPostedLeft;
+      output['total Tab Posted Activities Left'] = tabletPostedLeft;
+      output['percent Classmate Posted Activities Left'] = calculatePercentage(classmatePostedLeft, classmatePostedStarted);
+      output['percent Teacher Posted Activities Left'] = calculatePercentage(teacherPostedLeft, teacherPostedStarted);
+      output['percent Tab Posted Activities Left'] = calculatePercentage(tabletPostedLeft, tabletPostedStarted);
+      activityTypesStarted = itemtype_for_event_type('task-started');
+      output['total Num Of Each Activity Type Started'] = activityTypesStarted;
+      output['percent Of Each Activity Type Started Over All Started'] = calculatePercentageInDict(activityTypesStarted, numActivitiesStarted);
+      activityTypesFinished = itemtype_for_event_type('task-finished');
+      output['total Num Of Each Activity Type Finished'] = activityTypesFinished;
+      output['percent Of Started Activity Type Finished'] = calculatePercentagesOfStarted(activityTypesFinished, activityTypesStarted);
+      activityTypesLeft = itemtype_for_event_type('task-left');
+      output['total Num Of Each Activity Type Left'] = activityTypesLeft;
+      output['percent Of Started Activity Type Left'] = calculatePercentagesOfStarted(activityTypesLeft, activityTypesStarted);
+      output['total Open Time'] = app_open_duration();
+      output['total Active Time'] = activeTime;
+      output['total Activity Open Time'] = addAllItemTypes(time_spent_on_activity_types());
+      activityActiveTime = addAllItemTypes(active_time_spent_on_activity_types());
+      output['total Activity Active Time'] = activityActiveTime;
+      output['percent Active Time per Activity'] = calculatePercentageInDict(activityActiveTime, activeTime);
       return output;
     };
     return this;
