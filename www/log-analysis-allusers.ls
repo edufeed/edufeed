@@ -1,3 +1,7 @@
+require! {
+  yamlfile
+}
+
 item_matches_query = (item, query) ->
   if not query?
     return true
@@ -64,7 +68,17 @@ export makeLogAnalyzer = (orig_logs, options) ->
     return ['typeword', 'typeletter', 'balance', 'addition', 'subtraction', 'fillblank', 'fillblanksocial']
 
   @all_posters = ~>
-    return [] # not able to get into yaml file
+    allusers = []
+    allusers_set = {}
+    all_classes = yamlfile.readFileSync('www/classes.yaml')
+    for classname,classinfo of all_classes
+      if not classinfo.users?
+        continue
+      for username in classinfo.users
+        if not allusers_set[username]?
+          allusers_set[username] = true
+          allusers.push username
+    return allusers
 
   @addAllItemTypes = (itemList) ~>
     allItemTypes = all_item_types()
@@ -238,6 +252,7 @@ export makeLogAnalyzer = (orig_logs, options) ->
     return percentage
 
   @getResults = ~>
+    allPosters = all_posters()
     output = {}
 
     # Activities started, finished, and left (i.e., not finished)

@@ -5,7 +5,7 @@ require! {
 }
 
 {couchdb_url} = require '../couchdb_utils'
-{getLogAnalysisResultsAsString, getLogAnalysisResults} = require '../www/log-analysis'
+{getLogAnalysisResultsAsString, getLogAnalysisResults} = require '../www/log-analysis-allusers'
 
 nano = require('nano')(couchdb_url)
 
