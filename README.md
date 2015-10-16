@@ -290,7 +290,14 @@ Open the admin console, go to `Add sample feed items`, and click the `defaults` 
 
 ### Local database Not Syncing to Remote Database
 
-If the remote database is not synced with the local database on the tab, first try connected to the Internet on the tab, opening the application, and logging into the users for which the db is not syncing. Wait a few seconds and recheck the remote database.
+As it stands now, the system does not indicate who finished particular activities underneath the activity thumbnails because it was preventing updates (i.e., logs syncing, shares being added to feeds). Thus, when on the Internet, the local databases should be updating to the remote database.
+
+However, if the remote database is not synced with the local database on the tab:
+* Connect to the Internet on the tab
+* Opening the edufeed application
+* Log into the users' accounts for which the remote db is not syncing
+* Wait a few seconds
+* Recheck the remote database (as per the viewing logs on the server section above) as compared to the local logs on the tab (as per the viewing logs on the tab section)
 
 ### Sync Errors
 
